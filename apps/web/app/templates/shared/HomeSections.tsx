@@ -21,7 +21,13 @@ export function B2bTeaser() {
             Побарај понуда за фирма
           </Link>
         </div>
-        <div className="aspect-square rounded-[var(--radius-card)] bg-[var(--color-neutral-100)]" aria-hidden />
+        <img
+          src="/img/products/dispenzer.jpg"
+          alt="Диспензер за топла и ладна вода за фирми"
+          className="w-full rounded-[var(--radius-card)] object-cover"
+          style={{ aspectRatio: '4 / 3' }}
+          loading="lazy"
+        />
       </div>
     </section>
   );

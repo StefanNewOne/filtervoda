@@ -25,16 +25,25 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
 
   return (
     <>
-      {/* HERO */}
+      {/* HERO — 2-column: content + product image */}
       <section className={`${s.heroDark} px-5`}>
-        <div className="mx-auto max-w-[1200px] py-20 text-center">
-          <div className={`${s.mono} text-[12px] tracking-[0.14em] text-[#6FC4F7]`}>ЗА ФИРМИ</div>
-          <h1 className={`${s.display} mx-auto mt-4 max-w-3xl text-[clamp(36px,4.8vw,68px)] font-semibold text-white ${s.headingUpper ? 'uppercase' : ''}`}>Заборавете на галоните. Неограничена чиста вода за вашиот тим.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-[19px] leading-[1.55] text-[#A9BFDC]">Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ.</p>
-          <div className="mt-8 flex justify-center">
-            <button onClick={() => open({ type: 'B2B' })} className={s.cta}>Побарај понуда за фирма</button>
+        <div className="mx-auto grid max-w-[1200px] items-center gap-12 py-20 md:grid-cols-[1fr_minmax(0,420px)]">
+          <div>
+            <div className={`${s.mono} text-[12px] tracking-[0.14em] text-[#6FC4F7]`}>ЗА ФИРМИ</div>
+            <h1 className={`${s.display} mt-4 text-[clamp(36px,4.6vw,66px)] font-semibold text-white ${s.headingUpper ? 'uppercase' : ''}`}>Заборавете на галоните. Неограничена чиста вода за вашиот тим.</h1>
+            <p className="mt-5 max-w-xl text-[19px] leading-[1.55] text-[#A9BFDC]">Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ.</p>
+            <div className="mt-8">
+              <button onClick={() => open({ type: 'B2B' })} className={s.cta}>Побарај понуда за фирма</button>
+            </div>
+            <p className="mt-4 text-sm text-[#6FC4F7]">Бесплатна проценка · Без скриени трошоци · Брза монтажа</p>
           </div>
-          <p className="mt-4 text-sm text-[#6FC4F7]">Бесплатна проценка · Без скриени трошоци · Брза монтажа</p>
+          <img
+            src="/img/products/dispenzer.jpg"
+            alt="Диспензер за топла и ладна вода со реверзна осмоза"
+            className="w-full rounded-[24px] object-cover"
+            style={{ aspectRatio: '4 / 5' }}
+            loading="eager"
+          />
         </div>
       </section>
 
