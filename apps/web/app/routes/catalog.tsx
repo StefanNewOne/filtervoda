@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { Section, formatPrice } from '../components/ui';
 import { api } from '../lib/api.server';
 import { compareRow } from '../templates/compare';
@@ -25,6 +26,12 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
 
   return (
     <Section title="Производи">
+      <nav className="-mt-2 mb-4 text-[13px] font-semibold text-[var(--color-muted)]" aria-label="Патека">
+        <Link to="/" className="text-[var(--color-cta)]">Почетна</Link> <span className="mx-1">›</span> <span>Производи</span>
+      </nav>
+      <p className="mb-6 max-w-[44em] text-[18px] text-[var(--color-muted)]">
+        Системи за филтрација на вода: реверзна осмоза, диспензери, филтрација за цел дом, заштита од бигор и мерачи — со бесплатна монтажа и 10 години гаранција.
+      </p>
       <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => setActive('all')}
@@ -85,6 +92,15 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
       )}
+
+      {/* Bottom CTA */}
+      <div className="mt-16 flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-chip-bg)] p-8">
+        <div>
+          <h3 className="text-[24px] font-medium text-[var(--color-foreground)]">Не знаете кој систем ви одговара?</h3>
+          <p className="mt-1 text-[16px] text-[var(--color-muted)]">Оставете телефон — ќе ве советуваме бесплатно.</p>
+        </div>
+        <Link to="/kontakt" className="rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-7 py-4 font-bold text-[var(--color-cta-fg)]">Побарај консултација</Link>
+      </div>
     </Section>
   );
 }

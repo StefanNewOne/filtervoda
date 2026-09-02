@@ -6,7 +6,11 @@ import type { Route } from './+types/product';
 export async function loader({ params }: Route.LoaderArgs) {
   const product = await api.product(params.slug);
   if (!product) throw new Response('Not found', { status: 404 });
-  return { product };
+  const [testimonials, settings] = await Promise.all([
+    api.testimonials('B2C').catch(() => []),
+    api.settings(),
+  ]);
+  return { product, testimonials, settings };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -24,5 +28,5 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function Product({ loaderData }: Route.ComponentProps) {
-  return <ProductPage product={loaderData.product} />;
+  return <ProductPage product={loaderData.product} testimonials={loaderData.testimonials} settings={loaderData.settings} />;
 }

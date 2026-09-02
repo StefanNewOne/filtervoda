@@ -2,11 +2,12 @@ import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 import { LeadForm } from '../../components/LeadForm';
 import { HERO_H1_DEFAULT, HERO_H2_DEFAULT, STAGES, WHY_ITEMS, heroParts, type HomeProps } from '../types';
+import { ArticlesSection, B2bTeaser } from '../shared/HomeSections';
 import { ProductCard } from './ProductCard';
 import { TrustBar } from './TrustBar';
 
 /** Б-1 „Кристално чисто" home — light, airy, ripple hero, dark navy stages box. */
-export function Home({ featured, content, testimonials, faq, settings }: HomeProps) {
+export function Home({ featured, content, testimonials, posts, settings }: HomeProps) {
   const { open } = useLeadModal();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
@@ -92,6 +93,8 @@ export function Home({ featured, content, testimonials, faq, settings }: HomePro
         </div>
       </section>
 
+      <B2bTeaser />
+
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
@@ -108,6 +111,8 @@ export function Home({ featured, content, testimonials, faq, settings }: HomePro
         </section>
       )}
 
+      <ArticlesSection posts={posts} />
+
       {/* FINAL CTA */}
       <section className="mx-auto max-w-[1200px] px-5 pb-[100px] pt-[90px]">
         <div className="grid gap-11 rounded-[28px] border border-[#D9E9FB] bg-[#F2F8FF] p-12 md:grid-cols-2">
@@ -120,17 +125,6 @@ export function Home({ featured, content, testimonials, faq, settings }: HomePro
             <LeadForm type="ADVISOR" phones={settings.phones} viber={settings.viber} />
           </div>
         </div>
-        {faq.length > 0 && (
-          <div className="mx-auto mt-16 max-w-2xl divide-y divide-[#E4EDF9]">
-            <h2 className="mb-4 font-[family-name:Unbounded] text-[clamp(26px,2.8vw,38px)] font-medium text-[#08182F]">Често поставувани прашања</h2>
-            {faq.map((f, i) => (
-              <details key={i} className="py-3">
-                <summary className="cursor-pointer text-[17px] font-semibold text-[#08182F]">{f.question}</summary>
-                <p className="mt-2 text-[16px] leading-[1.65] text-[#56698A]">{f.answer}</p>
-              </details>
-            ))}
-          </div>
-        )}
       </section>
     </>
   );

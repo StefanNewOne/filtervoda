@@ -14,13 +14,21 @@ export function meta() {
 }
 
 export async function loader() {
-  const [products, settings, testimonials, faq] = await Promise.all([
+  const [products, settings, testimonials, faq, posts] = await Promise.all([
     api.products(),
     api.settings(),
     api.testimonials().catch(() => []),
     api.faq('GLOBAL').catch(() => []),
+    api.posts().catch(() => []),
   ]);
-  return { featured: products.slice(0, 6), content: settings.content ?? {}, testimonials, faq, settings };
+  return {
+    featured: products.slice(0, 6),
+    content: settings.content ?? {},
+    testimonials,
+    faq,
+    posts: posts.slice(0, 3),
+    settings,
+  };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {

@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 import { LeadForm } from '../../components/LeadForm';
 import { HERO_H1_DEFAULT, HERO_H2_DEFAULT, STAGES, WHY_ITEMS, heroParts, type HomeProps } from '../types';
+import { ArticlesSection, B2bTeaser } from '../shared/HomeSections';
 import { ProductCard } from './ProductCard';
 import { TrustBar } from './TrustBar';
 
@@ -9,7 +10,7 @@ const GRID_BG =
   'radial-gradient(120% 100% at 50% 25%, transparent, transparent), linear-gradient(rgba(69,224,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(69,224,255,0.05) 1px, transparent 1px)';
 
 /** Б-3 „Паметна вода" — dark navy data theme, grid overlay, mono numbers, teal accents. */
-export function Home({ featured, content, testimonials, faq, settings }: HomeProps) {
+export function Home({ featured, content, testimonials, posts, settings }: HomeProps) {
   const { open } = useLeadModal();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
@@ -96,6 +97,8 @@ export function Home({ featured, content, testimonials, faq, settings }: HomePro
         </div>
       </section>
 
+      <B2bTeaser />
+
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
@@ -112,6 +115,8 @@ export function Home({ featured, content, testimonials, faq, settings }: HomePro
         </section>
       )}
 
+      <ArticlesSection posts={posts} />
+
       {/* FINAL CTA */}
       <section className="mx-auto max-w-[1200px] px-5 pb-[100px] pt-[90px]">
         <div className="grid gap-11 rounded-[8px] border border-[#CFD9E6] bg-[#F4F7FB] p-12 md:grid-cols-2">
@@ -124,17 +129,6 @@ export function Home({ featured, content, testimonials, faq, settings }: HomePro
             <LeadForm type="ADVISOR" phones={settings.phones} viber={settings.viber} />
           </div>
         </div>
-        {faq.length > 0 && (
-          <div className="mx-auto mt-16 max-w-2xl divide-y divide-[#DCE4EE]">
-            <h2 className="mb-4 text-[clamp(26px,2.8vw,38px)] font-medium text-[#071A3A]">Често поставувани прашања</h2>
-            {faq.map((f, i) => (
-              <details key={i} className="py-3">
-                <summary className="cursor-pointer text-[17px] font-semibold text-[#071A3A]">{f.question}</summary>
-                <p className="mt-2 text-[16px] leading-[1.65] text-[#56698A]">{f.answer}</p>
-              </details>
-            ))}
-          </div>
-        )}
       </section>
     </>
   );

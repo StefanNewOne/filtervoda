@@ -13,10 +13,14 @@ export function meta() {
 }
 
 export async function loader() {
-  const [packages, settings] = await Promise.all([api.packages(), api.settings()]);
-  return { packages, settings };
+  const [packages, settings, faq] = await Promise.all([
+    api.packages(),
+    api.settings(),
+    api.faq('B2B').catch(() => []),
+  ]);
+  return { packages, settings, faq };
 }
 
 export default function B2b({ loaderData }: Route.ComponentProps) {
-  return <B2bPage packages={loaderData.packages} settings={loaderData.settings} />;
+  return <B2bPage packages={loaderData.packages} settings={loaderData.settings} faq={loaderData.faq} />;
 }

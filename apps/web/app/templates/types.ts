@@ -1,5 +1,19 @@
 import type { ProductCardDto, PublicSettings } from '@filtervoda/shared';
 
+export interface Testimonial {
+  id: string;
+  name: string;
+  company?: string;
+  city?: string;
+  text: string;
+  rating: number;
+}
+export interface PostCard {
+  slug: string;
+  title: string;
+  excerpt?: string;
+}
+
 export interface HomeProps {
   featured: ProductCardDto[];
   content: {
@@ -9,7 +23,8 @@ export interface HomeProps {
     advisorTitle?: string;
     advisorText?: string;
   };
-  testimonials: { id: string; name: string; company?: string; city?: string; text: string; rating: number }[];
+  testimonials: Testimonial[];
+  posts: PostCard[];
   faq: { question: string; answer: string }[];
   settings: PublicSettings;
 }

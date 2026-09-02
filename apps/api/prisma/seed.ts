@@ -241,6 +241,9 @@ async function main() {
     { question: 'Дали монтажата е навистина бесплатна?', answer: 'Да, монтажата е бесплатна низ цела Македонија при купување на систем.', scope: 'GLOBAL' as const, sortOrder: 1 },
     { question: 'Колку често се менуваат филтрите?', answer: 'Зависно од моделот и потрошувачката, обично на 6–12 месеци. Дигиталните модели ве известуваат.', scope: 'GLOBAL' as const, sortOrder: 2 },
     { question: 'Дали може плаќање на рати?', answer: 'Да, овозможуваме плаќање во готово или на рати.', scope: 'GLOBAL' as const, sortOrder: 3 },
+    { question: 'Што вклучува месечниот износ за фирми?', answer: 'Апарат за топла и ладна вода, бесплатна монтажа, редовна замена на филтри, сервис и замена при дефект.', scope: 'B2B' as const, sortOrder: 1 },
+    { question: 'Дали има почетна инвестиција?', answer: 'Не. Кај изнајмувањето нема почетна инвестиција — плаќате фиксен месечен износ.', scope: 'B2B' as const, sortOrder: 2 },
+    { question: 'Колку брзо е монтирањето за фирма?', answer: 'По бесплатната проценка, монтажата е брза и без прекин на работата.', scope: 'B2B' as const, sortOrder: 3 },
   ];
   for (const fq of FAQS) {
     const existing = await prisma.faq.findFirst({ where: { tenantId: TENANT, question: fq.question } });

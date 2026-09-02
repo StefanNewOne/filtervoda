@@ -11,7 +11,7 @@ const PROBLEMS = ['Трошок што расте со тимот', 'Нарач�
 const INCLUDED = ['Апарат за топла и ладна вода', 'Бесплатна монтажа', 'Редовна замена на филтри', 'Сервис и одржување', 'Замена при дефект', 'Без инвестиција'];
 const INDUSTRIES = ['Канцеларии', 'Кафулиња и ресторани', 'Ординации', 'Салони', 'Теретани', 'Хотели', 'Градинки и училишта', 'Автосалони', 'Продавници'];
 
-export function B2bPage({ packages, settings }: { packages: B2bPackageDto[]; settings: PublicSettings }) {
+export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackageDto[]; settings: PublicSettings; faq?: { question: string; answer: string }[] }) {
   const s = skinFor(useTemplateId());
   const { open } = useLeadModal();
   const [employees, setEmployees] = useState(10);
@@ -37,6 +37,18 @@ export function B2bPage({ packages, settings }: { packages: B2bPackageDto[]; set
           <p className="mt-4 text-sm text-[#6FC4F7]">Бесплатна проценка · Без скриени трошоци · Брза монтажа</p>
         </div>
       </section>
+
+      {/* Logo bar — trusted by */}
+      <div className={`border-b ${s.border} ${s.softBg}`}>
+        <div className="mx-auto max-w-[1200px] px-5 py-6">
+          <div className={`${s.mono} mb-3 text-center text-[11px] tracking-[0.14em] ${s.muted}`}>ИМ ВЕРУВААТ ФИРМИ НИЗ МАКЕДОНИЈА</div>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={`grid h-8 place-items-center rounded-md border ${s.border} bg-white ${s.mono} text-[10px] ${s.muted}`}>ЛОГО</div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="mx-auto max-w-[1200px] px-5">
         <section className="py-14"><H2>Колку навистина ве чинат галоните?</H2>
@@ -80,6 +92,23 @@ export function B2bPage({ packages, settings }: { packages: B2bPackageDto[]; set
           </div>
         </section>
 
+        {/* 3 STEPS */}
+        <section className="py-10"><H2>Како функционира</H2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              { n: '01', t: 'Побарајте понуда', d: 'Две минути — формата или еден телефонски повик.' },
+              { n: '02', t: 'Бесплатна проценка и монтажа', d: 'Доаѓаме, гледаме и монтираме без трошок за вас.' },
+              { n: '03', t: 'Пиете неограничено', d: 'Ние се грижиме за сè — филтри, сервис, замена.' },
+            ].map((st) => (
+              <div key={st.n} className={`rounded-[20px] border ${s.border} p-8`}>
+                <div className={`${s.display} ${s.accent} text-[13px]`}>{st.n}</div>
+                <h3 className={`mt-4 text-[19px] font-medium ${s.ink}`}>{st.t}</h3>
+                <p className="mt-2.5 text-[15px] leading-[1.55] text-[#56698A]">{st.d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* PACKAGES */}
         <section className="py-10"><H2>Пакети</H2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -101,9 +130,63 @@ export function B2bPage({ packages, settings }: { packages: B2bPackageDto[]; set
           </div>
         </section>
 
-        <section className="py-10"><H2>Побарај понуда за фирма</H2>
-          <div className={`mx-auto mt-8 max-w-xl rounded-[24px] border ${s.border} p-8`}>
-            <LeadForm type="B2B" phones={settings.phones} viber={settings.viber} />
+        {/* COMPARISON TABLE */}
+        <section className="py-10"><H2>Галони · Купување · Изнајмување од SPAR</H2>
+          <div className={`mt-8 overflow-x-auto rounded-[18px] border ${s.border}`}>
+            <table className="w-full min-w-[640px] border-collapse text-sm">
+              <thead>
+                <tr className={`${s.softBg} text-left ${s.mono} text-[12px] tracking-[0.06em] ${s.muted}`}>
+                  <th className={`sticky left-0 ${s.softBg} px-4 py-3.5 font-medium`}></th>
+                  <th className="px-4 py-3.5 font-medium">ГАЛОНИ</th>
+                  <th className="px-4 py-3.5 font-medium">КУПУВАЊЕ</th>
+                  <th className={`px-4 py-3.5 font-bold ${s.accent}`}>ИЗНАЈМУВАЊЕ ОД SPAR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Месечен трошок', 'Расте со тимот', 'Без', 'Фиксен, предвидлив'],
+                  ['Почетна инвестиција', 'Не', 'Висока', 'Нема'],
+                  ['Нарачки и носење', 'Постојано', 'Не', 'Не'],
+                  ['Топла/ладна вода', 'Не', 'Зависно', 'Да'],
+                  ['Замена на филтри и сервис', 'Не', 'Ваша грижа', 'Вклучено'],
+                  ['Замена при дефект', 'Не', 'Ваша грижа', 'Вклучено'],
+                ].map((r) => (
+                  <tr key={r[0]} className={`border-t ${s.border}`}>
+                    <td className={`sticky left-0 bg-[var(--color-background)] px-4 py-3.5 font-semibold ${s.ink}`}>{r[0]}</td>
+                    <td className="px-4 py-3.5 text-[#56698A]">{r[1]}</td>
+                    <td className="px-4 py-3.5 text-[#56698A]">{r[2]}</td>
+                    <td className={`px-4 py-3.5 font-semibold ${s.accent}`}>{r[3]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        {faq.length > 0 && (
+          <section className="py-10"><H2>Често поставувани прашања</H2>
+            <div className={`mt-6 divide-y ${s.border} overflow-hidden rounded-[18px] border ${s.border}`}>
+              {faq.map((f, i) => (
+                <details key={i} className="px-6 py-4"><summary className={`cursor-pointer font-semibold ${s.ink}`}>{f.question}</summary><p className="mt-2 text-[15px] text-[#56698A]">{f.answer}</p></details>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* FORM — 2-column info + form */}
+        <section className="py-10 pb-24"><H2>Побарај понуда за фирма</H2>
+          <div className={`mt-8 grid gap-11 rounded-[var(--radius-card)] border ${s.border} ${s.softBg} p-8 md:grid-cols-2`}>
+            <div>
+              <p className={`text-[17px] leading-[1.55] ${s.muted}`}>Оставете податоци за вашата фирма — ќе ве контактираме со точна понуда, бесплатна проценка и термин за монтажа.</p>
+              <a href="tel:076676819" className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
+              <div className="mt-4 flex flex-wrap gap-2 text-sm text-[#56698A]">
+                <span>Бесплатна проценка</span> · <span>Без скриени трошоци</span> · <span>Брза монтажа</span>
+              </div>
+            </div>
+            <div className={`rounded-[var(--radius-card)] border ${s.border} bg-white p-[26px]`}>
+              <LeadForm type="B2B" phones={settings.phones} viber={settings.viber} />
+            </div>
           </div>
         </section>
       </div>

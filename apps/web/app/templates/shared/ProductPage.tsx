@@ -1,14 +1,16 @@
-import type { ProductDetailDto } from '@filtervoda/shared';
+import type { ProductDetailDto, PublicSettings } from '@filtervoda/shared';
 import { Phone } from 'lucide-react';
+import { Link } from 'react-router';
+import { LeadForm } from '../../components/LeadForm';
 import { useLeadModal } from '../../components/LeadModal';
 import { ProductGallery } from '../../components/ProductGallery';
-import { fmtPrice } from '../types';
+import { fmtPrice, type Testimonial } from '../types';
 import { useTemplate } from '../registry';
 import { useTemplateId } from '../context';
 import { skinFor } from '../skin';
 
 /** Shared product page — identical structure across templates, styled per skin. */
-export function ProductPage({ product: p }: { product: ProductDetailDto }) {
+export function ProductPage({ product: p, testimonials = [], settings }: { product: ProductDetailDto; testimonials?: Testimonial[]; settings?: PublicSettings }) {
   const s = skinFor(useTemplateId());
   const T = useTemplate();
   const { open } = useLeadModal();
@@ -32,6 +34,13 @@ export function ProductPage({ product: p }: { product: ProductDetailDto }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+
+      {/* Breadcrumb */}
+      <nav className="mx-auto max-w-[1200px] px-5 pt-6 text-[13px] font-semibold text-[var(--color-muted)]" aria-label="Патека">
+        <Link to="/" className="text-[var(--color-cta)]">Почетна</Link> <span className="mx-1">›</span>
+        <Link to="/proizvodi" className="text-[var(--color-cta)]">Производи</Link> <span className="mx-1">›</span>
+        <span>{p.name}</span>
+      </nav>
 
       {/* Above the fold */}
       <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-8 md:grid-cols-2">
@@ -143,6 +152,20 @@ export function ProductPage({ product: p }: { product: ProductDetailDto }) {
           </Section>
         )}
 
+        {testimonials.length > 0 && (
+          <Section><H2>Што велат нашите клиенти</H2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {testimonials.slice(0, 3).map((t) => (
+                <figure key={t.id} className={`m-0 rounded-[18px] border ${s.border} p-7`}>
+                  <div className="text-[14px] tracking-[0.2em] text-[var(--color-warning-500)]">{'★'.repeat(t.rating)}</div>
+                  <blockquote className="mt-4 text-[16px] leading-[1.6] text-[#21375A]">„{t.text}"</blockquote>
+                  <figcaption className="mt-4 text-[13px] font-bold text-[#55677F]">{t.name}{t.city ? `, ${t.city}` : ''}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </Section>
+        )}
+
         {p.related.length > 0 && (
           <Section><H2>Слични производи</H2>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -150,6 +173,20 @@ export function ProductPage({ product: p }: { product: ProductDetailDto }) {
             </div>
           </Section>
         )}
+
+        {/* Final CTA with inline form */}
+        <section className="pb-24 pt-10">
+          <div className={`grid gap-11 rounded-[var(--radius-card)] border ${s.border} ${s.softBg} p-11 md:grid-cols-2`}>
+            <div>
+              <H2>Побарајте понуда за {p.name}</H2>
+              <p className={`mt-3.5 text-[17px] ${s.muted}`}>Оставете телефон — ќе ве контактираме во рок од еден работен ден со точна понуда и термин за бесплатна монтажа.</p>
+              <a href="tel:076676819" className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
+            </div>
+            <div className={`rounded-[var(--radius-card)] border ${s.border} bg-white p-[26px]`}>
+              <LeadForm type="B2C" productId={p.id} phones={settings?.phones ?? []} viber={settings?.viber} />
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );
