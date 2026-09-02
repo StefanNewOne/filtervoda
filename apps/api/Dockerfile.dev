@@ -1,0 +1,19 @@
+# Dev image for the API — hot-reload via tsx. Prod uses a multi-stage build (Milestone 5).
+FROM node:20-alpine
+WORKDIR /app
+
+# All workspace manifests must be present so `npm install` can resolve the workspace graph.
+COPY package.json package-lock.json* ./
+COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+COPY apps/admin/package.json apps/admin/
+COPY e2e/package.json e2e/
+RUN npm install
+
+# Prisma needs the schema to generate the client.
+COPY apps/api/prisma apps/api/prisma
+RUN npx --workspace apps/api prisma generate
+
+EXPOSE 3001
+CMD ["npm", "run", "dev", "--workspace", "apps/api"]

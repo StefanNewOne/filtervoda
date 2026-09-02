@@ -1,0 +1,20 @@
+# Keep secrets, git, deps and local artifacts out of build images.
+**/node_modules
+**/dist
+**/build
+**/.output
+**/.react-router
+.git
+.env
+.env.*
+!.env.example
+**/*.log
+coverage
+playwright-report
+test-results
+.docker-data
+minio-data
+filtervoda-handoff
+_docs
+*.md
+!apps/**/README.md

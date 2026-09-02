@@ -1,0 +1,16 @@
+# Dev image for the admin SPA — Vite dev server under /admin/. Prod builds a static SPA served
+# by Nginx behind /admin/ (Milestone 5).
+FROM node:20-alpine
+WORKDIR /app
+
+# All workspace manifests present so `npm install` resolves the workspace graph.
+COPY package.json package-lock.json* ./
+COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+COPY apps/admin/package.json apps/admin/
+COPY e2e/package.json e2e/
+RUN npm install
+
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--workspace", "apps/admin"]

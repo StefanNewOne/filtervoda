@@ -1,0 +1,121 @@
+# Local development stack — the whole system behind Nginx on http://localhost
+# (CLAUDE.md Category 2). Production uses docker-compose.prod.yml.
+name: filtervoda
+
+services:
+  nginx:
+    image: nginx:alpine
+    depends_on: [web, admin, api]
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/local.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    env_file: .env.local
+    environment:
+      - INTERNAL_API_URL=http://api:3001
+      - CHOKIDAR_USEPOLLING=1
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages/shared:/app/packages/shared
+      - ./_docs:/app/_docs:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+      - /app/node_modules
+    command: npm run dev --workspace apps/web
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile.dev
+    env_file: .env.local
+    environment:
+      - CHOKIDAR_USEPOLLING=1
+    volumes:
+      - ./apps/admin:/app/apps/admin
+      - ./packages/shared:/app/packages/shared
+      - ./_docs:/app/_docs:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+      - /app/node_modules
+    command: npm run dev --workspace apps/admin
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file: .env.local
+    environment:
+      - CHOKIDAR_USEPOLLING=1
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./packages/shared:/app/packages/shared
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+      - /app/node_modules
+    command: npm run dev --workspace apps/api
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/api/v1/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: filtervoda
+      POSTGRES_PASSWORD: filtervoda
+      POSTGRES_DB: filtervoda
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U filtervoda']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9001:9001' # console (local convenience)
+    volumes:
+      - miniodata:/data
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - '8125:8025' # web UI (local convenience; 8125 avoids clashes with other projects)
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:

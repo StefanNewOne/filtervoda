@@ -1,0 +1,7 @@
+# Normalize line endings to LF (repo is developed cross-platform; Docker/Linux runtime).
+* text=auto eol=lf
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

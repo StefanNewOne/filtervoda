@@ -1,0 +1,29 @@
+import { type RouteConfig, index, layout, route } from '@react-router/dev/routes';
+
+export default [
+  route('login', 'routes/login.tsx'),
+  layout('routes/shell.tsx', [
+    index('routes/dashboard.tsx'),
+    route('leads', 'routes/leads.tsx'),
+    route('leads/:id', 'routes/lead-detail.tsx'),
+    route('products', 'routes/products.tsx'),
+    route('products/:id', 'routes/product-editor.tsx'),
+    route('posts', 'routes/posts.tsx'),
+    route('posts/:id', 'routes/post-editor.tsx'),
+    route('content', 'routes/content.tsx'),
+    route('b2b', 'routes/b2b.tsx'),
+    route('testimonials', 'routes/testimonials.tsx'),
+    route('nav', 'routes/nav.tsx'),
+    route('templates', 'routes/templates.tsx'),
+    route('media', 'routes/media.tsx'),
+    route('tracking', 'routes/tracking.tsx'),
+    route('seo', 'routes/seo.tsx'),
+    route('settings', 'routes/settings.tsx'),
+    route('users', 'routes/users.tsx'),
+    route('outbox', 'routes/outbox.tsx'),
+    route('audit', 'routes/audit.tsx'),
+    route('categories', 'routes/categories.tsx'),
+    route('faq', 'routes/faq.tsx'),
+    route('redirects', 'routes/redirects.tsx'),
+  ]),
+] satisfies RouteConfig;

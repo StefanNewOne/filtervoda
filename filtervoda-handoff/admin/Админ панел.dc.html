@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="./help-layer.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>filtervoda.mk — Админ панел</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #F6F9FC; color: #0A1B33; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+  a { color: #1156E0; text-decoration: none; }
+  a:hover { color: #0A1B33; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; font-size: 15px; color: #0A1B33; }
+  h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  p { margin: 0; text-wrap: pretty; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 899px) {
+    [data-shell] { grid-template-columns: 1fr; }
+    [data-shell] > aside { position: static; height: auto; flex-direction: row; overflow-x: auto; }
+    [data-shell] > aside > div:last-child { display: none; }
+  }
+</style>
+</helmet>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="min-height: 100vh; display: grid; place-items: center; padding: 24px; background: linear-gradient(160deg, #071A3A 0%, #0B2A52 100%)">
+  <div style="width: 100%; max-width: 420px; background: #fff; border-radius: 16px; padding: 34px; box-shadow: 0 30px 70px rgba(4,14,32,0.42); animation: rise .3s ease both">
+    <div style="display: flex; align-items: center; gap: 11px">
+      <img src="uploads/logo-1787843450643-am23.jpg" alt="" style="width: 38px; height: 38px; object-fit: contain; border-radius: 9px; background: #fff" />
+      <div>
+        <div style="font-size: 15px; font-weight: 800">SPAR админ</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #55677F">filtervoda.mk</div>
+      </div>
+    </div>
+
+    <sc-if value="{{ isSent }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 26px">
+        <div style="width: 46px; height: 46px; border-radius: 50%; background: #16803B; color: #fff; display: grid; place-items: center; font-size: 22px">✓</div>
+        <h2 style="font-size: 21px; margin-top: 18px">Проверете го вашиот email</h2>
+        <p style="margin-top: 10px; font-size: 14px; line-height: 1.55; color: #55677F">Испратен е линк за ресетирање на лозинката. Линкот важи 30 минути и може да се употреби еднаш.</p>
+        <button onClick="{{ backLogin }}" style="width: 100%; margin-top: 22px; background: #fff; border: 1px solid #DDE6F0; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 700; color: #0A1B33">Назад на најава</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isReset }}" hint-placeholder-val="{{ false }}">
+      <form onSubmit="{{ sendReset }}" style="padding-top: 26px">
+        <h2 style="font-size: 21px">Ресетирање на лозинка</h2>
+        <p style="margin-top: 8px; font-size: 14px; line-height: 1.55; color: #55677F">Внесете го вашиот email и ќе ви испратиме линк за нова лозинка.</p>
+        <label style="display: block; margin-top: 18px; font-size: 13px; font-weight: 700">Email
+          <input value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" inputMode="email" style="width: 100%; margin-top: 6px; padding: 14px; border: 1px solid #DDE6F0; border-radius: 10px; background: #FBFDFF; font-size: 16px" />
+        </label>
+        <button type="button" onClick="{{ sendReset }}" style="width: 100%; margin-top: 18px; background: #1156E0; color: #fff; border: 0; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: 700">Испрати линк</button>
+        <button type="button" onClick="{{ backLogin }}" style="width: 100%; margin-top: 10px; background: none; border: 0; padding: 10px; font-size: 14px; font-weight: 700; color: #1156E0">← Назад</button>
+      </form>
+    </sc-if>
+
+    <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ submitLogin }}" style="padding-top: 26px">
+        <h2 style="font-size: 21px">Најава</h2>
+        <p style="margin-top: 8px; font-size: 14px; color: #55677F">{{ demoHint }}</p>
+        <label style="display: block; margin-top: 18px; font-size: 13px; font-weight: 700">Email
+          <input value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" inputMode="email" autoComplete="username" style="width: 100%; margin-top: 6px; padding: 14px; border: 1px solid #DDE6F0; border-radius: 10px; background: #FBFDFF; font-size: 16px" />
+        </label>
+        <label style="display: block; margin-top: 14px; font-size: 13px; font-weight: 700">Лозинка
+          <input value="{{ loginPass }}" onChange="{{ setLoginPass }}" type="password" autoComplete="current-password" style="width: 100%; margin-top: 6px; padding: 14px; border: 1px solid #DDE6F0; border-radius: 10px; background: #FBFDFF; font-size: 16px" />
+        </label>
+        <div style="min-height: 20px; margin-top: 10px; font-size: 13px; font-weight: 700; color: #B4231B">{{ loginErr }}</div>
+        <div style="font-size: 12px; color: #64748B">{{ attemptsNote }}</div>
+        <sc-if value="{{ lockedNo }}" hint-placeholder-val="{{ true }}">
+          <button type="submit" style="width: 100%; margin-top: 14px; background: #1156E0; color: #fff; border: 0; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: 700">Најави се</button>
+        </sc-if>
+        <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 14px; padding: 14px 16px; background: #FDF2F1; border: 1px solid #F3D3D0; border-radius: 10px; font-size: 13px; line-height: 1.5; color: #8C1F18">Сметката е заклучена по 3 неуспешни обиди. Прогресивното заклучување расте до 15 минути.</div>
+          <button type="button" onClick="{{ backLogin }}" style="width: 100%; margin-top: 10px; background: #fff; border: 1px solid #DDE6F0; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 700; color: #0A1B33">Отклучи (демо)</button>
+        </sc-if>
+        <button type="button" onClick="{{ goReset }}" style="width: 100%; margin-top: 10px; background: none; border: 0; padding: 10px; font-size: 14px; font-weight: 700; color: #1156E0">Ја заборавив лозинката</button>
+      </form>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdminShell }}" hint-placeholder-val="{{ true }}">
+<div data-shell="true" style="display: grid; grid-template-columns: 268px 1fr; min-height: 100vh">
+  <aside style="position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #071A3A; padding: 20px 14px; display: flex; flex-direction: column; gap: 3px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 6px 8px 20px">
+      <img src="uploads/logo-1787843450643-am23.jpg" alt="" style="width: 32px; height: 32px; object-fit: contain; border-radius: 8px; background: #fff" />
+      <div>
+        <div style="font-size: 14px; font-weight: 800; color: #fff">SPAR админ</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #7FA6D4">filtervoda.mk</div>
+      </div>
+    </div>
+    <sc-for list="{{ modules }}" as="m" hint-placeholder-count="16">
+      <button onClick="{{ m.pick }}" style="display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: {{ m.bg }}; color: {{ m.fg }}; padding: 11px 12px; border-radius: 9px; font-size: 14px; font-weight: 600">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: {{ m.dot }}; flex: none"></span>{{ m.label }}
+        <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{ m.badgeFg }}">{{ m.badge }}</span>
+      </button>
+    </sc-for>
+    <div style="margin-top: auto; padding-top: 18px; display: flex; flex-direction: column; gap: 8px">
+      <div style="padding: 12px; border: 1px solid rgba(127,166,212,0.3); border-radius: 10px">
+        <div style="font-size: 12px; font-weight: 700; color: #fff">Активен темплејт</div>
+        <div style="margin-top: 4px; font-size: 13px; font-weight: 800; color: {{ sidebarAccent }}">{{ themeName }}</div>
+      </div>
+      <button onClick="{{ logout }}" style="width: 100%; background: transparent; border: 1px solid rgba(127,166,212,0.34); color: #BBD4EE; padding: 11px; border-radius: 9px; font-size: 13px; font-weight: 700">Одјава</button>
+    </div>
+  </aside>
+
+  <main style="padding: 24px 28px 70px; animation: rise .3s ease both; min-width: 0">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid #E1E9F2">
+      <div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: {{ themeAccent }}">{{ crumb }}</div>
+        <h1 style="font-size: 27px; margin-top: 8px">{{ title }}</h1>
+        <p style="margin-top: 7px; font-size: 14px; color: #55677F">{{ subtitle }}</p>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #55677F">27.08.2026 · 09:41</span>
+        <button onClick="{{ savedToast }}" style="background: #16803B; color: #fff; border: 0; padding: 11px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Зачувај промени</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+      <div style="padding-top: 24px">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 20px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: #55677F">{{ k.label }}</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700; margin-top: 8px; color: {{ k.color }}">{{ k.value }}</div>
+              <div style="font-size: 13px; color: #55677F; margin-top: 2px">{{ k.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; margin-top: 14px">
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 22px">
+            <div style="font-size: 14px; font-weight: 800">Lead-ови по ден · 14 дена</div>
+            <div style="display: flex; align-items: flex-end; gap: 6px; height: 160px; margin-top: 18px">
+              <sc-for list="{{ bars }}" as="b" hint-placeholder-count="14">
+                <div style="flex: 1; height: {{ b.h }}; background: {{ b.bg }}; border-radius: 5px 5px 0 0"></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 22px">
+            <div style="font-size: 14px; font-weight: 800">По извор</div>
+            <div style="display: flex; flex-direction: column; gap: 13px; margin-top: 18px">
+              <sc-for list="{{ sources }}" as="s" hint-placeholder-count="4">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700"><span>{{ s.name }}</span><span>{{ s.pct }}</span></div>
+                  <div style="height: 8px; border-radius: 4px; background: #EEF3F9; margin-top: 7px"><div style="height: 8px; width: {{ s.pct }}; border-radius: 4px; background: {{ s.bg }}"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 14px; background: #fff; border: 1px solid #E1E9F2; border-left: 3px solid #B45309; border-radius: 14px; padding: 20px 22px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center">
+          <div>
+            <div style="font-size: 14px; font-weight: 800">Состојба на испорака</div>
+            <div style="margin-top: 5px; font-size: 13px; color: #55677F">1 задача DEAD · 2 QUEUED · последно извршување на cron: 09:40:31</div>
+          </div>
+          <button onClick="{{ goOutbox }}" style="background: #fff; border: 1px solid #E1E9F2; padding: 11px 16px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #0A1B33">Отвори</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLeads }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center">
+          <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Пребарај по име, телефон, фирма…" style="flex: 1; min-width: 220px; padding: 12px 14px; border: 1px solid #DDE6F0; border-radius: 9px; background: #FBFDFF" />
+          <sc-for list="{{ leadFilters }}" as="f" hint-placeholder-count="5">
+            <button onClick="{{ f.pick }}" style="padding: 11px 15px; border-radius: 9px; border: 1px solid {{ f.bd }}; background: {{ f.bg }}; color: {{ f.fg }}; font-size: 13px; font-weight: 700">{{ f.label }}</button>
+          </sc-for>
+          <button onClick="{{ exportCsv }}" style="background: #16803B; color: #fff; border: 0; padding: 12px 16px; border-radius: 9px; font-size: 13px; font-weight: 700">Извези CSV</button>
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: #55677F">СОСТОЈБА НА ЕКРАН:</span>
+          <sc-for list="{{ stateChips }}" as="c" hint-placeholder-count="4">
+            <button onClick="{{ c.pick }}" style="padding: 8px 13px; border-radius: 999px; border: 1px solid {{ c.bd }}; background: {{ c.bg }}; color: {{ c.fg }}; font-size: 12px; font-weight: 700">{{ c.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ dataLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 14px; background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 18px">
+            <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 110px 70px 1fr 130px 90px; gap: 14px; align-items: center; padding: 13px 0; border-bottom: 1px solid #F2F6FA">
+                <div style="height: 12px; border-radius: 6px; background: #EDF2F8"></div>
+                <div style="height: 12px; border-radius: 6px; background: #EDF2F8"></div>
+                <div style="height: 12px; border-radius: 6px; background: #E4EBF3"></div>
+                <div style="height: 12px; border-radius: 6px; background: #EDF2F8"></div>
+                <div style="height: 12px; border-radius: 6px; background: #EDF2F8"></div>
+              </div>
+            </sc-for>
+            <div style="padding-top: 14px; font-size: 13px; color: #55677F">Се вчитуваат lead-ови…</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ dataEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 14px; background: #fff; border: 1px dashed #CFDCEA; border-radius: 14px; padding: 54px 24px; text-align: center">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #F1F6FC; display: grid; place-items: center; margin: 0 auto; font-size: 20px; color: #55677F">—</div>
+            <h3 style="font-size: 18px; margin-top: 16px">Нема lead-ови за овој филтер</h3>
+            <p style="margin-top: 8px; font-size: 14px; color: #55677F">Пробајте со друг период или тип, или отстранете го пребарувањето.</p>
+            <button onClick="{{ clearFilters }}" style="margin-top: 18px; background: #1156E0; color: #fff; border: 0; padding: 12px 20px; border-radius: 9px; font-size: 14px; font-weight: 700">Прикажи ги сите</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ dataError }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 14px; background: #fff; border: 1px solid #F3D3D0; border-left: 3px solid #B4231B; border-radius: 14px; padding: 26px">
+            <h3 style="font-size: 17px; color: #8C1F18">Податоците не се вчитаа</h3>
+            <p style="margin-top: 8px; font-size: 14px; line-height: 1.55; color: #55677F">Серверот не одговори на време. Ништо не е изгубено — обидете се повторно.</p>
+            <div style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B">correlationId: 8f3c-91ab-4d2e</div>
+            <button onClick="{{ retryLoad }}" style="margin-top: 16px; background: #B4231B; color: #fff; border: 0; padding: 12px 20px; border-radius: 9px; font-size: 14px; font-weight: 700">Обиди се повторно</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ dataReady }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top: 14px; background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; overflow: hidden">
+          <div style="overflow-x: auto">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 940px">
+              <thead>
+                <tr style="background: #F6F9FC">
+                  <th style="text-align: left; padding: 13px 18px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">ДАТУМ</th>
+                  <th style="text-align: left; padding: 13px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">ТИП</th>
+                  <th style="text-align: left; padding: 13px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">ИМЕ / ФИРМА</th>
+                  <th style="text-align: left; padding: 13px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">ТЕЛЕФОН</th>
+                  <th style="text-align: left; padding: 13px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">ПРОИЗВОД</th>
+                  <th style="text-align: left; padding: 13px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">ИЗВОР</th>
+                  <th style="text-align: left; padding: 13px 18px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">СТАТУС</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ leadRows }}" as="l" hint-placeholder-count="6">
+                  <tr onClick="{{ l.open }}" style="cursor: pointer" style-hover="background: #FBFDFF">
+                    <td style="padding: 14px 18px; border-bottom: 1px solid #EEF3F9; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #55677F; white-space: nowrap">{{ l.when }}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #EEF3F9"><span style="font-size: 11px; font-weight: 800; background: #F1F6FC; color: #21375A; padding: 5px 9px; border-radius: 5px">{{ l.type }}</span></td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #EEF3F9; font-weight: 700">{{ l.name }}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #EEF3F9; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #46597A; white-space: nowrap">{{ l.phone }}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #EEF3F9; color: #46597A">{{ l.product }}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #EEF3F9; font-size: 12px; color: #64748B">{{ l.src }}</td>
+                    <td style="padding: 14px 18px; border-bottom: 1px solid #EEF3F9"><span style="font-size: 12px; font-weight: 800; color: {{ l.color }}">{{ l.status }}</span></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p style="margin-top: 12px; font-size: 13px; color: #55677F">{{ leadCount }} записи · кликнете ред за детал</p>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLeadDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <button onClick="{{ backLeads }}" style="background: none; border: 0; padding: 0; font-size: 14px; font-weight: 700; color: #1156E0">← Сите lead-ови</button>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; margin-top: 16px">
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+            <div style="display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: baseline">
+              <h2 style="font-size: 22px">{{ lead.name }}</h2>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #55677F">{{ lead.id }}</span>
+            </div>
+            <div style="margin-top: 16px">
+              <sc-for list="{{ leadFields }}" as="r" hint-placeholder-count="8">
+                <div style="display: grid; grid-template-columns: 170px 1fr; gap: 14px; padding: 11px 0; border-bottom: 1px solid #EEF3F9">
+                  <span style="font-size: 13px; color: #55677F">{{ r.k }}</span>
+                  <span style="font-size: 14px; font-weight: 700">{{ r.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap">
+              <a href="tel:+38976676819" style="background: #16803B; color: #fff; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Повикај</a>
+              <a href="viber://chat?number=%2B38976676819" style="background: #6D4AC7; color: #fff; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Viber</a>
+              <a href="mailto:info@filtervoda.mk" style="background: #fff; border: 1px solid #E1E9F2; color: #0A1B33; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Email</a>
+              <button onClick="{{ reauth }}" style="background: #fff; border: 1px solid #E1E9F2; color: #B4231B; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Анонимизирај</button>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">СТАТУС</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px">
+                <sc-for list="{{ statusChips }}" as="s" hint-placeholder-count="7">
+                  <button onClick="{{ s.pick }}" style="font-size: 12px; font-weight: 700; border: 1px solid {{ s.bd }}; background: {{ s.bg }}; color: {{ s.fg }}; padding: 9px 13px; border-radius: 999px">{{ s.label }}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ lostSelected }}" hint-placeholder-val="{{ false }}">
+                <label style="display: block; margin-top: 14px; font-size: 13px; font-weight: 700">Причина за изгубено
+                  <select onChange="{{ setLostReason }}" style="width: 100%; margin-top: 6px; padding: 12px; border: 1px solid #DDE6F0; border-radius: 9px; background: #FBFDFF">
+                    <option>Цена</option><option>Купил друго</option><option>Не одговара</option><option>Не се јавува</option><option>Друго</option>
+                  </select>
+                </label>
+              </sc-if>
+            </div>
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ВРЕМЕНСКА ЛИНИЈА</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px">
+                <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="5">
+                  <div style="display: flex; gap: 10px; align-items: baseline">
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B; flex: none">{{ t.at }}</span>
+                    <span style="font-size: 13px; color: #21375A">{{ t.what }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">БЕЛЕШКИ</div>
+              <sc-for list="{{ notes }}" as="n" hint-placeholder-count="1">
+                <div style="margin-top: 12px; padding: 12px 14px; background: #F6F9FC; border-radius: 9px">
+                  <div style="font-size: 13px; color: #21375A">{{ n.text }}</div>
+                  <div style="margin-top: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748B">{{ n.by }}</div>
+                </div>
+              </sc-for>
+              <form onSubmit="{{ addNote }}" style="margin-top: 12px; display: flex; gap: 8px">
+                <input value="{{ noteDraft }}" onChange="{{ setNoteDraft }}" placeholder="Додај белешка…" style="flex: 1; padding: 12px; border: 1px solid #DDE6F0; border-radius: 9px; background: #FBFDFF" />
+                <button type="submit" style="background: #1156E0; color: #fff; border: 0; padding: 12px 16px; border-radius: 9px; font-size: 14px; font-weight: 700">Додај</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isProducts }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center">
+          <button onClick="{{ newProduct }}" style="background: #1156E0; color: #fff; border: 0; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Нов производ</button>
+          <button onClick="{{ reorder }}" style="background: #fff; border: 1px solid #E1E9F2; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #0A1B33">Промени редослед</button>
+          <span style="font-size: 13px; color: #55677F">17 производи · 5 категории</span>
+        </div>
+        <div style="margin-top: 14px; background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; overflow: hidden">
+          <sc-for list="{{ productRows }}" as="p" hint-placeholder-count="8">
+            <div style="display: grid; grid-template-columns: 52px 1fr 190px 130px 120px 96px; gap: 14px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #EEF3F9">
+              <div style="width: 52px; height: 52px; border-radius: 8px; border: 1px solid #E1E9F2; background-image: url({{ p.img }}); background-size: contain; background-position: 50%; background-repeat: no-repeat; background-color: #FBFDFF"></div>
+              <div style="min-width: 0">
+                <div style="font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ p.name }}</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B">/{{ p.slug }}</div>
+              </div>
+              <div style="font-size: 13px; color: #46597A">{{ p.cat }}</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700">{{ p.price }}</div>
+              <div style="font-size: 12px; font-weight: 800; color: {{ p.statusColor }}">{{ p.status }}</div>
+              <button onClick="{{ p.edit }}" style="background: #F1F6FC; border: 1px solid #DDE6F0; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #1156E0">Уреди</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isEditor }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <button onClick="{{ backProducts }}" style="background: none; border: 0; padding: 0; font-size: 14px; font-weight: 700; color: #1156E0">← Сите производи</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px">
+          <sc-for list="{{ editorTabs }}" as="t" hint-placeholder-count="9">
+            <button onClick="{{ t.pick }}" style="border: 1px solid {{ t.bd }}; background: {{ t.bg }}; color: {{ t.fg }}; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 700">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <div style="margin-top: 14px; background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 26px">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">{{ editorTab }}</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin-top: 18px">
+            <sc-for list="{{ editorFields }}" as="f" hint-placeholder-count="6">
+              <label style="font-size: 13px; font-weight: 700; color: #21375A">{{ f.label }}
+                <input value="{{ f.value }}" onChange="{{ f.set }}" style="width: 100%; margin-top: 6px; padding: 13px; border: 1px solid #DDE6F0; border-radius: 9px; background: #FBFDFF" />
+                <span style="display: block; margin-top: 5px; font-size: 12px; color: #64748B">{{ f.hint }}</span>
+              </label>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 22px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid #EEF3F9">
+            <button onClick="{{ savedToast }}" style="background: #16803B; color: #fff; border: 0; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Зачувај</button>
+            <button onClick="{{ publish }}" style="background: #1156E0; color: #fff; border: 0; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Објави</button>
+            <button onClick="{{ toDraft }}" style="background: #fff; border: 1px solid #E1E9F2; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #0A1B33">Врати во нацрт</button>
+            <button onClick="{{ preview }}" style="background: #fff; border: 1px solid #E1E9F2; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #0A1B33">Преглед</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isContent }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <sc-for list="{{ contentTabs }}" as="t" hint-placeholder-count="7">
+            <button onClick="{{ t.pick }}" style="border: 1px solid {{ t.bd }}; background: {{ t.bg }}; color: {{ t.fg }}; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 700">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; margin-top: 14px">
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">{{ contentTab }}</div>
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px">
+              <sc-for list="{{ contentFields }}" as="f" hint-placeholder-count="5">
+                <label style="font-size: 13px; font-weight: 700; color: #21375A">{{ f.label }}
+                  <textarea value="{{ f.value }}" onChange="{{ f.set }}" rows="{{ f.rows }}" style="width: 100%; margin-top: 6px; padding: 13px; border: 1px solid #DDE6F0; border-radius: 9px; background: #FBFDFF; resize: vertical; line-height: 1.5"></textarea>
+                </label>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ЖИВ ПРЕГЛЕД</div>
+            <div style="margin-top: 16px; border: 1px solid #E1E9F2; border-radius: 12px; overflow: hidden">
+              <div style="padding: 26px 22px; background: {{ previewBg }}">
+                <div style="font-size: 12px; font-weight: 800; color: {{ themeAccent }}">{{ previewBadge }}</div>
+                <div style="margin-top: 12px; font-size: 26px; font-weight: 800; line-height: 1.1; color: {{ previewInk }}">{{ heroH1 }}</div>
+                <div style="margin-top: 10px; font-size: 14px; line-height: 1.5; color: {{ previewMuted }}">{{ heroH2 }}</div>
+                <div style="display: inline-block; margin-top: 16px; padding: 12px 18px; border-radius: {{ themeRadius }}; background: {{ themeCta }}; color: #fff; font-size: 14px; font-weight: 700">{{ heroCta }}</div>
+              </div>
+              <div style="padding: 14px 22px; background: {{ themeTrustBg }}; color: {{ themeTrustFg }}; font-size: 12px; font-weight: 700">{{ trustLine }}</div>
+            </div>
+            <p style="margin-top: 12px; font-size: 12px; color: #64748B">Прегледот го користи активниот темплејт од модулот Дизајн.</p>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDesign }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px">
+          <sc-for list="{{ themes }}" as="t" hint-placeholder-count="3">
+            <div style="background: #fff; border: 2px solid {{ t.bd }}; border-radius: 14px; overflow: hidden">
+              <div style="height: 96px; background: {{ t.swatch }}"></div>
+              <div style="padding: 20px">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px">
+                  <div style="font-size: 16px; font-weight: 800">{{ t.name }}</div>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{ t.badgeFg }}">{{ t.badge }}</span>
+                </div>
+                <p style="margin-top: 8px; font-size: 13px; line-height: 1.5; color: #55677F">{{ t.desc }}</p>
+                <div style="display: flex; gap: 6px; margin-top: 14px">
+                  <sc-for list="{{ t.colors }}" as="c" hint-placeholder-count="4">
+                    <span style="width: 22px; height: 22px; border-radius: 6px; background: {{ c }}; border: 1px solid rgba(10,27,51,0.1)"></span>
+                  </sc-for>
+                </div>
+                <div style="margin-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B">{{ t.fonts }}</div>
+                <button onClick="{{ t.apply }}" style="width: 100%; margin-top: 16px; background: {{ t.btnBg }}; color: {{ t.btnFg }}; border: 1px solid {{ t.btnBd }}; padding: 12px; border-radius: 9px; font-size: 14px; font-weight: 700">{{ t.btnLabel }}</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; margin-top: 14px">
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">TOKENS НА АКТИВНИОТ ТЕМПЛЕЈТ</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px; margin-top: 16px">
+              <sc-for list="{{ tokenFields }}" as="f" hint-placeholder-count="6">
+                <label style="font-size: 13px; font-weight: 700; color: #21375A">{{ f.label }}
+                  <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px">
+                    <span style="width: 34px; height: 38px; border-radius: 8px; border: 1px solid #DDE6F0; background: {{ f.chip }}; flex: none"></span>
+                    <input value="{{ f.value }}" onChange="{{ f.set }}" style="flex: 1; min-width: 0; padding: 11px; border: 1px solid #DDE6F0; border-radius: 8px; background: #FBFDFF; font-family: 'JetBrains Mono', monospace; font-size: 13px" />
+                  </div>
+                </label>
+              </sc-for>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap">
+              <button onClick="{{ savedToast }}" style="background: #16803B; color: #fff; border: 0; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700">Зачувај tokens</button>
+              <button onClick="{{ resetTokens }}" style="background: #fff; border: 1px solid #E1E9F2; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #0A1B33">Врати фабрички</button>
+              <button onClick="{{ exportTokens }}" style="background: #fff; border: 1px solid #E1E9F2; padding: 12px 18px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #0A1B33">Извези tokens.css</button>
+            </div>
+          </div>
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ПРЕГЛЕД</div>
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid #E1E9F2">
+              <div style="padding: 24px; background: {{ previewBg }}">
+                <div style="font-size: 22px; font-weight: 800; color: {{ previewInk }}; line-height: 1.15">{{ heroH1 }}</div>
+                <div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap">
+                  <span style="padding: 11px 16px; border-radius: {{ themeRadius }}; background: {{ themeCta }}; color: #fff; font-size: 13px; font-weight: 700">{{ heroCta }}</span>
+                  <span style="padding: 11px 16px; border-radius: {{ themeRadius }}; border: 1px solid {{ previewBorder }}; color: {{ previewInk }}; font-size: 13px; font-weight: 700">Види ги производите</span>
+                </div>
+                <div style="display: flex; gap: 6px; margin-top: 16px; flex-wrap: wrap">
+                  <span style="padding: 7px 12px; border-radius: {{ themeChipRadius }}; background: {{ themeChipBg }}; color: {{ themeChipFg }}; font-size: 12px; font-weight: 700">6 степени</span>
+                  <span style="padding: 7px 12px; border-radius: {{ themeChipRadius }}; background: {{ themeChipBg }}; color: {{ themeChipFg }}; font-size: 12px; font-weight: 700">pH 8.5+</span>
+                  <span style="padding: 7px 12px; border-radius: {{ themeChipRadius }}; background: #16803B; color: #fff; font-size: 12px; font-weight: 700">Бесплатна монтажа</span>
+                </div>
+              </div>
+              <div style="padding: 13px 24px; background: {{ themeTrustBg }}; color: {{ themeTrustFg }}; font-size: 12px; font-weight: 700">{{ trustLine }}</div>
+            </div>
+            <div style="margin-top: 14px; padding: 14px 16px; background: #F6F9FC; border-radius: 10px; font-size: 13px; color: #21375A">
+              Контраст на CTA: <strong>{{ contrastNote }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTracking }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 14px">
+          <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ID-А И ТОКЕНИ</div>
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px">
+              <sc-for list="{{ trackFields }}" as="f" hint-placeholder-count="7">
+                <label style="font-size: 13px; font-weight: 700; color: #21375A">{{ f.label }}
+                  <input value="{{ f.value }}" onChange="{{ f.set }}" placeholder="{{ f.ph }}" style="width: 100%; margin-top: 6px; padding: 13px; border: 1px solid #DDE6F0; border-radius: 9px; background: #FBFDFF; font-family: 'JetBrains Mono', monospace; font-size: 13px" />
+                  <span style="display: block; margin-top: 5px; font-size: 12px; color: #64748B">{{ f.hint }}</span>
+                </label>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">CONSENT MODE V2</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px">
+                <sc-for list="{{ consentToggles }}" as="t" hint-placeholder-count="4">
+                  <button onClick="{{ t.toggle }}" style="display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; text-align: left; background: #FBFDFF; border: 1px solid #E1E9F2; border-radius: 10px; padding: 14px 16px">
+                    <span>
+                      <span style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #0A1B33">{{ t.key }}</span>
+                      <span style="display: block; margin-top: 3px; font-size: 12px; color: #64748B">{{ t.note }}</span>
+                    </span>
+                    <span style="font-size: 12px; font-weight: 800; color: {{ t.color }}; white-space: nowrap">{{ t.state }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <p style="margin-top: 14px; font-size: 12px; line-height: 1.5; color: #64748B">Pixel и GA4 не се вчитуваат пред согласност. Стандардната состојба се праќа како denied додека посетителот не избере.</p>
+            </div>
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">СТАТУС НА ВРСКИ</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px">
+                <sc-for list="{{ connections }}" as="c" hint-placeholder-count="4">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: #FBFDFF; border: 1px solid #E1E9F2; border-radius: 10px">
+                    <span style="font-size: 13px; font-weight: 700">{{ c.name }}</span>
+                    <span style="display: flex; align-items: center; gap: 8px">
+                      <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ c.dot }}"></span>
+                      <span style="font-size: 12px; font-weight: 800; color: {{ c.fg }}">{{ c.state }}</span>
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+              <button onClick="{{ testAll }}" style="width: 100%; margin-top: 16px; background: #1156E0; color: #fff; border: 0; padding: 13px; border-radius: 9px; font-size: 14px; font-weight: 700">Тестирај ги сите врски</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 14px; background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; overflow: hidden">
+          <div style="padding: 20px 22px; border-bottom: 1px solid #EEF3F9">
+            <div style="font-size: 14px; font-weight: 800">План на настани · GA4 и Meta</div>
+            <p style="margin-top: 5px; font-size: 13px; color: #55677F">Секој настан се пали само по согласност. `generate_lead` е единствената конверзија за оптимизација.</p>
+          </div>
+          <div style="overflow-x: auto">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 820px">
+              <thead>
+                <tr style="background: #F6F9FC">
+                  <th style="text-align: left; padding: 12px 22px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">GA4 НАСТАН</th>
+                  <th style="text-align: left; padding: 12px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">META</th>
+                  <th style="text-align: left; padding: 12px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">КОГА СЕ ПАЛИ</th>
+                  <th style="text-align: left; padding: 12px 12px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2">СТАТУС</th>
+                  <th style="text-align: left; padding: 12px 22px; font-size: 11px; letter-spacing: 0.08em; color: #55677F; border-bottom: 1px solid #E1E9F2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ events }}" as="e" hint-placeholder-count="8">
+                  <tr>
+                    <td style="padding: 13px 22px; border-bottom: 1px solid #EEF3F9; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700">{{ e.ga }}</td>
+                    <td style="padding: 13px 12px; border-bottom: 1px solid #EEF3F9; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #46597A">{{ e.meta }}</td>
+                    <td style="padding: 13px 12px; border-bottom: 1px solid #EEF3F9; color: #46597A; font-size: 13px">{{ e.when }}</td>
+                    <td style="padding: 13px 12px; border-bottom: 1px solid #EEF3F9; font-size: 12px; font-weight: 800; color: {{ e.color }}">{{ e.state }}</td>
+                    <td style="padding: 13px 22px; border-bottom: 1px solid #EEF3F9"><button onClick="{{ e.test }}" style="background: #F1F6FC; border: 1px solid #DDE6F0; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #1156E0">Тестирај</button></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSimple }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-top: 24px">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px">
+          <sc-for list="{{ panels }}" as="p" hint-placeholder-count="3">
+            <div style="background: #fff; border: 1px solid #E1E9F2; border-radius: 14px; padding: 24px">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">{{ p.title }}</div>
+              <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 0">
+                <sc-for list="{{ p.rows }}" as="r" hint-placeholder-count="4">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #EEF3F9">
+                    <span style="font-size: 14px; color: #21375A">{{ r.k }}</span>
+                    <span style="font-size: 13px; font-weight: 700; color: {{ r.color }}; text-align: right">{{ r.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ p.hasAction }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ p.action }}" style="width: 100%; margin-top: 18px; background: #F1F6FC; border: 1px solid #DDE6F0; padding: 12px; border-radius: 9px; font-size: 14px; font-weight: 700; color: #1156E0">{{ p.actionLabel }}</button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ toastOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; background: #071A3A; color: #fff; padding: 15px 22px; border-radius: 999px; font-size: 14px; font-weight: 700; box-shadow: 0 18px 44px rgba(7,26,58,0.32)">{{ toastText }}</div>
+    </sc-if>
+  </main>
+</div>
+</sc-if>
+<help-layer tour="admin" accent="#1156E0" offset="16"></help-layer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;defaultModule&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dash&quot;,&quot;leads&quot;,&quot;products&quot;,&quot;content&quot;,&quot;design&quot;,&quot;tracking&quot;],&quot;default&quot;:&quot;dash&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Стартна состојба&quot;},&quot;activeTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;b1&quot;,&quot;b2&quot;,&quot;b3&quot;],&quot;default&quot;:&quot;b1&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Стартна состојба&quot;},&quot;showBadges&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Изглед&quot;}}">
+class Component extends DCLogic {
+  state = {
+    mod: 'dash', leadSel: null, leadFilter: 'Сите', q: '', lostReason: 'Цена',
+    notes: [{ text: 'Побара понуда за 12 вработени, испратена на 27.08.', by: 'Ана · GoDigital · 09:20' }],
+    noteDraft: '', statusOverride: {},
+    prodTab: 'Основно', contentTab: 'Почетна', theme: 'b1',
+    hero: {
+      h1: 'Чиста, алкална вода директно од вашата чешма.',
+      h2: 'Системи за филтрација со бесплатна монтажа и 10 години гаранција — низ цела Македонија.',
+      cta: 'Побарај бесплатна консултација',
+      trust: '10 години гаранција · Бесплатна монтажа · Достава низ цела Македонија · Плаќање во готово или на рати'
+    },
+    tokens: { cta: '', ink: '', accent: '', radius: '', font: '', mono: 'JetBrains Mono' },
+    track: {
+      gtm: 'GTM-XXXXXXX', ga4: 'G-XXXXXXXXXX', pixel: '1957593378149639', capi: '••••••••••••••••',
+      testCode: 'TEST12345', turnstile: '0x4AAAAAAA••••••', notify: 'info@filtervoda.mk, sales@filtervoda.mk'
+    },
+    consent: { ad_storage: false, analytics_storage: false, ad_user_data: false, ad_personalization: false },
+    eventState: {}, toast: '', fields: {},
+    auth: 'in', login: { email: '', pass: '' }, loginErr: '', attempts: 0,
+    dataState: 'ready'
+  };
+
+  componentDidMount() {
+    this._goto = e => {
+      const r = e.detail && e.detail.route;
+      if (r) this.setState({ mod: r, leadSel: null });
+    };
+    window.addEventListener('help-goto', this._goto);
+  }
+  componentWillUnmount() { window.removeEventListener('help-goto', this._goto); }
+  fld(ns, label, def) {
+    const k = ns + '|' + label;
+    const v = this.state.fields[k];
+    return {
+      value: v === undefined ? def : v,
+      set: e => this.setState({ fields: { ...this.state.fields, [k]: e.target.value } })
+    };
+  }
+
+  themeDefs = {
+    b1: {
+      name: 'Б-1 Кристално чисто', desc: 'Бела основа, многу воздух, голема продукт фотографија. Unbounded + Manrope.',
+      cta: '#1156E0', ink: '#08182F', accent: '#0E7490', radius: '999px', chipRadius: '10px',
+      font: 'Unbounded + Manrope', bg: '#FFFFFF', muted: '#46597A', border: '#CFE2F7',
+      chipBg: '#F2F8FF', chipFg: '#21375A', trustBg: '#FBFDFF', trustFg: '#21375A',
+      swatch: 'linear-gradient(120deg, #FFFFFF 0%, #F2F8FF 55%, #1156E0 100%)',
+      colors: ['#08182F', '#1156E0', '#6FC4F7', '#16803B'],
+      sidebarAccent: '#7FD3EA'
+    },
+    b2: {
+      name: 'Б-2 Жива вода', desc: 'Темен градиентен hero, органски форми, uppercase Oswald наслови, зелено CTA.',
+      cta: '#16803B', ink: '#08182F', accent: '#0B6076', radius: '999px', chipRadius: '999px',
+      font: 'Oswald + Manrope', bg: 'linear-gradient(160deg, #EAF6FF, #CFE7FA)', muted: '#46597A', border: '#9FD6F8',
+      chipBg: '#FFFFFF', chipFg: '#21375A', trustBg: 'linear-gradient(90deg, #0E5327, #16803B)', trustFg: '#FFFFFF',
+      swatch: 'linear-gradient(120deg, #04122B 0%, #0B3C8C 50%, #35BC6C 100%)',
+      colors: ['#04122B', '#1E6FE8', '#7BE0A0', '#16803B'],
+      sidebarAccent: '#7BE0A0'
+    },
+    b3: {
+      name: 'Б-3 Паметна вода', desc: 'Морнарски „data“ панели, JetBrains Mono за бројки, тесни радиуси, тил CTA.',
+      cta: '#0E7490', ink: '#071A3A', accent: '#0E7490', radius: '10px', chipRadius: '4px',
+      font: 'Onest + JetBrains Mono', bg: '#051227', muted: '#9BB0CC', border: 'rgba(159,233,250,0.45)',
+      chipBg: 'rgba(69,224,255,0.12)', chipFg: '#9FE9FA', trustBg: '#071A3A', trustFg: '#C8DCF0',
+      swatch: 'linear-gradient(120deg, #051227 0%, #0C2542 55%, #45E0FF 100%)',
+      colors: ['#051227', '#0E7490', '#45E0FF', '#16803B'],
+      previewInk: '#FFFFFF', previewMuted: '#9BB0CC', sidebarAccent: '#45E0FF'
+    }
+  };
+
+  moduleDefs = [
+    { id: 'dash', label: 'Dashboard', dot: '#64748B', title: 'Dashboard', sub: 'Преглед на lead-ови, извори и состојба на испораката', crumb: 'ПРЕГЛЕД' },
+    { id: 'leads', label: 'Lead-ови', dot: '#16803B', badge: '4', title: 'Lead-ови', sub: 'Барања од сајтот, повици и Viber — со статус, белешки и извоз', crumb: 'ПРОДАЖБА' },
+    { id: 'products', label: 'Производи', dot: '#1156E0', badge: '17', title: 'Производи', sub: 'Каталог, спецификации, галерии, цени и беџови', crumb: 'СОДРЖИНА' },
+    { id: 'categories', label: 'Категории', dot: '#1156E0', badge: '5', title: 'Категории', sub: 'Групи на производи, редослед и слики', crumb: 'СОДРЖИНА' },
+    { id: 'content', label: 'Страници и копи', dot: '#7B5BD6', title: 'Страници и копи', sub: 'Секој текст на сајтот — hero, секции, правни страници, 404', crumb: 'СОДРЖИНА' },
+    { id: 'posts', label: 'Совети', dot: '#7B5BD6', badge: '6', title: 'Совети', sub: 'Статии, категории, поврзан производ и закажано објавување', crumb: 'СОДРЖИНА' },
+    { id: 'faq', label: 'ЧПП', dot: '#7B5BD6', badge: '14', title: 'Често поставувани прашања', sub: 'Глобални, по производ и за фирми', crumb: 'СОДРЖИНА' },
+    { id: 'b2b', label: 'За фирми', dot: '#B45309', title: 'За фирми', sub: 'Пакети, параметри на калкулаторот, логоа и искуства', crumb: 'B2B' },
+    { id: 'testimonials', label: 'Искуства', dot: '#B45309', badge: '9', title: 'Искуства на клиенти', sub: 'Изјави за домаќинства и за фирми, со оценка и производ', crumb: 'B2B' },
+    { id: 'nav', label: 'Навигација и футер', dot: '#0E7490', title: 'Навигација и футер', sub: 'Мени, футер колони, социјални мрежи и sticky лента', crumb: 'СТРУКТУРА' },
+    { id: 'design', label: 'Дизајн и темплејти', dot: '#0E7490', badge: '3', title: 'Дизајн и темплејти', sub: 'Изберете една од трите насоки и уредете ги нејзините tokens', crumb: 'ИЗГЛЕД' },
+    { id: 'media', label: 'Медиуми', dot: '#128C8C', badge: '46', title: 'Медиуми', sub: 'Слики со alt текст, замена без промена на URL и варијанти', crumb: 'ИЗГЛЕД' },
+    { id: 'tracking', label: 'Tracking и интеграции', dot: '#B4231B', title: 'Tracking и интеграции', sub: 'GTM, GA4, Meta Pixel + Conversions API, Consent Mode v2, Turnstile', crumb: 'МЕРЕЊЕ' },
+    { id: 'seo', label: 'SEO', dot: '#B4231B', title: 'SEO', sub: 'Мета податоци, sitemap, robots, JSON-LD и Search Console', crumb: 'МЕРЕЊЕ' },
+    { id: 'redirects', label: 'Редирекции', dot: '#B4231B', badge: '31', title: 'Редирекции', sub: 'Стар URL → нов URL со 301, увоз од CSV и бројач на погодоци', crumb: 'МЕРЕЊЕ' },
+    { id: 'settings', label: 'Поставки', dot: '#64748B', title: 'Поставки', sub: 'Контакти, приматели на нотификации, цени, рати и feature flags', crumb: 'СИСТЕМ' },
+    { id: 'users', label: 'Корисници', dot: '#64748B', badge: '4', title: 'Корисници и улоги', sub: 'ADMIN, EDITOR и CLIENT_VIEWER, заклучување и ресет на лозинка', crumb: 'СИСТЕМ' },
+    { id: 'outbox', label: 'Проблеми со испорака', dot: '#B4231B', badge: '1', title: 'Проблеми со испорака', sub: 'Задачи што не поминале по 5 обиди — email, Meta CAPI, webhook', crumb: 'СИСТЕМ' },
+    { id: 'audit', label: 'Audit лог', dot: '#64748B', title: 'Audit лог', sub: 'Секоја промена: кој, што, кога — само за читање', crumb: 'СИСТЕМ' }
+  ];
+
+  leadsData = [
+    { id: 'FV-1041', when: '27.08 · 09:12', type: 'B2B', name: 'Кафе Бар Лума', phone: '+389 70 221 883', product: 'Диспензер', src: 'fb / avgust-b2b', status: 'Нов', city: 'Скопје', emp: '6–15', sol: 'Галони' },
+    { id: 'FV-1040', when: '27.08 · 08:41', type: 'B2C', name: 'Билјана Стојанова', phone: '+389 76 118 402', product: 'Crystal Digital 600HF', src: 'ig / reels-digital', status: 'Контактиран', city: 'Куманово', emp: '', sol: '' },
+    { id: 'FV-1039', when: '26.08 · 21:03', type: 'B2C', name: 'Дарко Илиевски', phone: '+389 71 909 114', product: 'Crystal Smart', src: 'fb / remarketing', status: 'Понуда испратена', city: 'Тетово', emp: '', sol: '' },
+    { id: 'FV-1038', when: '26.08 · 17:55', type: 'ADVISOR', name: 'Марија П.', phone: '+389 78 442 019', product: '—', src: 'google / organic', status: 'Нов', city: 'Охрид', emp: '', sol: '' },
+    { id: 'FV-1037', when: '26.08 · 14:20', type: 'B2B', name: 'Ординација Дентал Плус', phone: '+389 72 330 776', product: 'Диспензер', src: 'fb / avgust-b2b', status: 'Договорено', city: 'Скопје', emp: '1–5', sol: 'Шишиња' },
+    { id: 'FV-1036', when: '25.08 · 11:07', type: 'CONTACT', name: 'Ненад Ристов', phone: '+389 70 556 231', product: '—', src: 'direct', status: 'Изгубено', city: 'Велес', emp: '', sol: '' }
+  ];
+
+  productsData = [
+    { name: 'SPAR CRYSTAL DIGITAL 600HF', slug: 'spar-crystal-digital-600hf', cat: 'Под мијалник', price: '36.000 ден.', status: 'Објавено', img: 'uploads/Untitled-design-2-300x300.png' },
+    { name: 'SPAR CRYSTAL SMART', slug: 'spar-crystal-smart', cat: 'Под мијалник', price: '24.000 ден.', status: 'Објавено', img: 'uploads/Untitled-design-1-450x450.png' },
+    { name: 'SPAR CRYSTAL PRO', slug: 'spar-crystal-pro', cat: 'Под мијалник', price: '12.000 ден.', status: 'Објавено', img: 'uploads/Untitled-design-450x450.png' },
+    { name: 'Spar Aqua SMART', slug: 'spar-aqua-smart', cat: 'Под мијалник', price: '19.999 ден.', status: 'Објавено', img: 'uploads/Smart-sistem-za-voda-600x600.png' },
+    { name: 'AQUA GLASS', slug: 'aqua-glass', cat: 'Под мијалник', price: '14.990 ден.', status: 'Објавено', img: 'prod/aqua-glass.png' },
+    { name: 'Диспензер за топла и ладна вода', slug: 'dispenzer-topla-ladna', cat: 'Диспензери', price: '36.000 ден.', status: 'Објавено', img: 'uploads/topla-ladna-voda-sistem-600x600.jpg' },
+    { name: 'Биг Блу 3-степен систем', slug: 'big-blue-3', cat: 'Цел дом', price: '29.990 ден.', status: 'Објавено', img: 'prod/big-blue-3.jpg' },
+    { name: 'Филтер против бигор', slug: 'filter-protiv-bigor', cat: 'Заштита од бигор', price: '990 ден.', status: 'Нацрт', img: 'prod/bigor.png' }
+  ];
+
+  eventsData = [
+    { ga: 'page_view', meta: 'PageView', when: 'секоја страница' },
+    { ga: 'view_item', meta: 'ViewContent', when: 'продукт страница' },
+    { ga: 'select_item', meta: '—', when: 'клик на продукт картичка' },
+    { ga: 'click_call', meta: 'Contact', when: 'клик на tel:' },
+    { ga: 'click_viber', meta: 'Contact', when: 'клик на Viber' },
+    { ga: 'lead_form_open', meta: '—', when: 'отворен modal' },
+    { ga: 'generate_lead', meta: 'Lead (browser + CAPI)', when: 'успешно поднесување' },
+    { ga: 'calculator_use', meta: '—', when: 'промена на резултат' },
+    { ga: 'calculator_cta', meta: '—', when: 'клик „Добиј точна понуда“' },
+    { ga: 'faq_open', meta: '—', when: 'отворен ЧПП' }
+  ];
+
+  t() { return this.themeDefs[this.state.theme]; }
+  say(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  tok(k) { const v = this.state.tokens[k]; return v && v.length ? v : this.t()[k]; }
+  ratio(hex) {
+    const c = String(hex).replace('#', '');
+    if (c.length !== 6) return null;
+    const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    const L = 0.2126 * lin(parseInt(c.slice(0, 2), 16)) + 0.7152 * lin(parseInt(c.slice(2, 4), 16)) + 0.0722 * lin(parseInt(c.slice(4, 6), 16));
+    return Math.round(((1.05) / (L + 0.05)) * 100) / 100;
+  }
+
+  chips(list, sel, pick, on = '#071A3A') {
+    return list.map(k => ({
+      label: k, pick: () => pick(k),
+      bg: sel === k ? on : '#fff', fg: sel === k ? '#fff' : '#21375A', bd: sel === k ? on : '#DDE6F0'
+    }));
+  }
+
+  panelsFor(mod) {
+    const P = {
+      categories: [
+        { title: 'КАТЕГОРИИ', rows: [{ k: 'Системи под мијалник', v: '7 производи' }, { k: 'Диспензери', v: '1 производ' }, { k: 'Филтрација за цел дом', v: '3 производи' }, { k: 'Заштита од бигор', v: '1 производ' }, { k: 'Додатоци и мерачи', v: '5 производи' }], hasAction: true, actionLabel: 'Нова категорија' },
+        { title: 'РЕДОСЛЕД И СЛИКИ', rows: [{ k: 'Приказ на почетна', v: 'Ручно' }, { k: 'Слика по категорија', v: '5 / 5' }, { k: 'Празни категории', v: 'Скриени' }] }
+      ],
+      posts: [
+        { title: 'СТАТИИ', rows: [{ k: 'Што е реверзна осмоза', v: 'Објавено' }, { k: 'Чиста вода на работа', v: 'Објавено' }, { k: 'Бигорот и апаратите', v: 'Објавено' }, { k: 'Алкална вода pH 8.5+', v: 'Нацрт', color: '#B45309' }], hasAction: true, actionLabel: 'Нова статија' },
+        { title: 'УРЕДУВАЧ', rows: [{ k: 'Rich text', v: 'Наслови, листи, слики, табели' }, { k: 'Поврзан производ', v: 'По статија' }, { k: 'Закажано објавување', v: 'Вклучено' }, { k: 'SEO полиња', v: 'Title, description, OG' }] }
+      ],
+      faq: [
+        { title: 'ГЛОБАЛНИ (6)', rows: [{ k: 'Колку чини монтажата?', v: 'Активно' }, { k: 'Дали има гаранција?', v: 'Активно' }, { k: 'Може ли на рати?', v: 'Активно' }], hasAction: true, actionLabel: 'Ново прашање' },
+        { title: 'ПО ПРОИЗВОД (4)', rows: [{ k: 'Crystal Digital 600HF', v: '4 прашања' }, { k: 'Crystal Smart', v: '3 прашања' }] },
+        { title: 'ЗА ФИРМИ (6)', rows: [{ k: 'Минимален период', v: '12 месеци' }, { k: 'Што ако се расипе', v: 'Активно' }, { k: 'Фактура и ДДВ', v: 'Активно' }] }
+      ],
+      b2b: [
+        { title: 'ПАКЕТИ', rows: [{ k: 'Мал тим · до 10', v: 'од 2.900 ден./мес.' }, { k: 'Канцеларија · 11–25', v: 'од 4.900 ден./мес.' }, { k: 'По мерка · 26+', v: 'од 7.900 ден./мес.' }], hasAction: true, actionLabel: 'Нов пакет' },
+        { title: 'ПАРАМЕТРИ НА КАЛКУЛАТОР', rows: [{ k: 'Литри по човек / ден', v: '1,5' }, { k: 'Работни дена', v: '22' }, { k: 'Цена по галон', v: '120 ден.' }, { k: 'Цена по шише', v: '25 ден.' }, { k: 'Додатни трошоци / мес.', v: '1.500 ден.' }] },
+        { title: 'ЛОГОА И ИСКУСТВА', rows: [{ k: 'Логоа на фирми', v: '4 активни' }, { k: 'B2B искуства', v: '3 активни' }, { k: 'Sticky CTA лента', v: 'Вклучена' }] }
+      ],
+      testimonials: [
+        { title: 'B2C (6)', rows: [{ k: 'Билјана, Скопје', v: '★★★★★' }, { k: 'Дарко, Тетово', v: '★★★★★' }, { k: 'Александар, Битола', v: '★★★★☆' }], hasAction: true, actionLabel: 'Ново искуство' },
+        { title: 'B2B (3)', rows: [{ k: 'Кафе Бар Лума', v: 'Објавено' }, { k: 'Дентал Плус', v: 'Објавено' }, { k: 'Фитнес Зона', v: 'Нацрт', color: '#B45309' }] }
+      ],
+      nav: [
+        { title: 'ГЛАВНО МЕНИ', rows: [{ k: '1. Производи', v: '/proizvodi' }, { k: '2. За фирми', v: '/za-biznis' }, { k: '3. Совети', v: '/soveti' }, { k: '4. За нас', v: '/za-nas' }, { k: '5. Контакт', v: '/kontakt' }], hasAction: true, actionLabel: 'Додај ставка' },
+        { title: 'ФУТЕР', rows: [{ k: 'Колона Производи', v: '5 линка' }, { k: 'Колона Сајт', v: '5 линка' }, { k: 'Колона Правни', v: '3 линка' }, { k: 'Социјални', v: 'Facebook, Instagram' }] },
+        { title: 'STICKY ЛЕНТА (MOBILE)', rows: [{ k: 'Повикај', v: '076/676/819' }, { k: 'Viber', v: '+389 76 676 819' }, { k: 'Барање', v: 'Отвора lead modal' }, { k: 'Се прикажува по', v: '30 % скрол' }] }
+      ],
+      media: [
+        { title: 'БИБЛИОТЕКА', rows: [{ k: 'Слики', v: '46' }, { k: 'Без alt текст', v: '0', color: '#16803B' }, { k: 'Варијанти', v: 'AVIF / WebP / JPG' }, { k: 'Најголема слика', v: '184 KB' }], hasAction: true, actionLabel: 'Прикачи слики' },
+        { title: 'ПРАВИЛА', rows: [{ k: 'Максимум', v: '5 MB по слика' }, { k: 'SVG од корисник', v: 'Забрането' }, { k: 'Замена без промена на URL', v: 'Дозволено' }] }
+      ],
+      seo: [
+        { title: 'МЕТА ПОДАТОЦИ', rows: [{ k: 'Страници со title', v: '12 / 12', color: '#16803B' }, { k: 'Страници со description', v: '12 / 12', color: '#16803B' }, { k: 'OG слика по производ', v: 'Автоматска' }, { k: 'Canonical', v: 'Активен' }], hasAction: true, actionLabel: 'Уреди по страница' },
+        { title: 'СТРУКТУРИРАНИ ПОДАТОЦИ', rows: [{ k: 'Organization', v: 'Вклучено' }, { k: 'LocalBusiness', v: 'Вклучено' }, { k: 'Product + Offer', v: 'Вклучено' }, { k: 'FAQPage', v: 'Вклучено' }, { k: 'Article', v: 'Вклучено' }] },
+        { title: 'ИНДЕКСИРАЊЕ', rows: [{ k: 'sitemap.xml', v: 'Автоматски' }, { k: 'robots.txt', v: 'Дозволено' }, { k: 'noindex', v: '/blagodarime, /admin' }, { k: 'Search Console', v: 'Верификуван' }] }
+      ],
+      redirects: [
+        { title: 'МАПА НА РЕДИРЕКЦИИ', rows: [{ k: '/produkt/spar-crystal-digital/', v: '→ /proizvodi/... · 301' }, { k: '/shop/', v: '→ /proizvodi · 301' }, { k: '/860/', v: '→ /soveti/... · 301' }, { k: '/sodrzina/', v: '→ /soveti · 301' }], hasAction: true, actionLabel: 'Увези CSV' },
+        { title: 'СОСТОЈБА', rows: [{ k: 'Вкупно правила', v: '31' }, { k: 'Погодоци 7 дена', v: '412' }, { k: 'Стари URL без правило', v: '0', color: '#16803B' }] }
+      ],
+      settings: [
+        { title: 'КОНТАКТИ', rows: [{ k: 'Телефон 1', v: '076/676/819' }, { k: 'Телефон 2', v: '070/755/190' }, { k: 'Email', v: 'info@filtervoda.mk' }, { k: 'Работно време', v: 'Пон–Саб 09–18' }], hasAction: true, actionLabel: 'Уреди контакти' },
+        { title: 'ЦЕНИ И ПЛАЌАЊЕ', rows: [{ k: 'Прикажи цени', v: 'Да, на сите' }, { k: 'Прецртана регуларна', v: 'Да' }, { k: 'Рати', v: 'До 12 · банка [потврди]' }, { k: 'Валута', v: 'MKD · „36.000 ден.“' }] },
+        { title: 'FEATURE FLAGS', rows: [{ k: 'feature.b2bPage', v: 'Вклучено', color: '#16803B' }, { k: 'feature.calculator', v: 'Вклучено', color: '#16803B' }, { k: 'feature.compareTable', v: 'Вклучено', color: '#16803B' }, { k: 'feature.advisorForm', v: 'Исклучено', color: '#64748B' }] }
+      ],
+      users: [
+        { title: 'КОРИСНИЦИ', rows: [{ k: 'Горан (сопственик)', v: 'CLIENT_VIEWER' }, { k: 'Ана · GoDigital', v: 'EDITOR' }, { k: 'Мартин · GoDigital', v: 'ADMIN' }, { k: 'Сервис', v: 'EDITOR' }], hasAction: true, actionLabel: 'Нов корисник' },
+        { title: 'БЕЗБЕДНОСТ', rows: [{ k: 'Сесија', v: '30 дена sliding' }, { k: 'Заклучување по', v: '5 неуспешни најави' }, { k: 'Re-auth за деструктивни', v: '10 минути' }, { k: 'TOTP 2FA', v: 'Опционално' }] }
+      ],
+      outbox: [
+        { title: 'DEAD (1)', rows: [{ k: 'lead.meta_capi · FV-1039', v: '5 обиди · rate limit 17', color: '#B4231B' }], hasAction: true, actionLabel: 'Обиди повторно' },
+        { title: 'QUEUED (2)', rows: [{ k: 'lead.notify.email · FV-1041', v: 'следен обид 09:42' }, { k: 'lead.autoreply · FV-1041', v: 'следен обид 09:42' }] },
+        { title: 'CRON', rows: [{ k: 'process-outbox', v: 'на 30 секунди' }, { k: 'anonymize-leads', v: 'дневно 03:00' }, { k: 'cleanup-sessions', v: 'дневно 03:15' }, { k: 'daily-digest', v: 'дневно 08:00' }] }
+      ],
+      audit: [
+        { title: 'ПОСЛЕДНИ ПРОМЕНИ', rows: [{ k: 'product.update · Crystal Smart', v: 'Ана · 09:31' }, { k: 'lead.status.change · FV-1037', v: 'Горан · 09:12' }, { k: 'settings.update · notify', v: 'Мартин · 08:44' }, { k: 'theme.apply · Б-1', v: 'Мартин · 08:40' }], hasAction: true, actionLabel: 'Извези лог' },
+        { title: 'ПРАВИЛА', rows: [{ k: 'Запис', v: 'Append-only' }, { k: 'PII во snapshot', v: 'Никогаш' }, { k: 'Задржување', v: 'Трајно' }] }
+      ]
+    };
+    return P[mod] || [];
+  }
+
+  contentFor(tab) {
+    const s = this.state;
+    const set = k => e => this.setState({ hero: { ...s.hero, [k]: e.target.value } });
+    if (tab === 'Почетна') return [
+      { label: 'H1 — наслов во hero', value: s.hero.h1, rows: 2, set: set('h1') },
+      { label: 'H2 — поднаслов', value: s.hero.h2, rows: 2, set: set('h2') },
+      { label: 'Текст на примарното CTA', value: s.hero.cta, rows: 1, set: set('cta') },
+      { label: 'Trust лента (4 елементи, одделени со ·)', value: s.hero.trust, rows: 2, set: set('trust') }
+    ];
+    const canned = {
+      'Каталог': [['H1', 'Производи'], ['Вовед', 'Системи под мијалник, диспензери, филтрација за цел дом, заштита од бигор и мерачи.'], ['Блок за помош', 'Не знаете кој систем ви одговара?']],
+      'Производ': [['Ознака над цената', 'Цената вклучува достава, бесплатна монтажа и обука за користење.'], ['Наслов на спецификација', 'Техничка спецификација'], ['Одржување', 'Степените 1–3 се менуваат на 6–12 месеци, мембраната на 24–36 месеци.']],
+      'За фирми': [['H1', 'Заборавете на галоните. Неограничена чиста вода за вашиот тим.'], ['H2', 'Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ.'], ['Под CTA', 'Бесплатна проценка · Без скриени трошоци · Брза монтажа'], ['Ознака на калкулаторот', 'Пресметката е ориентациона.']],
+      'Благодариме': [['Наслов', 'Благодариме за интересот!'], ['Текст', 'Вашето барање е примено. Ќе ве контактираме во рок од еден работен ден на телефонот што го оставивте.'], ['Итно', 'Итно? Повикајте 076/676/819']],
+      'Правни': [['Политика за приватност', 'SPAR Company е контролор на личните податоци што ги оставате преку формите на овој сајт.'], ['Политика за колачиња', 'Користиме колачиња за да го подобриме сајтот и за мерење на рекламите.'], ['Текст за согласност', 'Се согласувам SPAR Company да ме контактира во врска со моето барање и да ги обработува моите податоци согласно Политиката за приватност.']],
+      '404': [['Наслов', 'Оваа страница не постои.'], ['Текст', 'Пробајте од производите или почетната страница.']]
+    };
+    return (canned[tab] || []).map(([label, value]) => {
+      const f = this.fld('c:' + tab, label, value);
+      return { label, value: f.value, rows: 2, set: f.set };
+    });
+  }
+
+  editorFieldsFor(tab) {
+    const F = {
+      'Основно': [['Име', 'SPAR CRYSTAL DIGITAL 600HF', 'се прикажува во каталог и на страницата'], ['Slug', 'spar-crystal-digital-600hf', 'латиница, без празни места'], ['Tagline', 'Најнова генерација систем со директен проток', 'една реченица вредност'], ['Категорија', 'Системи под мијалник', 'предефинирана листа'], ['Публика', 'B2C + B2B', 'филтер во каталогот'], ['Редослед', '1', 'помал број = погоре']],
+      'Галерија': [['Главна слика', 'Untitled-design-2-300x300.png', 'прва во галеријата'], ['Број слики', '4', 'drag-and-drop за редослед'], ['Alt текст 1', 'SPAR Crystal Digital 600HF во кујна', 'задолжително'], ['Alt текст 2', 'Дигитален дисплеј', 'задолжително']],
+      'Придобивки': [['Придобивка 1', 'Без хлор, хемикалии и бигор', 'икона: droplet'], ['Придобивка 2', 'Алкална и минерализирана вода pH 8.5+', 'икона: leaf'], ['Идеален за 1', 'Семејство до 4 члена', ''], ['Идеален за 2', 'Кујна во кафуле', '']],
+      'Степени': [['Степен 1', 'Седимент филтер (5 микрони)', 'ги задржува песокот и ’рѓата'], ['Степен 4', 'RO мембрана', 'отстранува 95–99 % соли и бактерии'], ['Степен 6', 'Алкализатор / минерализатор', 'калциум, магнезиум, pH 8.5+'], ['Вкупно степени', '6', 'се прикажува како chip']],
+      'Спецификација': [['Група', 'Капацитет и проток', 'наслов на група'], ['Капацитет', '600 GPD [потврди]', 'вредност + единица'], ['Проток', '1,5 L/min [потврди]', ''], ['pH на излез', '8,5+', '']],
+      'Цена и беџови': [['Регуларна цена', '40.000', 'ден., се прикажува прецртана'], ['Акциска цена', '36.000', 'ден.'], ['Прикажи цена', 'Да', 'или „Побарај цена“'], ['Беџови', 'Акција, Бесплатна монтажа, Рати', 'одделени со запирка']],
+      'ЧПП': [['Прашање 1', 'Дали навистина ја отстранува целата нечистотија?', ''], ['Прашање 2', 'Колку чини одржувањето?', ''], ['Глобални ЧПП', 'Вклучени', 'се додаваат по продукт-специфичните']],
+      'Поврзани': [['Поврзан 1', 'SPAR CRYSTAL SMART', 'за споредбената табела'], ['Поврзан 2', 'SPAR CRYSTAL PRO', ''], ['Прикажи споредба', 'Да', 'се крие ако нема со што да се спореди']],
+      'SEO': [['SEO title', 'SPAR Crystal Digital 600HF — директен проток, pH 8.5+', 'до 60 знаци'], ['SEO description', 'Систем со 6 степени филтрација и дигитален дисплеј. Бесплатна монтажа.', 'до 155 знаци'], ['OG слика', 'Автоматска (1200×630)', 'име + слика + цена'], ['Canonical', '/proizvodi/spar-crystal-digital-600hf', '']]
+    };
+    return (F[tab] || []).map(([label, value, hint]) => {
+      const f = this.fld('p:' + tab, label, value);
+      return { label, hint, value: f.value, set: f.set };
+    });
+  }
+
+  authVals() {
+    const s = this.state;
+    const locked = s.attempts >= 3;
+    return {
+      isLogin: s.auth !== 'in', isAdminShell: s.auth === 'in',
+      isForm: s.auth === 'login', isReset: s.auth === 'reset', isSent: s.auth === 'sent',
+      locked, lockedNo: !locked,
+      loginEmail: s.login.email, loginPass: s.login.pass, loginErr: s.loginErr,
+      attemptsNote: s.attempts > 0 && !locked ? 'Неуспешни обиди: ' + s.attempts + ' од 5' : '',
+      setLoginEmail: e => this.setState({ login: { ...s.login, email: e.target.value } }),
+      setLoginPass: e => this.setState({ login: { ...s.login, pass: e.target.value } }),
+      submitLogin: e => {
+        e.preventDefault();
+        if (!s.login.email.trim() || !s.login.pass.trim()) { this.setState({ loginErr: 'Внесете email и лозинка' }); return; }
+        if (s.login.pass !== 'spar2026') {
+          const a = s.attempts + 1;
+          this.setState({ attempts: a, loginErr: a >= 3 ? 'Сметката е привремено заклучена. Обидете се повторно за 15 минути.' : 'Погрешен email или лозинка' });
+          return;
+        }
+        this.setState({ auth: 'in', loginErr: '', attempts: 0 });
+      },
+      goReset: () => this.setState({ auth: 'reset', loginErr: '', attempts: 0 }),
+      backLogin: () => this.setState({ auth: 'login', loginErr: '', attempts: 0, login: { ...s.login, pass: '' } }),
+      sendReset: e => { if (e && e.preventDefault) e.preventDefault(); this.setState({ auth: 'sent', attempts: 0 }); },
+      demoHint: 'Демо лозинка: spar2026'
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const th = this.t();
+    const mDef = this.moduleDefs.find(m => m.id === s.mod) || this.moduleDefs[0];
+    const statusColor = { 'Нов': '#16803B', 'Контактиран': '#1156E0', 'Понуда испратена': '#B45309', 'Договорено': '#6D4AC7', 'Монтирано': '#128C8C', 'Изгубено': '#64748B', 'Спам': '#B4231B' };
+    let lead = s.leadSel ? this.leadsData.find(l => l.id === s.leadSel) : null;
+    if (lead && s.statusOverride[lead.id]) lead = { ...lead, status: s.statusOverride[lead.id] };
+    const filtered = this.leadsData
+      .filter(l => s.leadFilter === 'Сите' || l.type === s.leadFilter || (s.statusOverride[l.id] || l.status) === s.leadFilter)
+      .filter(l => !s.q.trim() || (l.name + l.phone + l.product).toLowerCase().indexOf(s.q.toLowerCase()) > -1);
+    const cta = this.tok('cta');
+    const r = this.ratio(cta);
+    const simple = ['categories', 'posts', 'faq', 'b2b', 'testimonials', 'nav', 'media', 'seo', 'redirects', 'settings', 'users', 'outbox', 'audit'];
+
+    return {
+      modules: this.moduleDefs.map(m => ({
+        label: m.label, dot: m.dot, badge: m.badge || '', pick: () => { this.setState({ mod: m.id, leadSel: null }); window.scrollTo(0, 0); },
+        bg: s.mod === m.id ? '#103459' : 'transparent', fg: s.mod === m.id ? '#fff' : '#BBD4EE',
+        badgeFg: '#9BB0CC'
+      })),
+      title: mDef.title, subtitle: mDef.sub, crumb: mDef.crumb,
+      themeName: th.name, themeAccent: this.tok('accent'),
+      sidebarAccent: th.sidebarAccent || '#7FD3EA',
+
+      isDash: s.mod === 'dash',
+      isLeads: s.mod === 'leads' && !s.leadSel,
+      isLeadDetail: s.mod === 'leads' && !!s.leadSel,
+      isProducts: s.mod === 'products',
+      isEditor: s.mod === 'editor',
+      isContent: s.mod === 'content',
+      isDesign: s.mod === 'design',
+      isTracking: s.mod === 'tracking',
+      isSimple: simple.indexOf(s.mod) > -1,
+      panels: this.panelsFor(s.mod).map(p => ({
+        title: p.title, rows: p.rows.map(x => ({ k: x.k, v: x.v, color: x.color || '#0A1B33' })),
+        hasAction: !!p.hasAction, actionLabel: p.actionLabel || '', action: () => this.say((p.actionLabel || 'Готово') + ' — демо дејство')
+      })),
+
+      kpis: [
+        { label: 'ДЕНЕС', value: '4', note: 'нови lead-ови', color: '#16803B' },
+        { label: '7 ДЕНА', value: '31', note: 'lead-ови', color: '#0A1B33' },
+        { label: '30 ДЕНА', value: '128', note: 'lead-ови', color: '#0A1B33' },
+        { label: 'КОНВЕРЗИЈА', value: '3.4%', note: 'сесија → lead', color: '#1156E0' }
+      ],
+      bars: [40, 62, 48, 78, 55, 90, 44, 66, 72, 52, 84, 60, 96, 70].map(v => ({ h: v + '%', bg: v > 80 ? '#1156E0' : v > 65 ? '#6FC4F7' : '#E6F0FA' })),
+      sources: [{ name: 'Facebook', pct: '58%', bg: '#1156E0' }, { name: 'Instagram', pct: '24%', bg: '#6FC4F7' }, { name: 'Google', pct: '12%', bg: '#16803B' }, { name: 'Директно', pct: '6%', bg: '#64748B' }],
+      goOutbox: () => this.setState({ mod: 'outbox' }),
+
+      q: s.q, setQ: e => this.setState({ q: e.target.value }),
+      leadFilters: this.chips(['Сите', 'B2C', 'B2B', 'Нов', 'Изгубено'], s.leadFilter, k => this.setState({ leadFilter: k })),
+      leadRows: filtered.map(l => {
+        const st = s.statusOverride[l.id] || l.status;
+        return { ...l, status: st, color: statusColor[st], open: () => this.setState({ leadSel: l.id }) };
+      }),
+      leadCount: String(filtered.length),
+      lead: lead || this.leadsData[0],
+      leadFields: lead ? [
+        { k: 'Тип', v: lead.type }, { k: 'Телефон', v: lead.phone }, { k: 'Град', v: lead.city },
+        { k: 'Производ', v: lead.product }, { k: 'Број вработени', v: lead.emp || '—' },
+        { k: 'Моментално решение', v: lead.sol || '—' }, { k: 'Извор (last touch)', v: lead.src },
+        { k: 'Страница', v: '/za-biznis' }, { k: 'Согласност', v: 'v1 · 27.08.2026' }, { k: 'ipHash', v: 'a91f…c4 · се брише за 30 дена' }
+      ] : [],
+      backLeads: () => this.setState({ leadSel: null }),
+      statusChips: ['Нов', 'Контактиран', 'Понуда испратена', 'Договорено', 'Монтирано', 'Изгубено', 'Спам'].map(k => {
+        const on = lead && lead.status === k;
+        return { label: k, pick: () => this.setState({ statusOverride: { ...s.statusOverride, [s.leadSel]: k } }), bg: on ? '#071A3A' : '#fff', fg: on ? '#fff' : '#21375A', bd: on ? '#071A3A' : '#DDE6F0' };
+      }),
+      lostSelected: !!lead && lead.status === 'Изгубено',
+      setLostReason: e => this.setState({ lostReason: e.target.value }),
+      timeline: [
+        { at: '09:12', what: 'Lead креиран од /za-biznis' },
+        { at: '09:12', what: 'Email до клиент испратен' },
+        { at: '09:12', what: 'Meta CAPI Lead испратен · event_id споделен со Pixel' },
+        { at: '09:13', what: 'Автоматски одговор до lead-от' },
+        { at: '09:20', what: 'Статус променет: Нов → Контактиран (Ана)' }
+      ],
+      notes: s.notes,
+      noteDraft: s.noteDraft, setNoteDraft: e => this.setState({ noteDraft: e.target.value }),
+      addNote: e => {
+        e.preventDefault();
+        if (!s.noteDraft.trim()) return;
+        this.setState({ notes: s.notes.concat([{ text: s.noteDraft, by: 'Мартин · GoDigital · сега' }]), noteDraft: '' });
+        this.say('Белешката е додадена');
+      },
+      reauth: () => this.say('За оваа операција внесете ја лозинката повторно'),
+
+      productRows: this.productsData.map(p => ({
+        ...p, statusColor: p.status === 'Објавено' ? '#16803B' : '#B45309',
+        edit: () => { this.setState({ mod: 'editor', prodTab: 'Основно' }); window.scrollTo(0, 0); }
+      })),
+      newProduct: () => { this.setState({ mod: 'editor', prodTab: 'Основно' }); this.say('Нов производ — нацрт создаден'); },
+      reorder: () => this.say('Drag-and-drop редослед е активен'),
+      backProducts: () => this.setState({ mod: 'products' }),
+      editorTabs: this.chips(['Основно', 'Галерија', 'Придобивки', 'Степени', 'Спецификација', 'Цена и беџови', 'ЧПП', 'Поврзани', 'SEO'], s.prodTab, k => this.setState({ prodTab: k }), '#1156E0'),
+      editorTab: s.prodTab.toUpperCase(),
+      editorFields: this.editorFieldsFor(s.prodTab),
+      publish: () => this.say('Производот е објавен · кешот е инвалидиран'),
+      toDraft: () => this.say('Вратено во нацрт · страницата враќа 404 за јавност'),
+      preview: () => this.say('Отворен preview линк со потпишан токен (1 час)'),
+
+      contentTabs: this.chips(['Почетна', 'Каталог', 'Производ', 'За фирми', 'Благодариме', 'Правни', '404'], s.contentTab, k => this.setState({ contentTab: k }), '#7B5BD6'),
+      contentTab: s.contentTab.toUpperCase(),
+      contentFields: this.contentFor(s.contentTab),
+      heroH1: s.hero.h1, heroH2: s.hero.h2, heroCta: s.hero.cta, trustLine: s.hero.trust,
+      previewBadge: 'БЕСПЛАТНА МОНТАЖА',
+      previewBg: th.bg, previewInk: th.previewInk || this.tok('ink'), previewMuted: th.previewMuted || th.muted, previewBorder: th.border,
+      themeCta: cta, themeRadius: this.tok('radius'), themeChipRadius: th.chipRadius,
+      themeChipBg: th.chipBg, themeChipFg: th.chipFg, themeTrustBg: th.trustBg, themeTrustFg: th.trustFg,
+
+      themes: Object.keys(this.themeDefs).map(k => {
+        const d = this.themeDefs[k], on = s.theme === k;
+        return {
+          name: d.name, desc: d.desc, colors: d.colors, fonts: d.font, swatch: d.swatch,
+          bd: on ? d.cta : '#E1E9F2', badge: on ? 'АКТИВЕН' : '', badgeFg: '#16803B',
+          btnLabel: on ? 'Активен темплејт' : 'Примени на сајтот',
+          btnBg: on ? '#F1F6FC' : d.cta, btnFg: on ? '#64748B' : '#fff', btnBd: on ? '#DDE6F0' : d.cta,
+          apply: () => { this.setState({ theme: k, tokens: { cta: '', ink: '', accent: '', radius: '', font: '', mono: 'JetBrains Mono' } }); this.say(d.name + ' е применет на сајтот'); }
+        };
+      }),
+      tokenFields: [
+        { label: 'CTA боја', key: 'cta' }, { label: 'Ink (текст)', key: 'ink' },
+        { label: 'Акцент', key: 'accent' }, { label: 'Радиус на копче', key: 'radius' },
+        { label: 'Фонт фамилии', key: 'font' }, { label: 'Mono за бројки', key: 'mono' }
+      ].map(f => ({
+        label: f.label, value: this.tok(f.key), chip: f.key === 'radius' || f.key === 'font' || f.key === 'mono' ? '#F1F6FC' : this.tok(f.key),
+        set: e => this.setState({ tokens: { ...s.tokens, [f.key]: e.target.value } })
+      })),
+      resetTokens: () => { this.setState({ tokens: { cta: '', ink: '', accent: '', radius: '', font: '', mono: 'JetBrains Mono' } }); this.say('Вратени фабрички вредности на темплејтот'); },
+      exportTokens: () => this.say('tokens.css е генериран за handoff'),
+      contrastNote: r ? (r + ':1 · ' + (r >= 4.5 ? 'поминува AA' : 'под AA 4.5:1')) : 'внесете HEX за проверка',
+
+      trackFields: [
+        { label: 'Google Tag Manager ID', key: 'gtm', ph: 'GTM-XXXXXXX', hint: 'контејнерот вчитува GA4 и Pixel по согласност' },
+        { label: 'Google Analytics 4 (Measurement ID)', key: 'ga4', ph: 'G-XXXXXXXXXX', hint: 'конверзија: generate_lead' },
+        { label: 'Meta Pixel ID', key: 'pixel', ph: '1957593378149639', hint: 'постојниот ID од стариот сајт се задржува' },
+        { label: 'Meta Conversions API токен', key: 'capi', ph: 'EAAG…', hint: 'server-side Lead со ист event_id како browser Pixel' },
+        { label: 'Meta test event code', key: 'testCode', ph: 'TEST12345', hint: 'само за Events Manager → Test Events' },
+        { label: 'Cloudflare Turnstile site key', key: 'turnstile', ph: '0x4AAA…', hint: 'невидлива заштита на формите' },
+        { label: 'Приматели на нотификации', key: 'notify', ph: 'info@filtervoda.mk', hint: 'одделени со запирка' }
+      ].map(f => ({
+        label: f.label, ph: f.ph, hint: f.hint, value: s.track[f.key],
+        set: e => this.setState({ track: { ...s.track, [f.key]: e.target.value } })
+      })),
+      consentToggles: [
+        { k: 'ad_storage', note: 'колачиња за реклами (Meta, Google Ads)' },
+        { k: 'analytics_storage', note: 'GA4 статистика' },
+        { k: 'ad_user_data', note: 'праќање на податоци до Meta/Google' },
+        { k: 'ad_personalization', note: 'персонализирани реклами' }
+      ].map(t => ({
+        key: t.k, note: t.note, state: s.consent[t.k] ? 'granted по согласност' : 'denied по default',
+        color: s.consent[t.k] ? '#16803B' : '#64748B',
+        toggle: () => this.setState({ consent: { ...s.consent, [t.k]: !s.consent[t.k] } })
+      })),
+      connections: [
+        { name: 'Google Tag Manager', ok: s.track.gtm.indexOf('GTM-') === 0 && s.track.gtm.indexOf('X') < 0 },
+        { name: 'Google Analytics 4', ok: s.track.ga4.indexOf('G-') === 0 && s.track.ga4.indexOf('X') < 0 },
+        { name: 'Meta Pixel', ok: /^\d{10,}$/.test(s.track.pixel) },
+        { name: 'Meta Conversions API', ok: s.track.capi.length > 6 && s.track.capi.indexOf('•') < 0 }
+      ].map(c => ({
+        name: c.name, state: c.ok ? 'поврзано' : 'чека ID / токен',
+        dot: c.ok ? '#16803B' : '#B45309', fg: c.ok ? '#16803B' : '#B45309'
+      })),
+      testAll: () => this.say('Тест настани пратени · проверете во Events Manager и GA4 DebugView'),
+      events: this.eventsData.map(e => {
+        const st = s.eventState[e.ga];
+        return {
+          ga: e.ga, meta: e.meta, when: e.when,
+          state: st || 'не е тестиран', color: st ? '#16803B' : '#64748B',
+          test: () => { this.setState({ eventState: { ...s.eventState, [e.ga]: 'потврден 09:41' } }); this.say(e.ga + ' е потврден'); }
+        };
+      }),
+
+      ...this.authVals(),
+      dataLoading: s.dataState === 'loading', dataEmpty: s.dataState === 'empty',
+      dataError: s.dataState === 'error', dataReady: s.dataState === 'ready',
+      stateChips: ['ready', 'loading', 'empty', 'error'].map(k => ({
+        label: k === 'ready' ? 'Нормално' : k === 'loading' ? 'Loading' : k === 'empty' ? 'Празно' : 'Грешка',
+        pick: () => this.setState({ dataState: k }),
+        bg: s.dataState === k ? '#071A3A' : '#fff', fg: s.dataState === k ? '#fff' : '#21375A', bd: s.dataState === k ? '#071A3A' : '#DDE6F0'
+      })),
+      retryLoad: () => { this.setState({ dataState: 'loading' }); setTimeout(() => this.setState({ dataState: 'ready' }), 900); },
+      skeletons: [1, 2, 3, 4, 5, 6],
+      clearFilters: () => this.setState({ dataState: 'ready', leadFilter: 'Сите', q: '' }),
+      savedToast: () => this.say('Промените се зачувани'),
+      exportCsv: () => this.say('Извезени ' + filtered.length + ' lead-ови во CSV'),
+      logout: () => this.setState({ auth: 'login', login: { email: '', pass: '' }, loginErr: '', attempts: 0 }),
+      toastText: s.toast, toastOpen: !!s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

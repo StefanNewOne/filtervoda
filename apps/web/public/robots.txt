@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /blagodarime
+Disallow: /admin
+
+Sitemap: https://filtervoda.mk/sitemap.xml

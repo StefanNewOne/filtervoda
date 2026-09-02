@@ -1,0 +1,16 @@
+# Dev image for the public site — React Router 7 dev server (Vite). Prod is a multi-stage
+# build served by react-router-serve behind Nginx (Milestone 5).
+FROM node:20-alpine
+WORKDIR /app
+
+# All workspace manifests present so `npm install` resolves the workspace graph.
+COPY package.json package-lock.json* ./
+COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+COPY apps/admin/package.json apps/admin/
+COPY e2e/package.json e2e/
+RUN npm install
+
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--workspace", "apps/web"]

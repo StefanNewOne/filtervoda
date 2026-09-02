@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>filtervoda.mk — Email шаблони</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EEF2F7; color: #0A1B33; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1156E0; text-decoration: none; }
+  a:hover { color: #08182F; }
+  button { font-family: inherit; cursor: pointer; }
+  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  p { margin: 0; text-wrap: pretty; }
+  table { border-collapse: collapse; }
+</style>
+</helmet>
+
+<div style="max-width: 1080px; margin: 0 auto; padding: 30px 20px 80px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap">
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #0E7490">ФАЗА 2 · ТРАНСАКЦИСКИ EMAIL</div>
+      <h1 style="font-size: 27px; margin-top: 8px">Email шаблони</h1>
+      <p style="margin-top: 7px; font-size: 14px; color: #55677F">600px табеларен layout, inline стилови, без веб фонтови — работи во Gmail, Outlook и на мобилен.</p>
+    </div>
+    <div style="display: flex; gap: 7px; flex-wrap: wrap">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.pick }}" style="border: 1px solid {{ t.bd }}; background: {{ t.bg }}; color: {{ t.fg }}; padding: 11px 15px; border-radius: 9px; font-size: 13px; font-weight: 700">{{ t.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 20px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 18px">
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #55677F">ДО</div>
+      <div style="margin-top: 5px; font-size: 14px; font-weight: 700">{{ meta.to }}</div>
+    </div>
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #55677F">SUBJECT</div>
+      <div style="margin-top: 5px; font-size: 14px; font-weight: 700">{{ meta.subject }}</div>
+    </div>
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #55677F">PREHEADER</div>
+      <div style="margin-top: 5px; font-size: 14px; color: #46597A">{{ meta.pre }}</div>
+    </div>
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #55677F">КОГА СЕ ПРАЌА</div>
+      <div style="margin-top: 5px; font-size: 14px; color: #46597A">{{ meta.trigger }}</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap: 22px; align-items: start">
+    <div style="background: #DCE4EE; border-radius: 14px; padding: 26px 20px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #46597A; text-align: center; padding-bottom: 16px">ПРЕГЛЕД · 600px</div>
+
+      <sc-if value="{{ isLeadNotify }}" hint-placeholder-val="{{ true }}">
+        <table width="600" style="width: 100%; max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 10px; overflow: hidden; font-family: Arial, Helvetica, sans-serif">
+          <tr><td style="background: #08182F; padding: 22px 28px">
+            <table width="100%"><tr>
+              <td style="font-size: 17px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">filtervoda<span style="color: #6FC4F7">.mk</span></td>
+              <td align="right" style="font-size: 12px; color: #9BB0CC; font-family: Arial, sans-serif">Нов lead</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding: 30px 28px 8px">
+            <div style="display: inline-block; background: #E9F6EE; color: #14622F; font-size: 12px; font-weight: bold; padding: 6px 11px; border-radius: 4px; font-family: Arial, sans-serif">{{ lead.type }} · {{ lead.id }}</div>
+            <h2 style="font-size: 22px; color: #08182F; margin: 16px 0 0; font-family: Arial, sans-serif">Ново барање од сајтот</h2>
+            <p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #46597A; font-family: Arial, sans-serif">Пристигна на {{ lead.when }}. Јавете се во рок од еден работен ден.</p>
+          </td></tr>
+          <tr><td style="padding: 22px 28px 4px">
+            <table width="100%" style="font-family: Arial, sans-serif">
+              <sc-for list="{{ lead.rows }}" as="r" hint-placeholder-count="8">
+                <tr>
+                  <td style="padding: 9px 0; border-bottom: 1px solid #EEF3F9; font-size: 13px; color: #6C86A8; width: 42%">{{ r.k }}</td>
+                  <td style="padding: 9px 0; border-bottom: 1px solid #EEF3F9; font-size: 14px; font-weight: bold; color: #08182F">{{ r.v }}</td>
+                </tr>
+              </sc-for>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 24px 28px 8px">
+            <table><tr>
+              <td style="background: #16803B; border-radius: 6px"><a href="tel:+38970221883" style="display: inline-block; padding: 14px 24px; font-size: 15px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">Повикај веднаш</a></td>
+              <td width="10"></td>
+              <td style="border: 1px solid #DDE6F0; border-radius: 6px"><a href="#" style="display: inline-block; padding: 13px 22px; font-size: 15px; font-weight: bold; color: #1156E0; font-family: Arial, sans-serif">Отвори во админ</a></td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding: 20px 28px 30px">
+            <p style="margin: 0; font-size: 12px; line-height: 1.55; color: #6C86A8; font-family: Arial, sans-serif">Согласност: v1 · {{ lead.when }}. Личните податоци се обработуваат според Политиката за приватност и се анонимизираат по 24 месеци неактивност.</p>
+          </td></tr>
+          <tr><td style="background: #F6F9FC; padding: 18px 28px; border-top: 1px solid #EEF3F9">
+            <p style="margin: 0; font-size: 12px; color: #6C86A8; font-family: Arial, sans-serif">SPAR Company · Скопје · 076/676/819</p>
+          </td></tr>
+        </table>
+      </sc-if>
+
+      <sc-if value="{{ isAutoreply }}" hint-placeholder-val="{{ false }}">
+        <table width="600" style="width: 100%; max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 10px; overflow: hidden; font-family: Arial, Helvetica, sans-serif">
+          <tr><td style="background: #08182F; padding: 26px 28px; text-align: center">
+            <div style="font-size: 19px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">filtervoda<span style="color: #6FC4F7">.mk</span></div>
+            <div style="font-size: 12px; color: #9BB0CC; margin-top: 5px; font-family: Arial, sans-serif">SPAR Company</div>
+          </td></tr>
+          <tr><td style="padding: 34px 28px 0; text-align: center">
+            <div style="width: 52px; height: 52px; line-height: 52px; border-radius: 26px; background: #16803B; color: #FFFFFF; font-size: 24px; margin: 0 auto; font-family: Arial, sans-serif">✓</div>
+            <h2 style="font-size: 24px; color: #08182F; margin: 20px 0 0; font-family: Arial, sans-serif">Благодариме за интересот!</h2>
+            <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.6; color: #46597A; font-family: Arial, sans-serif">Вашето барање е примено. Ќе ве контактираме во рок од еден работен ден на телефонот што го оставивте.</p>
+          </td></tr>
+          <tr><td style="padding: 26px 28px 0">
+            <table width="100%" style="background: #F6F9FC; border-radius: 8px">
+              <tr><td style="padding: 20px 22px">
+                <div style="font-size: 12px; font-weight: bold; color: #6C86A8; font-family: Arial, sans-serif">ВАШЕТО БАРАЊЕ</div>
+                <table width="100%" style="margin-top: 10px; font-family: Arial, sans-serif">
+                  <sc-for list="{{ reply.rows }}" as="r" hint-placeholder-count="3">
+                    <tr>
+                      <td style="padding: 6px 0; font-size: 13px; color: #6C86A8; width: 42%">{{ r.k }}</td>
+                      <td style="padding: 6px 0; font-size: 14px; font-weight: bold; color: #08182F">{{ r.v }}</td>
+                    </tr>
+                  </sc-for>
+                </table>
+              </td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 26px 28px 0">
+            <div style="font-size: 13px; font-weight: bold; color: #08182F; font-family: Arial, sans-serif">Што следува</div>
+            <table width="100%" style="margin-top: 12px; font-family: Arial, sans-serif">
+              <sc-for list="{{ reply.steps }}" as="s" hint-placeholder-count="3">
+                <tr>
+                  <td width="30" valign="top" style="padding: 7px 0"><div style="width: 22px; height: 22px; line-height: 22px; border-radius: 11px; background: #F2F8FF; color: #1156E0; font-size: 12px; font-weight: bold; text-align: center; font-family: Arial, sans-serif">{{ s.n }}</div></td>
+                  <td style="padding: 7px 0 7px 10px; font-size: 14px; line-height: 1.5; color: #46597A">{{ s.text }}</td>
+                </tr>
+              </sc-for>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 26px 28px 0; text-align: center">
+            <table align="center"><tr>
+              <td style="background: #16803B; border-radius: 6px"><a href="tel:+38976676819" style="display: inline-block; padding: 15px 28px; font-size: 15px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">Итно? Повикајте 076/676/819</a></td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding: 26px 28px 32px">
+            <p style="margin: 0; font-size: 12px; line-height: 1.55; color: #6C86A8; text-align: center; font-family: Arial, sans-serif">Овој email е автоматски. Ако не сте го поднеле барањето, игнорирајте го.</p>
+          </td></tr>
+          <tr><td style="background: #F6F9FC; padding: 20px 28px; border-top: 1px solid #EEF3F9; text-align: center">
+            <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #6C86A8; font-family: Arial, sans-serif">SPAR Company · Скопје · info@filtervoda.mk<br/>10 години гаранција · Бесплатна монтажа низ цела Македонија</p>
+          </td></tr>
+        </table>
+      </sc-if>
+
+      <sc-if value="{{ isReset }}" hint-placeholder-val="{{ false }}">
+        <table width="600" style="width: 100%; max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 10px; overflow: hidden; font-family: Arial, Helvetica, sans-serif">
+          <tr><td style="background: #08182F; padding: 22px 28px">
+            <div style="font-size: 17px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">filtervoda<span style="color: #6FC4F7">.mk</span> · админ</div>
+          </td></tr>
+          <tr><td style="padding: 32px 28px 0">
+            <h2 style="font-size: 22px; color: #08182F; margin: 0; font-family: Arial, sans-serif">Ресетирање на лозинка</h2>
+            <p style="margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: #46597A; font-family: Arial, sans-serif">Побарано е ресетирање за <strong style="color: #08182F">ana@godigital.mk</strong>. Кликнете на копчето за да поставите нова лозинка.</p>
+          </td></tr>
+          <tr><td style="padding: 24px 28px 0">
+            <table><tr>
+              <td style="background: #1156E0; border-radius: 6px"><a href="#" style="display: inline-block; padding: 15px 28px; font-size: 15px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">Постави нова лозинка</a></td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding: 22px 28px 0">
+            <table width="100%" style="background: #FFF8E9; border-radius: 8px">
+              <tr><td style="padding: 16px 20px">
+                <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #7A4A08; font-family: Arial, sans-serif">Линкот важи <strong>30 минути</strong> и може да се употреби само еднаш. Ако не сте го побарале, игнорирајте го овој email — вашата лозинка останува непроменета.</p>
+              </td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 22px 28px 32px">
+            <p style="margin: 0; font-size: 12px; line-height: 1.55; color: #6C86A8; font-family: Arial, sans-serif">Побарано од IP a91f…c4 · 30.08.2026 · 09:41<br/>Ако линкот не работи, копирајте: https://filtervoda.mk/admin/reset?t=…</p>
+          </td></tr>
+          <tr><td style="background: #F6F9FC; padding: 18px 28px; border-top: 1px solid #EEF3F9">
+            <p style="margin: 0; font-size: 12px; color: #6C86A8; font-family: Arial, sans-serif">SPAR Company · filtervoda.mk</p>
+          </td></tr>
+        </table>
+      </sc-if>
+
+      <sc-if value="{{ isDigest }}" hint-placeholder-val="{{ false }}">
+        <table width="600" style="width: 100%; max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 10px; overflow: hidden; font-family: Arial, Helvetica, sans-serif">
+          <tr><td style="background: #08182F; padding: 22px 28px">
+            <table width="100%"><tr>
+              <td style="font-size: 17px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">filtervoda<span style="color: #6FC4F7">.mk</span></td>
+              <td align="right" style="font-size: 12px; color: #9BB0CC; font-family: Arial, sans-serif">29.08.2026</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding: 30px 28px 0">
+            <h2 style="font-size: 22px; color: #08182F; margin: 0; font-family: Arial, sans-serif">Дневен преглед</h2>
+            <p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #46597A; font-family: Arial, sans-serif">Вчера пристигнаа 4 нови барања. Две чекаат прв контакт.</p>
+          </td></tr>
+          <tr><td style="padding: 22px 28px 0">
+            <table width="100%">
+              <tr>
+                <sc-for list="{{ digest.kpis }}" as="k" hint-placeholder-count="3">
+                  <td width="33%" style="padding: 4px">
+                    <table width="100%" style="background: #F6F9FC; border-radius: 8px"><tr><td style="padding: 16px; text-align: center; font-family: Arial, sans-serif">
+                      <div style="font-size: 24px; font-weight: bold; color: {{ k.color }}">{{ k.v }}</div>
+                      <div style="font-size: 11px; color: #6C86A8; margin-top: 4px">{{ k.k }}</div>
+                    </td></tr></table>
+                  </td>
+                </sc-for>
+              </tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 22px 28px 0">
+            <div style="font-size: 12px; font-weight: bold; color: #6C86A8; font-family: Arial, sans-serif">ЧЕКААТ ПРВ КОНТАКТ</div>
+            <table width="100%" style="margin-top: 10px; font-family: Arial, sans-serif">
+              <sc-for list="{{ digest.rows }}" as="r" hint-placeholder-count="2">
+                <tr>
+                  <td style="padding: 11px 0; border-bottom: 1px solid #EEF3F9">
+                    <div style="font-size: 14px; font-weight: bold; color: #08182F">{{ r.name }}</div>
+                    <div style="font-size: 12px; color: #6C86A8; margin-top: 3px">{{ r.note }}</div>
+                  </td>
+                  <td align="right" style="padding: 11px 0; border-bottom: 1px solid #EEF3F9; font-size: 13px; font-weight: bold; color: #B45309">{{ r.age }}</td>
+                </tr>
+              </sc-for>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 24px 28px 32px">
+            <table><tr>
+              <td style="background: #1156E0; border-radius: 6px"><a href="#" style="display: inline-block; padding: 14px 24px; font-size: 15px; font-weight: bold; color: #FFFFFF; font-family: Arial, sans-serif">Отвори админ панел</a></td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="background: #F6F9FC; padding: 18px 28px; border-top: 1px solid #EEF3F9">
+            <p style="margin: 0; font-size: 12px; color: #6C86A8; font-family: Arial, sans-serif">Праќање дневно во 08:00 · може да се исклучи во Поставки</p>
+          </td></tr>
+        </table>
+      </sc-if>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div style="background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 24px">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ПРАВИЛА ЗА ОВОЈ ШАБЛОН</div>
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 0">
+          <sc-for list="{{ rules }}" as="r" hint-placeholder-count="5">
+            <div style="display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid #EEF3F9">
+              <span style="font-size: 14px; color: #21375A">{{ r.k }}</span>
+              <span style="font-size: 13px; font-weight: 700; text-align: right; color: {{ r.color }}">{{ r.v }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 24px">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ПРОМЕНЛИВИ</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px">
+          <sc-for list="{{ vars }}" as="v" hint-placeholder-count="6">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; background: #F1F6FC; border: 1px solid #DDE6F0; color: #21375A; padding: 6px 10px; border-radius: 5px">{{ v }}</span>
+          </sc-for>
+        </div>
+        <p style="margin-top: 14px; font-size: 12px; line-height: 1.55; color: #64748B">Сите променливи се escape-ирани. Ако вредноста е празна, редот не се прикажува.</p>
+      </div>
+      <div style="background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 24px">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ТЕХНИЧКИ ОГРАНИЧУВАЊА</div>
+        <ul style="margin: 14px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px">
+          <li style="font-size: 13px; line-height: 1.55; color: #46597A">Табеларен layout 600px, без flex и grid — Outlook не ги поддржува.</li>
+          <li style="font-size: 13px; line-height: 1.55; color: #46597A">Arial/Helvetica наместо веб фонт; Manrope се користи само во прегледот.</li>
+          <li style="font-size: 13px; line-height: 1.55; color: #46597A">Копчињата се обоена табела со линк внатре — не HTML button.</li>
+          <li style="font-size: 13px; line-height: 1.55; color: #46597A">Без слики во телото; логото е текст, за да нема блокирани слики.</li>
+          <li style="font-size: 13px; line-height: 1.55; color: #46597A">Секој шаблон има plain-text верзија со истата содржина.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1120},&quot;defaultTemplate&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;lead&quot;,&quot;autoreply&quot;,&quot;reset&quot;,&quot;digest&quot;],&quot;default&quot;:&quot;lead&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showRules&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { tab: 'lead' };
+
+  defs = {
+    lead: {
+      label: 'Нов lead → сопственик',
+      to: 'info@filtervoda.mk, sales@filtervoda.mk',
+      subject: 'Нов lead · B2B · Кафе Бар Лума',
+      pre: 'Кафе Бар Лума · 6–15 вработени · Скопје',
+      trigger: 'веднаш по успешно поднесување',
+      rules: [
+        { k: 'Праќање', v: 'Веднаш · outbox со 5 обиди' },
+        { k: 'Reply-To', v: 'email на lead-от, ако го оставил' },
+        { k: 'Приоритет', v: 'B2B пред B2C во subject' },
+        { k: 'Приматели', v: 'од Поставки → нотификации' },
+        { k: 'Plain-text', v: 'Да' }
+      ],
+      vars: ['{{lead.id}}', '{{lead.type}}', '{{lead.name}}', '{{lead.phone}}', '{{lead.city}}', '{{lead.product}}', '{{lead.employees}}', '{{lead.source}}', '{{lead.page}}', '{{admin.url}}']
+    },
+    autoreply: {
+      label: 'Автоматски одговор → lead',
+      to: 'клиентот што го поднел барањето',
+      subject: 'Го примивме вашето барање — filtervoda.mk',
+      pre: 'Ќе ве контактираме во рок од еден работен ден.',
+      trigger: 'веднаш, само ако оставил email',
+      rules: [
+        { k: 'Праќање', v: 'Веднаш по lead notify' },
+        { k: 'Услов', v: 'Само ако email е внесен' },
+        { k: 'Reply-To', v: 'info@filtervoda.mk' },
+        { k: 'Без ветувања', v: 'Никаква медицинска тврдба', color: '#B4231B' },
+        { k: 'Plain-text', v: 'Да' }
+      ],
+      vars: ['{{lead.name}}', '{{lead.product}}', '{{lead.type}}', '{{lead.when}}', '{{site.phone}}', '{{site.url}}']
+    },
+    reset: {
+      label: 'Ресет на лозинка',
+      to: 'корисник на админ панелот',
+      subject: 'Ресетирање на лозинка · filtervoda.mk админ',
+      pre: 'Линкот важи 30 минути.',
+      trigger: 'на барање од екранот за најава',
+      rules: [
+        { k: 'Важност на линк', v: '30 минути · еднократен' },
+        { k: 'Rate limit', v: '3 барања на час по email' },
+        { k: 'Одговор при непостоечки email', v: 'Идентичен (без откривање)' },
+        { k: 'Audit запис', v: 'auth.reset.request' },
+        { k: 'Plain-text', v: 'Да' }
+      ],
+      vars: ['{{user.email}}', '{{reset.url}}', '{{reset.expires}}', '{{request.ipHash}}', '{{request.at}}']
+    },
+    digest: {
+      label: 'Дневен преглед',
+      to: 'info@filtervoda.mk',
+      subject: 'Дневен преглед · 4 нови lead-ови',
+      pre: '2 чекаат прв контакт над 24 часа.',
+      trigger: 'cron дневно во 08:00',
+      rules: [
+        { k: 'Праќање', v: 'Дневно 08:00 (Europe/Skopje)' },
+        { k: 'Се прескокнува', v: 'ако немало lead-ови' },
+        { k: 'Исклучување', v: 'Поставки → нотификации' },
+        { k: 'Опсег', v: 'претходните 24 часа' },
+        { k: 'Plain-text', v: 'Да' }
+      ],
+      vars: ['{{digest.date}}', '{{digest.total}}', '{{digest.b2b}}', '{{digest.pending}}', '{{digest.rows}}', '{{admin.url}}']
+    }
+  };
+
+  renderVals() {
+    const s = this.state;
+    const d = this.defs[s.tab];
+    return {
+      tabs: Object.keys(this.defs).map(k => ({
+        label: this.defs[k].label, pick: () => this.setState({ tab: k }),
+        bg: s.tab === k ? '#08182F' : '#fff', fg: s.tab === k ? '#fff' : '#21375A', bd: s.tab === k ? '#08182F' : '#DDE6F0'
+      })),
+      meta: { to: d.to, subject: d.subject, pre: d.pre, trigger: d.trigger },
+      rules: d.rules.map(r => ({ k: r.k, v: r.v, color: r.color || '#0A1B33' })),
+      vars: d.vars,
+      isLeadNotify: s.tab === 'lead', isAutoreply: s.tab === 'autoreply',
+      isReset: s.tab === 'reset', isDigest: s.tab === 'digest',
+      lead: {
+        id: 'FV-1041', type: 'B2B', when: '27.08.2026 · 09:12',
+        rows: [
+          { k: 'Фирма', v: 'Кафе Бар Лума' },
+          { k: 'Телефон', v: '+389 70 221 883' },
+          { k: 'Град', v: 'Скопје' },
+          { k: 'Број вработени', v: '6–15' },
+          { k: 'Моментално решение', v: 'Галони' },
+          { k: 'Интерес', v: 'Диспензер за топла и ладна вода' },
+          { k: 'Извор', v: 'fb / avgust-b2b' },
+          { k: 'Страница', v: '/za-biznis' }
+        ]
+      },
+      reply: {
+        rows: [
+          { k: 'Производ', v: 'SPAR CRYSTAL DIGITAL 600HF' },
+          { k: 'Телефон', v: '+389 76 118 402' },
+          { k: 'Примено', v: '27.08.2026 · 08:41' }
+        ],
+        steps: [
+          { n: '1', text: 'Ве контактираме за да ги разбереме вашите потреби и водата во вашето место.' },
+          { n: '2', text: 'Ви даваме точна понуда со цена, монтажа и одржување.' },
+          { n: '3', text: 'Монтажата е бесплатна и трае околу еден час.' }
+        ]
+      },
+      digest: {
+        kpis: [
+          { k: 'нови lead-ови', v: '4', color: '#16803B' },
+          { k: 'од кои B2B', v: '2', color: '#08182F' },
+          { k: 'чекаат контакт', v: '2', color: '#B45309' }
+        ],
+        rows: [
+          { name: 'Кафе Бар Лума · B2B', note: 'Диспензер · Скопје · fb / avgust-b2b', age: '26 ч' },
+          { name: 'Марија П. · ADVISOR', note: 'Совет за избор · Охрид · google / organic', age: '31 ч' }
+        ]
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+// filtervoda.mk — Prisma schema (source of DB truth, PRD §12.6).
+// Rules: tenantId on every primary table; cuid() for public/sensitive, SERIAL for lookups;
+// createdAt/updatedAt everywhere; deletedAt soft-delete for content; audit & outbox no soft-delete.
+// Retention policies are declared as comments per model (see _docs/architecture/system-overview.md).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+enum ProductAudience {
+  B2C
+  B2B
+  BOTH
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum LeadType {
+  B2C
+  B2B
+  CONTACT
+  ADVISOR
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  OFFER_SENT
+  WON
+  INSTALLED
+  LOST
+  SPAM
+}
+
+enum FaqScope {
+  GLOBAL
+  PRODUCT
+  B2B
+}
+
+enum TestimonialScope {
+  B2C
+  B2B
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  CLIENT_VIEWER
+}
+
+enum OutboxStatus {
+  QUEUED
+  PROCESSING
+  DONE
+  FAILED
+  DEAD
+}
+
+enum LeadEventType {
+  CREATED
+  EMAIL_SENT
+  CAPI_SENT
+  WEBHOOK_SENT
+  STATUS_CHANGED
+  ASSIGNED
+  ANONYMIZED
+}
+
+// ── Tenant ────────────────────────────────────────────────────────────────────
+model Tenant {
+  id        Int      @id @default(1)
+  name      String
+  createdAt DateTime @default(now())
+}
+
+// ── Catalogue ─────────────────────────────────────────────────────────────────
+model ProductCategory {
+  id          Int       @id @default(autoincrement())
+  tenantId    Int       @default(1)
+  slug        String
+  name        String
+  description String?
+  imageId     String?
+  sortOrder   Int       @default(0)
+  products    Product[]
+
+  @@unique([tenantId, slug])
+}
+
+model Product {
+  id               String          @id @default(cuid())
+  tenantId         Int             @default(1)
+  slug             String
+  name             String
+  tagline          String?
+  shortDescription String?
+  description      Json? // rich JSON
+  categoryId       Int
+  category         ProductCategory @relation(fields: [categoryId], references: [id])
+  audience         ProductAudience @default(B2C)
+  priceRegular     Int? // MKD, integer denari
+  priceSale        Int?
+  showPrice        Boolean         @default(true)
+  currency         String          @default("MKD")
+  badges           String[]        @default([])
+  features         Json            @default("[]") // [{ icon, text }]
+  idealFor         String[]        @default([])
+  warrantyYears    Int             @default(10)
+  includedInPrice  String[]        @default([])
+  maintenanceNote  String?
+  status           PublishStatus   @default(DRAFT)
+  featured         Boolean         @default(false)
+  comparable       Boolean         @default(true)
+  sortOrder        Int             @default(0)
+  seoTitle         String?
+  seoDescription   String?
+  ogImageId        String?
+  deletedAt        DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  specs    ProductSpec[]
+  stages   ProductStage[]
+  images   ProductImage[]
+  faqs     Faq[]
+  related  RelatedProduct[] @relation("productToRelated")
+  relatedBy RelatedProduct[] @relation("relatedToProduct")
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, status])
+  @@index([categoryId])
+}
+
+model ProductSpec {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  group     String
+  label     String
+  value     String
+  unit      String?
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductStage {
+  id           String  @id @default(cuid())
+  productId    String
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order        Int
+  name         String
+  removes      String
+  whyItMatters String
+  icon         String?
+
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  mediaId   String
+  media     Media   @relation(fields: [mediaId], references: [id])
+  alt       String
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  @@index([productId])
+}
+
+model RelatedProduct {
+  id        String  @id @default(cuid())
+  productId String
+  relatedId String
+  sortOrder Int     @default(0)
+  product   Product @relation("productToRelated", fields: [productId], references: [id], onDelete: Cascade)
+  related   Product @relation("relatedToProduct", fields: [relatedId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, relatedId])
+}
+
+// ── FAQ, B2B, testimonials ────────────────────────────────────────────────────
+model Faq {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @default(1)
+  question  String
+  answer    String
+  scope     FaqScope @default(GLOBAL)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sortOrder Int      @default(0)
+
+  @@index([tenantId, scope])
+}
+
+model B2bPackage {
+  id           String   @id @default(cuid())
+  tenantId     Int      @default(1)
+  name         String
+  priceFrom    Int
+  description  String?
+  includes     String[] @default([])
+  employeesMin Int?
+  employeesMax Int?
+  sortOrder    Int      @default(0)
+  active       Boolean  @default(true)
+}
+
+model Testimonial {
+  id        String           @id @default(cuid())
+  tenantId  Int              @default(1)
+  name      String
+  company   String?
+  city      String?
+  text      String
+  rating    Int              @default(5)
+  productId String?
+  scope     TestimonialScope @default(B2C)
+  mediaId   String?
+  active    Boolean          @default(true)
+}
+
+model ClientLogo {
+  id        String @id @default(cuid())
+  tenantId  Int    @default(1)
+  name      String
+  mediaId   String
+  sortOrder Int    @default(0)
+}
+
+// ── Blog (Совети) ─────────────────────────────────────────────────────────────
+model PostCategory {
+  id       Int    @id @default(autoincrement())
+  tenantId Int    @default(1)
+  slug     String
+  name     String
+  posts    Post[]
+
+  @@unique([tenantId, slug])
+}
+
+model Post {
+  id               String        @id @default(cuid())
+  tenantId         Int           @default(1)
+  slug             String
+  title            String
+  excerpt          String?
+  content          Json? // rich JSON (TipTap)
+  coverMediaId     String?
+  categoryId       Int?
+  category         PostCategory? @relation(fields: [categoryId], references: [id])
+  relatedProductId String?
+  publishedAt      DateTime?
+  status           PublishStatus @default(DRAFT)
+  seoTitle         String?
+  seoDescription   String?
+  deletedAt        DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, status])
+}
+
+// ── Leads ─────────────────────────────────────────────────────────────────────
+// Retention: PII (name, phone, email, message, company) 24 months → anonymize-leads cron
+// replaces with "[анонимизирано]"; ipHash 30 days; stats stay.
+model Lead {
+  id              String      @id @default(cuid())
+  tenantId        Int         @default(1)
+  type            LeadType
+  name            String
+  phone           String // E.164
+  email           String?
+  city            String?
+  company         String?
+  industry        String?
+  employeesRange  String?
+  currentSolution String?
+  productId       String?
+  message         String?
+  calcInput       Json?
+  pageUrl         String
+  section         String?
+  utmFirst        Json?
+  utmLast         Json?
+  referrer        String?
+  fbclid          String?
+  gclid           String?
+  fbp             String?
+  fbc             String?
+  userAgent       String?
+  ipHash          String? // HMAC; never raw IP
+  consentVersion  String
+  status          LeadStatus  @default(NEW)
+  lostReason      String?
+  assignedToId    String?
+  assignedTo      User?       @relation(fields: [assignedToId], references: [id])
+  isDuplicate     Boolean     @default(false)
+  anonymizedAt    DateTime?
+  contactedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  notes  LeadNote[]
+  events LeadEvent[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, type])
+  @@index([createdAt])
+  @@index([phone])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId    String
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+model LeadEvent {
+  id            String        @id @default(cuid())
+  leadId        String
+  lead          Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type          LeadEventType
+  payload       Json? // no PII
+  correlationId String?
+  createdAt     DateTime      @default(now())
+
+  @@index([leadId])
+}
+
+// ── Outbox (transactional) ────────────────────────────────────────────────────
+// Retention: DONE 30 days; DEAD kept until manually closed.
+model OutboxJob {
+  id            String       @id @default(cuid())
+  tenantId      Int          @default(1)
+  type          String // email.newLead | email.autoreply | capi.lead | webhook.lead | telegram.lead
+  payload       Json
+  status        OutboxStatus @default(QUEUED)
+  attempts      Int          @default(0)
+  maxAttempts   Int          @default(5)
+  nextRunAt     DateTime     @default(now())
+  lockedAt      DateTime?
+  lastError     String?
+  correlationId String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, nextRunAt])
+}
+
+// ── Audit (append-only: app DB role has INSERT/SELECT only) ────────────────────
+// Retention: forever; before/after snapshots contain NO PII.
+model AuditLog {
+  id            String   @id @default(cuid())
+  tenantId      Int      @default(1)
+  actorId       String?
+  actorName     String
+  action        String // e.g. product.update, lead.status.change, template.activated
+  entity        String
+  entityId      String
+  before        Json?
+  after         Json?
+  ipHash        String?
+  correlationId String?
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId, entity])
+  @@index([createdAt])
+}
+
+// ── Users / auth ──────────────────────────────────────────────────────────────
+model User {
+  id           String    @id @default(cuid())
+  tenantId     Int       @default(1)
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         UserRole  @default(EDITOR)
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  lastLoginAt  DateTime?
+  lastReauthAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  leads               Lead[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([userId])
+}
+
+// connect-pg-simple session table (sessions live in Postgres, not Redis).
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
+
+  @@index([expire])
+  @@map("session")
+}
+
+// ── Settings / redirects / media ──────────────────────────────────────────────
+model Setting {
+  tenantId Int    @default(1)
+  key      String
+  value    Json
+
+  @@id([tenantId, key])
+}
+
+model Redirect {
+  id         Int      @id @default(autoincrement())
+  tenantId   Int      @default(1)
+  fromPath   String
+  toPath     String
+  statusCode Int      @default(301)
+  hits       Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@unique([tenantId, fromPath])
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  tenantId  Int       @default(1)
+  driver    String // s3 | cloudinary
+  key       String
+  url       String
+  variants  Json      @default("[]")
+  width     Int?
+  height    Int?
+  alt       String    @default("")
+  size      Int?
+  mime      String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  productImages ProductImage[]
+
+  @@index([tenantId])
+}

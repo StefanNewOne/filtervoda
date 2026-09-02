@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>filtervoda.mk — OG слики и favicon</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EEF2F7; color: #0A1B33; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1156E0; text-decoration: none; }
+  a:hover { color: #08182F; }
+  button { font-family: inherit; cursor: pointer; }
+  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  p { margin: 0; text-wrap: pretty; }
+</style>
+</helmet>
+
+<div style="max-width: 1320px; margin: 0 auto; padding: 30px 20px 80px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap">
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #0E7490">ФАЗА 2 · СПОДЕЛУВАЊЕ</div>
+      <h1 style="font-size: 27px; margin-top: 8px">OG слики и favicon</h1>
+      <p style="margin-top: 7px; font-size: 14px; color: #55677F">1200×630 за Facebook, Instagram и Viber. Прикажани на 100 % — истите пропорции како во feed.</p>
+    </div>
+    <div style="display: flex; gap: 7px; flex-wrap: wrap">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.pick }}" style="border: 1px solid {{ t.bd }}; background: {{ t.bg }}; color: {{ t.fg }}; padding: 11px 15px; border-radius: 9px; font-size: 13px; font-weight: 700">{{ t.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px; overflow-x: auto; padding-bottom: 6px">
+    <div style="width: 1200px; height: 630px; position: relative; border-radius: 14px; overflow: hidden; box-shadow: 0 24px 60px rgba(8,24,47,0.18)">
+
+      <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; background: #FFFFFF; display: grid; grid-template-columns: 1fr 470px">
+          <div style="padding: 64px 0 64px 76px; display: flex; flex-direction: column; justify-content: center">
+            <div style="display: inline-flex; align-self: flex-start; align-items: center; gap: 10px; padding: 11px 20px; border-radius: 999px; background: #F2F8FF; border: 1px solid #D9E9FB">
+              <span style="width: 9px; height: 9px; border-radius: 50%; background: #16803B"></span>
+              <span style="font-size: 17px; font-weight: 800; color: #21375A">Бесплатна монтажа · 10 години гаранција</span>
+            </div>
+            <h2 style="font-family: Unbounded, sans-serif; font-size: 62px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; color: #08182F; margin-top: 30px">SPAR CRYSTAL<br/>DIGITAL 600HF</h2>
+            <p style="margin-top: 22px; font-size: 25px; line-height: 1.4; color: #46597A; max-width: 17em">6 степени филтрација, алкална вода pH 8.5+, дигитален дисплеј.</p>
+            <div style="display: flex; align-items: baseline; gap: 16px; margin-top: 34px">
+              <span style="font-size: 27px; color: #8496AF; text-decoration: line-through">40.000 ден.</span>
+              <span style="font-size: 50px; font-weight: 800; letter-spacing: -0.03em; color: #1156E0">36.000 ден.</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px; margin-top: 34px">
+              <img src="uploads/logo-1787843450643-am23.jpg" alt="" style="width: 44px; height: 44px; object-fit: contain; border-radius: 9px" />
+              <span style="font-size: 24px; font-weight: 800; color: #08182F">filtervoda<span style="color: #0E7490">.mk</span></span>
+            </div>
+          </div>
+          <div style="background: radial-gradient(120% 100% at 50% 30%, #FFFFFF 0%, #F2F8FF 55%, #E6F2FE 100%); display: grid; place-items: center; border-left: 1px solid #E4EDF9">
+            <img src="uploads/Untitled-design-2-300x300.png" alt="SPAR CRYSTAL DIGITAL 600HF" style="width: 78%; aspect-ratio: 1; object-fit: contain" />
+          </div>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: linear-gradient(90deg, #1156E0, #6FC4F7)"></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isB2B }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; background: linear-gradient(140deg, #041229 0%, #0A2A54 58%, #0E7490 100%); padding: 76px; display: flex; flex-direction: column; justify-content: center">
+          <div style="position: absolute; right: -60px; top: -60px; width: 440px; height: 440px; border-radius: 50%; border: 1px solid rgba(111,196,247,0.28)"></div>
+          <div style="position: absolute; right: 40px; bottom: -120px; width: 380px; height: 380px; border-radius: 50%; border: 1px solid rgba(111,196,247,0.2)"></div>
+          <div style="display: inline-flex; align-self: flex-start; align-items: center; gap: 10px; padding: 11px 20px; border-radius: 999px; border: 1px solid rgba(159,214,248,0.45); background: rgba(255,255,255,0.07)">
+            <span style="font-size: 17px; font-weight: 800; letter-spacing: 0.02em; color: #C8E6FA">ЗА ФИРМИ · ЗАКУП НА АПАРАТ</span>
+          </div>
+          <h2 style="font-family: Unbounded, sans-serif; font-size: 64px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; color: #fff; margin-top: 30px; max-width: 15em">Заборавете на галоните.</h2>
+          <p style="margin-top: 24px; font-size: 27px; line-height: 1.4; color: #BBD4EE; max-width: 24em">Неограничена чиста вода за вашиот тим — монтажа, филтри и сервис вклучени во фиксен месечен износ.</p>
+          <div style="display: flex; align-items: center; gap: 34px; margin-top: 44px; flex-wrap: wrap">
+            <div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 44px; font-weight: 700; color: #7BE0A0">од 2.900</div>
+              <div style="font-size: 18px; color: #9BB0CC; margin-top: 4px">ден. месечно</div>
+            </div>
+            <div style="width: 1px; height: 62px; background: rgba(187,212,238,0.3)"></div>
+            <div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 44px; font-weight: 700; color: #7BE0A0">−62 %</div>
+              <div style="font-size: 18px; color: #9BB0CC; margin-top: 4px">наспроти галони</div>
+            </div>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 14px">
+              <img src="uploads/logo-1787843450643-am23.jpg" alt="" style="width: 44px; height: 44px; object-fit: contain; border-radius: 9px; background: #fff" />
+              <span style="font-size: 24px; font-weight: 800; color: #fff">filtervoda<span style="color: #6FC4F7">.mk</span></span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isGeneric }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; background: #FFFFFF; display: grid; grid-template-columns: 1fr 500px">
+          <div style="padding: 60px 0 60px 76px; display: flex; flex-direction: column; justify-content: center">
+            <div style="display: flex; align-items: center; gap: 14px">
+              <img src="uploads/logo-1787843450643-am23.jpg" alt="" style="width: 48px; height: 48px; object-fit: contain; border-radius: 10px" />
+              <span style="font-size: 26px; font-weight: 800; color: #08182F">filtervoda<span style="color: #0E7490">.mk</span></span>
+            </div>
+            <h2 style="font-family: Unbounded, sans-serif; font-size: 50px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.06; color: #08182F; margin-top: 26px">Чиста, алкална вода директно од вашата чешма.</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px">
+              <span style="font-size: 18px; font-weight: 700; color: #21375A; background: #F2F8FF; border: 1px solid #D9E9FB; padding: 11px 18px; border-radius: 999px">10 години гаранција</span>
+              <span style="font-size: 18px; font-weight: 700; color: #21375A; background: #F2F8FF; border: 1px solid #D9E9FB; padding: 11px 18px; border-radius: 999px">Бесплатна монтажа</span>
+              <span style="font-size: 18px; font-weight: 700; color: #fff; background: #16803B; padding: 11px 18px; border-radius: 999px">Низ цела Македонија</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 23px; font-weight: 700; color: #1156E0; margin-top: 28px">076/676/819</div>
+          </div>
+          <div style="background: radial-gradient(120% 100% at 50% 30%, #FFFFFF 0%, #F2F8FF 55%, #E6F2FE 100%); display: grid; place-items: center; border-left: 1px solid #E4EDF9">
+            <img src="uploads/Untitled-design-1-450x450.png" alt="Систем за филтрација во кујна" style="width: 82%; aspect-ratio: 1; object-fit: contain" />
+          </div>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: linear-gradient(90deg, #1156E0, #6FC4F7)"></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isArticle }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; background: #08182F; padding: 76px; display: flex; flex-direction: column; justify-content: space-between">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px">
+            <div style="display: inline-flex; align-items: center; gap: 10px; padding: 11px 20px; border-radius: 999px; background: rgba(111,196,247,0.14); border: 1px solid rgba(111,196,247,0.4)">
+              <span style="font-size: 17px; font-weight: 800; letter-spacing: 0.06em; color: #9FD6F8">СОВЕТИ ЗА ВОДА</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <img src="uploads/logo-1787843450643-am23.jpg" alt="" style="width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: #fff" />
+              <span style="font-size: 22px; font-weight: 800; color: #fff">filtervoda<span style="color: #6FC4F7">.mk</span></span>
+            </div>
+          </div>
+          <h2 style="font-family: Unbounded, sans-serif; font-size: 66px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.04; color: #fff; max-width: 16em">Што е реверзна осмоза и зошто е важна за вашата вода?</h2>
+          <div style="display: flex; align-items: center; gap: 20px">
+            <span style="font-size: 21px; color: #9BB0CC">6 минути читање</span>
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #6FC4F7"></span>
+            <span style="font-size: 21px; color: #9BB0CC">Основи на филтрацијата</span>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px">
+    <div style="background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 24px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">ПРАВИЛА ЗА ОВОЈ ШАБЛОН</div>
+      <div style="margin-top: 14px">
+        <sc-for list="{{ rules }}" as="r" hint-placeholder-count="5">
+          <div style="display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid #EEF3F9">
+            <span style="font-size: 14px; color: #21375A">{{ r.k }}</span>
+            <span style="font-size: 13px; font-weight: 700; text-align: right; color: {{ r.color }}">{{ r.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 24px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">FAVICON И ИКОНИ</div>
+      <div style="display: flex; align-items: flex-end; gap: 22px; margin-top: 18px; flex-wrap: wrap">
+        <div style="text-align: center">
+          <div style="width: 96px; height: 96px; border-radius: 20px; background: #08182F; display: grid; place-items: center">
+            <span style="font-family: Unbounded, sans-serif; font-size: 46px; font-weight: 600; color: #6FC4F7; line-height: 1">V</span>
+          </div>
+          <div style="margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #55677F">180×180</div>
+        </div>
+        <div style="text-align: center">
+          <div style="width: 48px; height: 48px; border-radius: 10px; background: #08182F; display: grid; place-items: center">
+            <span style="font-family: Unbounded, sans-serif; font-size: 24px; font-weight: 600; color: #6FC4F7; line-height: 1">V</span>
+          </div>
+          <div style="margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #55677F">48×48</div>
+        </div>
+        <div style="text-align: center">
+          <div style="width: 32px; height: 32px; border-radius: 7px; background: #08182F; display: grid; place-items: center">
+            <span style="font-family: Unbounded, sans-serif; font-size: 16px; font-weight: 600; color: #6FC4F7; line-height: 1">V</span>
+          </div>
+          <div style="margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #55677F">32×32</div>
+        </div>
+        <div style="text-align: center">
+          <div style="width: 16px; height: 16px; border-radius: 4px; background: #08182F; display: grid; place-items: center">
+            <span style="font-family: Unbounded, sans-serif; font-size: 9px; font-weight: 600; color: #6FC4F7; line-height: 1">V</span>
+          </div>
+          <div style="margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #55677F">16×16</div>
+        </div>
+      </div>
+      <p style="margin-top: 16px; font-size: 13px; line-height: 1.55; color: #64748B">Привремена ознака до финалниот лого вектор. Логото на SPAR е премногу детално за 16px — оттука една буква на морнарска подлога.</p>
+      <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 7px">
+        <sc-for list="{{ iconFiles }}" as="f" hint-placeholder-count="5">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; background: #F1F6FC; border: 1px solid #DDE6F0; color: #21375A; padding: 6px 10px; border-radius: 5px">{{ f }}</span>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #DDE6F0; border-radius: 14px; padding: 24px">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #55677F">META ТАГОВИ</div>
+      <pre style="margin: 14px 0 0; padding: 16px; background: #08182F; border-radius: 10px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.7; color: #C8E6FA">{{ metaCode }}</pre>
+      <p style="margin-top: 14px; font-size: 13px; line-height: 1.55; color: #64748B">OG сликата се генерира при објавување и се кешира. Промена на цена или име прави нова слика со нов URL, за да не остане старата во Facebook кешот.</p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320},&quot;defaultTemplate&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;product&quot;,&quot;b2b&quot;,&quot;generic&quot;,&quot;article&quot;],&quot;default&quot;:&quot;product&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { tab: 'product' };
+
+  defs = {
+    product: {
+      label: 'По производ',
+      rules: [
+        { k: 'Се генерира', v: 'Автоматски при објавување' },
+        { k: 'Содржина', v: 'Име, tagline, цена, слика' },
+        { k: 'Ако нема акција', v: 'Прецртаната цена се крие' },
+        { k: 'Ако цената е скриена', v: '„Побарај цена“ наместо сумата' },
+        { k: 'Долг наслов', v: 'До 3 реда, потоа 52px' }
+      ],
+      meta: '<meta property="og:type" content="product">\n<meta property="og:title"\n  content="SPAR Crystal Digital 600HF — filtervoda.mk">\n<meta property="og:description"\n  content="6 степени филтрација, pH 8.5+, бесплатна монтажа.">\n<meta property="og:image"\n  content="https://filtervoda.mk/og/spar-crystal-digital-600hf-v3.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:locale" content="mk_MK">\n<meta name="twitter:card" content="summary_large_image">'
+    },
+    b2b: {
+      label: 'За фирми',
+      rules: [
+        { k: 'Се користи за', v: '/za-biznis и B2B реклами' },
+        { k: 'Бројки', v: 'од пакетите во админ' },
+        { k: '−62 %', v: 'просек од калкулаторот [потврди]', color: '#B45309' },
+        { k: 'Без лица', v: 'Само апарат и типографија' },
+        { k: 'Верзија', v: 'Рачно, по промена на цени' }
+      ],
+      meta: '<meta property="og:type" content="website">\n<meta property="og:title"\n  content="Вода за фирми — закуп на апарат | filtervoda.mk">\n<meta property="og:description"\n  content="Неограничена чиста вода за вашиот тим. Монтажа,\n  филтри и сервис вклучени. Од 2.900 ден. месечно.">\n<meta property="og:image"\n  content="https://filtervoda.mk/og/za-biznis-v2.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:locale" content="mk_MK">'
+    },
+    generic: {
+      label: 'Генеричка',
+      rules: [
+        { k: 'Се користи за', v: 'Почетна, За нас, Контакт' },
+        { k: 'Fallback', v: 'За секоја страница без своја слика' },
+        { k: 'Телефон', v: 'од Поставки → контакти' },
+        { k: 'Слика', v: 'Заменлива во Медиуми' },
+        { k: 'Верзија', v: 'Рачно' }
+      ],
+      meta: '<meta property="og:type" content="website">\n<meta property="og:site_name" content="filtervoda.mk">\n<meta property="og:title"\n  content="Системи за филтрација на вода | filtervoda.mk">\n<meta property="og:description"\n  content="Чиста, алкална вода директно од вашата чешма.\n  Бесплатна монтажа и 10 години гаранција.">\n<meta property="og:image"\n  content="https://filtervoda.mk/og/default-v2.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:locale" content="mk_MK">'
+    },
+    article: {
+      label: 'По статија',
+      rules: [
+        { k: 'Се генерира', v: 'Автоматски при објавување' },
+        { k: 'Содржина', v: 'Наслов, категорија, време' },
+        { k: 'Долг наслов', v: 'До 4 реда, потоа 54px' },
+        { k: 'Без слика', v: 'Само типографија — читливо во feed' },
+        { k: 'Кеш', v: 'Нов URL по промена на наслов' }
+      ],
+      meta: '<meta property="og:type" content="article">\n<meta property="og:title"\n  content="Што е реверзна осмоза? | filtervoda.mk">\n<meta property="og:description"\n  content="Како работи реверзната осмоза и што отстранува\n  од водата — објаснето со примери.">\n<meta property="og:image"\n  content="https://filtervoda.mk/og/soveti/reverzna-osmoza-v1.png">\n<meta property="article:published_time" content="2026-08-12">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">'
+    }
+  };
+
+  renderVals() {
+    const s = this.state;
+    const d = this.defs[s.tab];
+    return {
+      tabs: Object.keys(this.defs).map(k => ({
+        label: this.defs[k].label, pick: () => this.setState({ tab: k }),
+        bg: s.tab === k ? '#08182F' : '#fff', fg: s.tab === k ? '#fff' : '#21375A', bd: s.tab === k ? '#08182F' : '#DDE6F0'
+      })),
+      isProduct: s.tab === 'product', isB2B: s.tab === 'b2b',
+      isGeneric: s.tab === 'generic', isArticle: s.tab === 'article',
+      rules: d.rules.map(r => ({ k: r.k, v: r.v, color: r.color || '#0A1B33' })),
+      metaCode: d.meta,
+      iconFiles: ['favicon.ico', 'favicon-32.png', 'favicon-16.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest']
+    };
+  }
+}
+</script>
+</body>
+</html>

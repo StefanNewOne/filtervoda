@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.output
+coverage
+playwright-report
+test-results
+filtervoda-handoff
+*.dc.html
+CLAUDE-potencijashop.md
+package-lock.json

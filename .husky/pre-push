@@ -1,0 +1,2 @@
+echo "▶ pre-push quality gate: lint → typecheck → build"
+npm run lint && npm run typecheck && npm run build

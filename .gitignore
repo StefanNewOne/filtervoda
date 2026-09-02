@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Build output
+dist/
+build/
+.output/
+.vite/
+*.tsbuildinfo
+
+# Env — only .env.example is committed
+.env
+.env.local
+.env.*.local
+.env.staging
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test / coverage
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# Prisma
+apps/api/prisma/*.db
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Docker local volumes
+.docker-data/
+
+# Uploaded media (local)
+apps/api/uploads/
+minio-data/
