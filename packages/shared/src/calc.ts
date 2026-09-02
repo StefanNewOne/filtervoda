@@ -26,5 +26,5 @@ export function computeSavings(p: SavingsParams): CalculatorResult {
   const currentMonthly = Math.round(units * pricePerUnit);
   const annualSaving = Math.max(0, (currentMonthly - p.sparMonthly) * 12);
 
-  return { currentMonthly, sparMonthly: p.sparMonthly, annualSaving };
+  return { currentMonthly, sparMonthly: p.sparMonthly, annualSaving, units };
 }

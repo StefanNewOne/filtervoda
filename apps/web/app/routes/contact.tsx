@@ -1,5 +1,5 @@
 import { LeadForm } from '../components/LeadForm';
-import { Section } from '../components/ui';
+import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/contact';
 
@@ -13,37 +13,58 @@ export async function loader() {
 
 export default function Contact({ loaderData }: Route.ComponentProps) {
   const { settings } = loaderData;
+  const s = useSkin();
+
+  const firstPhone = settings.phones[0];
+  const viberTarget = settings.viber ?? (firstPhone ? firstPhone.replace(/\D/g, '') : undefined);
+  const viberHref = viberTarget ? `viber://chat?number=${encodeURIComponent(viberTarget)}` : undefined;
+  const workingHours = settings.workingHours ?? 'Пон–Саб · 09:00–18:00';
+
   return (
-    <Section title="Контакт">
-      <div className="grid gap-8 md:grid-cols-2">
+    <PageWrap>
+      <PageHeader crumbs={[{ label: 'Почетна', to: '/' }, { label: 'Контакт' }]} title="Контакт" s={s} />
+
+      <div className="mt-[44px] grid items-start gap-12 md:grid-cols-2">
         <div>
           <div className="grid gap-3.5 sm:grid-cols-2">
-            {settings.phones.map((p) => (
-              <a key={p} href={`tel:${p}`} className="block rounded-[18px] border border-[var(--color-border)] p-6">
-                <div className="text-[12px] font-extrabold tracking-[0.06em] text-[var(--color-muted)]">ТЕЛЕФОН</div>
-                <div className="mt-2.5 font-[family-name:var(--font-display)] text-[20px] font-semibold text-[var(--color-foreground)]">{p}</div>
+            {settings.phones.map((p, i) => (
+              <a key={p} href={`tel:${p}`} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
+                <div className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted}`}>{i === 0 ? 'ТЕЛЕФОН' : `ТЕЛЕФОН ${i + 1}`}</div>
+                <div className={`mt-2.5 ${s.display} text-[20px] font-medium ${s.ink}`}>{p}</div>
               </a>
             ))}
+            {viberHref && (
+              <a href={viberHref} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
+                <div className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted}`}>ВИБЕР</div>
+                <div className={`mt-2.5 text-[17px] font-bold ${s.ink}`}>Пишете ни</div>
+              </a>
+            )}
+            <div className={`border ${s.border} ${s.cardR} p-6`}>
+              <div className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted}`}>РАБОТНО ВРЕМЕ</div>
+              <div className="mt-2.5 text-[15px] font-semibold text-[#21375A]">{workingHours}</div>
+            </div>
             {settings.emails.map((e) => (
-              <a key={e} href={`mailto:${e}`} className="block rounded-[18px] border border-[var(--color-border)] p-6">
-                <div className="text-[12px] font-extrabold tracking-[0.06em] text-[var(--color-muted)]">EMAIL</div>
-                <div className="mt-2.5 text-[17px] font-semibold text-[var(--color-foreground)]">{e}</div>
+              <a key={e} href={`mailto:${e}`} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
+                <div className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted}`}>EMAIL</div>
+                <div className={`mt-2.5 text-[17px] font-semibold ${s.ink}`}>{e}</div>
               </a>
             ))}
           </div>
           {/* Map placeholder — striped dashed box (prototype) */}
           <div
-            className="mt-3.5 grid aspect-[16/10] place-items-center rounded-[20px] border border-dashed border-[#B7D6F2] [background-image:repeating-linear-gradient(135deg,#E8F2FD_0_10px,#F6FAFF_10px_20px)]"
+            className={`mt-4 grid aspect-[16/10] place-items-center ${s.cardR} border border-dashed border-[#B7D6F2] [background-image:repeating-linear-gradient(135deg,#E8F2FD_0_10px,#F6FAFF_10px_20px)]`}
             aria-hidden
           >
-            <span className="font-[family-name:var(--font-mono)] text-[11px] text-[var(--color-muted)]">{settings.address ?? 'Скопје, Македонија'}</span>
+            <span className={`${s.mono} text-[11px] ${s.muted}`}>{settings.address ?? 'Скопје, Македонија'}</span>
           </div>
         </div>
-        <div className="rounded-[22px] border border-[var(--color-border)] p-8">
-          <h2 className="text-[24px] font-medium text-[var(--color-foreground)]">Оставете барање</h2>
-          <div className="mt-4"><LeadForm type="CONTACT" phones={settings.phones} viber={settings.viber} /></div>
+        <div className={`border ${s.border} ${s.cardR} p-8`}>
+          <h2 className={`${s.display} ${s.ink} text-[24px] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>Напишете ни</h2>
+          <div className="mt-4">
+            <LeadForm type="CONTACT" phones={settings.phones} viber={settings.viber} />
+          </div>
         </div>
       </div>
-    </Section>
+    </PageWrap>
   );
 }

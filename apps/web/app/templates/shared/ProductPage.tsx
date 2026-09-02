@@ -5,13 +5,15 @@ import { LeadForm } from '../../components/LeadForm';
 import { useLeadModal } from '../../components/LeadModal';
 import { ProductGallery } from '../../components/ProductGallery';
 import { fmtPrice, type Testimonial } from '../types';
+import { compareRow } from '../compare';
 import { useTemplate } from '../registry';
 import { useTemplateId } from '../context';
 import { skinFor } from '../skin';
 
 /** Shared product page — identical structure across templates, styled per skin. */
 export function ProductPage({ product: p, testimonials = [], settings }: { product: ProductDetailDto; testimonials?: Testimonial[]; settings?: PublicSettings }) {
-  const s = skinFor(useTemplateId());
+  const tid = useTemplateId();
+  const s = skinFor(tid);
   const T = useTemplate();
   const { open } = useLeadModal();
   const price = p.priceSale ?? p.priceRegular;
@@ -112,6 +114,28 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
           </Section>
         )}
 
+        {/* Б-3 „data" gauge panels — the navy dashboard motif that defines Паметна вода */}
+        {tid === 'b3' && (
+          <Section>
+            <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))]">
+              {[
+                { label: 'pH НА ИЗЛЕЗ', value: '8.6', unit: '', pct: '78%' },
+                { label: 'TDS ПО ФИЛТРАЦИЈА', value: '012', unit: 'ppm', pct: '12%' },
+                { label: 'ОТСТРАНУВАЊЕ', value: '95–99', unit: '%', pct: '96%' },
+                { label: 'СОСТОЈБА НА ФИЛТРИ', value: 'OK', unit: '', pct: '64%' },
+              ].map((g) => (
+                <div key={g.label} className="rounded-[10px] border border-[#DCE4EE] bg-[#051227] p-[22px]">
+                  <div className="font-[family-name:JetBrains_Mono] text-[11px] tracking-[0.14em] text-[#9FE9FA]">{g.label}</div>
+                  <div className="mt-2.5 font-[family-name:JetBrains_Mono] text-[34px] font-bold text-[#45E0FF]">
+                    {g.value}{g.unit && <span className="text-[14px] text-[#9FE9FA]"> {g.unit}</span>}
+                  </div>
+                  <div className="mt-3.5 h-1.5 rounded-[3px] bg-white/[0.12]"><div className="h-1.5 rounded-[3px] bg-[#45E0FF]" style={{ width: g.pct }} /></div>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
         {p.specs.length > 0 && (
           <Section><H2>Техничка спецификација</H2>
             <div className={`mt-6 overflow-hidden rounded-[18px] border ${s.border}`}>
@@ -130,16 +154,26 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
           </Section>
         )}
 
-        {p.includedInPrice.length > 0 && (
-          <Section><H2>Што вклучува цената</H2>
-            <ul className="mt-6 grid gap-2 sm:grid-cols-2">
-              {p.includedInPrice.map((i) => <li key={i} className="flex items-center gap-2 text-[15px]"><span className="text-[#16803B]">✓</span> {i}</li>)}
-            </ul>
+        {(p.includedInPrice.length > 0 || p.maintenanceNote) && (
+          <Section>
+            <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))]">
+              {p.includedInPrice.length > 0 && (
+                <div className={`rounded-[20px] border ${s.border} p-[30px]`}>
+                  <H2>Што вклучува цената</H2>
+                  <div className="mt-[18px] flex flex-col gap-2.5">
+                    {p.includedInPrice.map((i) => <div key={i} className="text-[16px] text-[#46597A]">· {i}</div>)}
+                  </div>
+                </div>
+              )}
+              {p.maintenanceNote && (
+                <div className={`rounded-[20px] border ${s.border} p-[30px]`}>
+                  <H2>Одржување и филтри</H2>
+                  <p className="mt-[18px] text-[16px] leading-[1.6] text-[#46597A]">{p.maintenanceNote}</p>
+                  <div className={`mt-5 rounded-[14px] ${s.softBg} px-[18px] py-4 text-[15px] font-bold text-[#21375A]`}>Сет филтри: од 3.500 ден. [потврди]</div>
+                </div>
+              )}
+            </div>
           </Section>
-        )}
-
-        {p.maintenanceNote && (
-          <Section><H2>Одржување и филтри</H2><p className={`mt-4 max-w-2xl ${s.muted}`}>{p.maintenanceNote}</p></Section>
         )}
 
         {p.faqs.length > 0 && (
@@ -148,6 +182,39 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
               {p.faqs.map((f, i) => (
                 <details key={i} className="px-6 py-4"><summary className={`cursor-pointer font-semibold ${s.ink}`}>{f.question}</summary><p className="mt-2 text-[15px] text-[#56698A]">{f.answer}</p></details>
               ))}
+            </div>
+          </Section>
+        )}
+
+        {p.related.length > 0 && (
+          <Section><H2>Споредба со слични модели</H2>
+            <div className={`mt-6 overflow-x-auto rounded-[18px] border ${s.border}`}>
+              <table className="w-full min-w-[620px] border-collapse text-[15px]">
+                <thead>
+                  <tr className={`${s.softBg} text-left ${s.mono} text-[12px] tracking-[0.06em] text-[#55677F]`}>
+                    <th className="px-[18px] py-[15px] font-medium">МОДЕЛ</th>
+                    <th className="px-3.5 py-[15px] font-medium">СТЕПЕНИ</th>
+                    <th className="px-3.5 py-[15px] font-medium">РЕЗЕРВОАР</th>
+                    <th className="px-3.5 py-[15px] font-medium">ЦЕНА</th>
+                    <th className="px-[18px] py-[15px] font-medium" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {[{ card: p, current: true }, ...p.related.map((r) => ({ card: r, current: false }))].map(({ card, current }) => {
+                    const c = compareRow(card.chips);
+                    const price = card.priceSale ?? card.priceRegular;
+                    return (
+                      <tr key={card.id} className={`border-t ${s.border}`}>
+                        <th className={`px-[18px] py-[15px] text-left font-bold ${s.ink}`}>{card.name}</th>
+                        <td className="px-3.5 py-[15px] text-[#46597A]">{c.stages}</td>
+                        <td className="px-3.5 py-[15px] text-[#46597A]">{c.tank}</td>
+                        <td className={`whitespace-nowrap px-3.5 py-[15px] font-bold ${s.ink}`}>{card.showPrice && price ? fmtPrice(price) : 'Побарај цена'}</td>
+                        <td className={`px-[18px] py-[15px] text-[13px] font-bold ${s.accent}`}>{current ? 'Овој модел' : ''}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </Section>
         )}

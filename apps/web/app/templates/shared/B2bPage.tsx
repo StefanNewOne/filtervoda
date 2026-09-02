@@ -16,8 +16,16 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
   const { open } = useLeadModal();
   const [employees, setEmployees] = useState(10);
   const [solution, setSolution] = useState<'GALLONS' | 'BOTTLES'>('GALLONS');
+  const [unitPrice, setUnitPrice] = useState(120);
   const sparFrom = packages[0]?.priceFrom ?? 2900;
-  const result = useMemo(() => computeSavings({ employees, solution, pricePerGallon: 120, sparMonthly: sparFrom }), [employees, solution, sparFrom]);
+  const result = useMemo(
+    () => computeSavings({ employees, solution, pricePerGallon: unitPrice, sparMonthly: sparFrom }),
+    [employees, solution, unitPrice, sparFrom],
+  );
+  const solLabel = solution === 'GALLONS' ? 'галони' : 'шишиња';
+  const barSpar = `${Math.max(6, Math.round((result.sparMonthly / Math.max(result.currentMonthly, 1)) * 100))}%`;
+  const avoidedPerYear = result.units * 12;
+  const hasSavings = result.annualSaving > 0;
 
   const H2 = ({ children }: { children: React.ReactNode }) => (
     <h2 className={`${s.display} ${s.ink} text-[clamp(28px,3.2vw,44px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>{children}</h2>
@@ -74,29 +82,64 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
 
         {/* CALCULATOR */}
         <section className="py-10"><H2>Пресметајте колку заштедувате</H2>
-          <div className={`mt-8 grid gap-5 rounded-[24px] border ${s.border} p-8 md:grid-cols-2`}>
-            <div>
-              <label className="text-sm font-medium">Број вработени: <span className={`${s.display} text-xl`}>{employees}</span></label>
-              <Slider.Root className="relative mt-4 flex h-5 touch-none items-center" value={[employees]} min={1} max={100} step={1} onValueChange={([v]) => setEmployees(v ?? 1)} aria-label="Број вработени">
-                <Slider.Track className="relative h-1.5 grow rounded-full bg-[#E1E9F2]"><Slider.Range className={`absolute h-full rounded-full ${s.cta.includes('#16803B') ? 'bg-[#16803B]' : s.cta.includes('#0E7490') ? 'bg-[#0E7490]' : 'bg-[#1156E0]'}`} /></Slider.Track>
-                <Slider.Thumb className="block size-5 rounded-full bg-white shadow ring-2 ring-[#1156E0]" />
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            {/* Inputs */}
+            <div className={`rounded-[24px] border ${s.border} p-[34px]`}>
+              <label className={`block text-[13px] font-extrabold tracking-[0.04em] ${s.muted}`}>БРОЈ ВРАБОТЕНИ</label>
+              <div className="mt-2.5 flex items-baseline gap-2.5">
+                <span className={`${s.display} ${s.ink} text-[44px] font-medium tracking-[-0.04em]`}>{employees}</span>
+                <span className={`text-[15px] ${s.muted}`}>луѓе</span>
+              </div>
+              <Slider.Root className="relative mt-3.5 flex h-7 touch-none items-center" value={[employees]} min={5} max={200} step={1} onValueChange={([v]) => setEmployees(v ?? 5)} aria-label="Број вработени">
+                <Slider.Track className="relative h-2.5 grow rounded-full bg-[#E1E9F2]"><Slider.Range className="absolute h-full rounded-full bg-[var(--color-cta)]" /></Slider.Track>
+                <Slider.Thumb className="block size-6 rounded-full bg-white shadow ring-2 ring-[var(--color-cta)]" />
               </Slider.Root>
-              <div className="mt-5 text-sm font-medium">Моментално решение</div>
-              <div className="mt-2 flex gap-2">
+              <div className={`flex justify-between text-[12px] ${s.muted}`}><span>5</span><span>200</span></div>
+
+              <label className={`mt-[30px] block text-[13px] font-extrabold tracking-[0.04em] ${s.muted}`}>МОМЕНТАЛНО РЕШЕНИЕ</label>
+              <div className="mt-3 flex gap-2.5">
                 {(['GALLONS', 'BOTTLES'] as const).map((o) => (
-                  <button key={o} onClick={() => setSolution(o)} className={`rounded-lg border px-4 py-2 text-sm ${solution === o ? `${s.border} ${s.softBg} font-semibold` : s.border}`}>{o === 'GALLONS' ? 'Галони 19 L' : 'Шишиња 0,5 L'}</button>
+                  <button key={o} onClick={() => setSolution(o)} className={`flex-1 rounded-xl border px-4 py-[15px] text-[15px] font-bold ${solution === o ? `border-[var(--color-cta)] ${s.softBg} ${s.ink}` : `${s.border} ${s.muted}`}`}>{o === 'GALLONS' ? 'Галони 19 L' : 'Шишиња 0,5 L'}</button>
                 ))}
               </div>
+
+              <label htmlFor="b2b-unit-price" className={`mt-[30px] block text-[13px] font-extrabold tracking-[0.04em] ${s.muted}`}>ЦЕНА ПО ЕДИНИЦА (ДЕН.)</label>
+              <input
+                id="b2b-unit-price"
+                type="number"
+                min={1}
+                value={unitPrice}
+                onChange={(e) => setUnitPrice(Math.max(1, Number(e.target.value) || 0))}
+                className={`mt-2.5 w-full rounded-xl border ${s.border} ${s.softBg} px-4 py-[15px] font-bold ${s.ink}`}
+              />
+              <p className={`mt-3.5 text-[13px] leading-[1.5] ${s.muted}`}>Пресметката претпоставува 1,5 L по човек дневно и 22 работни дена. Пресметката е ориентациона.</p>
             </div>
-            <div className={`rounded-[18px] ${s.panel} p-6 text-white`}>
-              <div className="text-sm text-[#A9BFDC]">Сега плаќате ≈</div>
-              <div className={`${s.display} text-3xl`}>{fmtPrice(result.currentMonthly)}<span className="text-base text-[#A9BFDC]"> /мес.</span></div>
-              <div className="mt-3 text-sm text-[#A9BFDC]">Со SPAR од</div>
-              <div className={`${s.display} text-3xl text-[#7BE0A0]`}>{fmtPrice(result.sparMonthly)}<span className="text-base text-[#A9BFDC]"> /мес.</span></div>
-              <div className="mt-3 text-sm text-[#A9BFDC]">Годишна заштеда ≈</div>
-              <div className={`${s.display} text-2xl text-[#7BE0A0]`}>{fmtPrice(result.annualSaving)}</div>
-              <p className="mt-3 text-xs text-[#A9BFDC]">Пресметката е ориентациона.</p>
-              <button onClick={() => open({ type: 'B2B' })} className={`mt-4 w-full ${s.cta}`}>Добиј точна понуда</button>
+
+            {/* Result panel */}
+            <div className={`rounded-[24px] ${s.panel} p-[34px] text-white`}>
+              <div className="text-[13px] font-extrabold tracking-[0.04em] text-[#6FC4F7]">СЕГА ПЛАЌАТЕ ≈</div>
+              <div className={`${s.display} mt-2 text-[40px] font-medium tracking-[-0.04em]`}>{fmtPrice(result.currentMonthly)}<span className="text-[16px] font-semibold text-[#A9BFDC]"> /мес.</span></div>
+              <div className="mt-3.5 h-2.5 rounded-full bg-[#6FC4F7]" style={{ width: '100%' }} />
+
+              <div className="mt-[30px] text-[13px] font-extrabold tracking-[0.04em] text-[#6FC4F7]">СО SPAR: ОД</div>
+              <div className={`${s.display} mt-2 text-[40px] font-medium tracking-[-0.04em] text-[#7BE0A0]`}>{fmtPrice(result.sparMonthly)}<span className="text-[16px] font-semibold text-[#A9BFDC]"> /мес.</span></div>
+              <div className="mt-3.5 h-2.5 rounded-full bg-[#16803B] transition-[width] duration-500" style={{ width: barSpar }} />
+
+              <div className="mt-[30px] border-t border-[rgba(111,196,247,0.24)] pt-[26px]">
+                {hasSavings ? (
+                  <div>
+                    <div className="text-[13px] font-extrabold tracking-[0.04em] text-[#6FC4F7]">ГОДИШНА ЗАШТЕДА ≈</div>
+                    <div className={`${s.display} mt-2 text-[34px] font-medium text-[#7BE0A0]`}>{fmtPrice(result.annualSaving)}</div>
+                    <p className="mt-3 text-[15px] text-[#A9BFDC]">{new Intl.NumberFormat('mk-MK').format(avoidedPerYear)} {solLabel} помалку годишно.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-[13px] font-extrabold tracking-[0.04em] text-[#6FC4F7]">ШТО ДОБИВАТЕ</div>
+                    <p className="mt-2.5 text-[17px] leading-[1.5] text-white">Предвидлив месечен трошок без нарачки, носење и одржување.</p>
+                  </div>
+                )}
+              </div>
+              <button onClick={() => open({ type: 'B2B' })} className="mt-7 w-full rounded-[14px] bg-[#16803B] px-6 py-[18px] text-[17px] font-bold text-white transition hover:brightness-110">Добиј точна понуда</button>
             </div>
           </div>
         </section>
@@ -159,6 +202,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
                   ['Топла/ладна вода', 'Не', 'Зависно', 'Да'],
                   ['Замена на филтри и сервис', 'Не', 'Ваша грижа', 'Вклучено'],
                   ['Замена при дефект', 'Не', 'Ваша грижа', 'Вклучено'],
+                  ['Договорна обврска', 'Не', 'Не', '12 месеци [потврди]'],
                 ].map((r) => (
                   <tr key={r[0]} className={`border-t ${s.border}`}>
                     <td className={`sticky left-0 bg-[var(--color-background)] px-4 py-3.5 font-semibold ${s.ink}`}>{r[0]}</td>
@@ -188,6 +232,14 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
           <div className={`mt-8 grid gap-11 rounded-[var(--radius-card)] border ${s.border} ${s.softBg} p-8 md:grid-cols-2`}>
             <div>
               <p className={`text-[17px] leading-[1.55] ${s.muted}`}>Оставете податоци за вашата фирма — ќе ве контактираме со точна понуда, бесплатна проценка и термин за монтажа.</p>
+              {/* Carry-over from the calculator above */}
+              <div className={`mt-5 rounded-[16px] border ${s.border} bg-white p-4`}>
+                <div className={`text-[12px] font-extrabold tracking-[0.04em] ${s.muted}`}>ПРЕНЕСЕНО ОД ПРЕСМЕТКАТА</div>
+                <p className={`mt-2 text-[15px] ${s.ink}`}>
+                  {employees} вработени · сега ≈ {fmtPrice(result.currentMonthly)}/мес.
+                  {hasSavings && <> · заштеда ≈ {fmtPrice(result.annualSaving)} годишно</>}
+                </p>
+              </div>
               <a href="tel:076676819" className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
               <div className="mt-4 flex flex-wrap gap-2 text-sm text-[#56698A]">
                 <span>Бесплатна проценка</span> · <span>Без скриени трошоци</span> · <span>Брза монтажа</span>

@@ -67,6 +67,7 @@ export const calculatorResultSchema = z.object({
   currentMonthly: z.number(),
   sparMonthly: z.number(),
   annualSaving: z.number(),
+  units: z.number(), // current units (gallons/bottles) consumed per month
 });
 export type CalculatorResult = z.infer<typeof calculatorResultSchema>;
 

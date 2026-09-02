@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Section } from '../components/ui';
+import { PageWrap, useSkin } from '../components/PageShell';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/post';
 
@@ -13,16 +13,39 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.post ? `${data.post.title} | Совети` : 'Статија' }];
 }
 
+/** Single post as exposed by the public API (loosely typed content HTML). */
+type PostDetail = { title: string; content?: { html?: string } | null };
+
 export default function Post({ loaderData }: Route.ComponentProps) {
-  const post = loaderData.post as { title: string; content?: { html?: string } | null };
+  const post = loaderData.post as PostDetail;
+  const s = useSkin();
+
   return (
-    <Section>
-      <div className="grid gap-14 lg:grid-cols-[1fr_300px] lg:items-start">
-        <article className="max-w-[34em]">
-          <h1 className="max-w-[24em] text-[clamp(32px,4vw,54px)] font-medium text-[var(--color-foreground)]">{post.title}</h1>
+    <PageWrap>
+      <nav className={`flex flex-wrap gap-2 pt-[26px] text-[13px] font-semibold ${s.muted}`} aria-label="Патека">
+        <Link to="/" className="text-[var(--color-cta)]">
+          Почетна
+        </Link>
+        <span>/</span>
+        <Link to="/soveti" className="text-[var(--color-cta)]">
+          Совети
+        </Link>
+        <span>/</span>
+        <span>{post.title}</span>
+      </nav>
+
+      <div className="mt-[6px] grid items-start gap-[60px] lg:grid-cols-[1fr_300px]">
+        <article>
+          <span className={`text-[13px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>ЕДУКАТИВНО</span>
+          {/* TODO(blog): hero image + related product when DTO exposes them */}
+          <h1
+            className={`${s.display} ${s.ink} mt-4 max-w-[24em] text-[clamp(32px,4vw,54px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}
+          >
+            {post.title}
+          </h1>
           {post.content?.html && (
             <div
-              className="mt-8 space-y-4 text-[17px] leading-[1.75] text-[var(--color-muted)] [&_h2]:mt-10 [&_h2]:text-[28px] [&_h2]:font-medium [&_h2]:text-[var(--color-foreground)] [&_li]:ml-5 [&_li]:list-disc [&_p]:text-[17px]"
+              className="mt-[34px] max-w-[34em] text-[17px] leading-[1.75] text-[var(--color-muted)] [&_blockquote]:my-[34px] [&_blockquote]:rounded-[18px] [&_blockquote]:bg-[var(--color-neutral-100)] [&_blockquote]:px-[28px] [&_blockquote]:py-[24px] [&_blockquote]:text-[19px] [&_blockquote]:font-medium [&_blockquote]:leading-[1.6] [&_blockquote]:text-[var(--color-foreground)] [&_h2]:mt-[40px] [&_h2]:text-[28px] [&_h2]:font-medium [&_h2]:text-[var(--color-foreground)] [&_li]:ml-5 [&_li]:list-disc [&_p]:mt-4 [&_p]:text-[17px]"
               dangerouslySetInnerHTML={{ __html: post.content.html }}
             />
           )}
@@ -30,20 +53,38 @@ export default function Post({ loaderData }: Route.ComponentProps) {
 
         {/* Sticky sidebar */}
         <aside className="lg:sticky lg:top-[100px]">
-          <div className="rounded-[18px] border border-[var(--color-border)] p-6">
-            <div className="font-[family-name:var(--font-mono)] text-[12px] font-extrabold tracking-[0.06em] text-[var(--color-muted)]">СОВЕТ</div>
-            <p className="mt-2 text-[15px] text-[var(--color-muted)]">Не сте сигурни кој систем ви одговара? Оставете телефон — ќе ве советуваме бесплатно.</p>
-            <Link to="/kontakt" className="mt-4 inline-block rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-5 py-3 text-[15px] font-bold text-[var(--color-cta-fg)]">Побарај консултација</Link>
+          <div className={`border ${s.border} rounded-[18px] p-6`}>
+            <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>СОДРЖИНА</span>
+            <p className={`mt-4 text-[15px] leading-[1.55] ${s.muted}`}>
+              Не сте сигурни кој систем ви одговара? Оставете телефон — ќе ве советуваме бесплатно.
+            </p>
+            <Link
+              to="/kontakt"
+              className={`mt-4 inline-flex min-h-[44px] items-center rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-5 py-3 text-[15px] font-bold text-[var(--color-cta-fg)]`}
+            >
+              Побарај консултација
+            </Link>
           </div>
-          <div className="mt-4 rounded-[18px] border border-[var(--color-border)] p-6">
-            <div className="font-[family-name:var(--font-mono)] text-[12px] font-extrabold tracking-[0.06em] text-[var(--color-muted)]">СПОДЕЛИ</div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <a href="https://facebook.com" className="rounded-[10px] border border-[var(--color-border)] px-3.5 py-2.5 text-[13px] font-bold text-[var(--color-foreground)]">Facebook</a>
-              <a href="https://instagram.com" className="rounded-[10px] border border-[var(--color-border)] px-3.5 py-2.5 text-[13px] font-bold text-[var(--color-foreground)]">Instagram</a>
+
+          <div className={`mt-4 border ${s.border} rounded-[18px] p-6`}>
+            <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>СПОДЕЛИ</span>
+            <div className="mt-[14px] flex flex-wrap gap-2">
+              <a
+                href="https://facebook.com"
+                className={`inline-flex min-h-[44px] items-center rounded-[10px] border px-[14px] py-[10px] text-[13px] font-bold ${s.border} ${s.ink}`}
+              >
+                Facebook
+              </a>
+              <a
+                href="viber://forward"
+                className={`inline-flex min-h-[44px] items-center rounded-[10px] border px-[14px] py-[10px] text-[13px] font-bold ${s.border} ${s.ink}`}
+              >
+                Viber
+              </a>
             </div>
           </div>
         </aside>
       </div>
-    </Section>
+    </PageWrap>
   );
 }
