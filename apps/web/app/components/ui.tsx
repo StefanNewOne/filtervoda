@@ -69,5 +69,6 @@ export function Section({
 
 export function formatPrice(denari?: number): string {
   if (denari == null) return '';
-  return `${new Intl.NumberFormat('mk-MK').format(denari)} ден.`;
+  // Deterministic MK grouping (dot thousands) — see fmtPrice in templates/types.ts.
+  return `${Math.round(denari).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} ден.`;
 }

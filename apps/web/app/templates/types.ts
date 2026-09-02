@@ -58,7 +58,9 @@ export const STAGES = [
 
 export function fmtPrice(denari?: number): string {
   if (denari == null) return '';
-  return `${new Intl.NumberFormat('mk-MK').format(denari)} ден.`;
+  // Deterministic MK grouping (dot thousands) — ICU for mk-MK varies between
+  // SSR Node and the browser, so format manually to keep prices identical.
+  return `${Math.round(denari).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} ден.`;
 }
 
 export type { ProductCardDto };
