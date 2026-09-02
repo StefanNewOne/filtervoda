@@ -3,7 +3,7 @@
  * (3 templates + active b1), B2B packages, flagship filtration stages, redirect map.
  * Idempotent (upserts). Run: npm run seed --workspace apps/api
  */
-import { PrismaClient, ProductAudience, PublishStatus } from '@prisma/client';
+import { FaqScope, PrismaClient, ProductAudience, PublishStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -63,6 +63,47 @@ const FLAGSHIP_STAGES = [
   { order: 5, name: 'Пост-карбон (кокосов)', removes: 'преостанати мириси', whyItMatters: 'Финално дотерување на вкусот.' },
   { order: 6, name: 'Алкализатор / минерализатор', removes: '—', whyItMatters: 'Додава калциум и магнезиум, pH 8.5+.' },
 ];
+
+// What every product price includes (prototype „Што вклучува цената").
+const DEFAULT_INCLUDED = [
+  'Достава низ цела Македонија',
+  'Бесплатна монтажа од наш техничар',
+  'Обука за користење',
+  '10 години гаранција',
+  'Плаќање во готово или на рати',
+];
+
+// „Идеален за" cards for under-sink / dispenser RO systems.
+const RO_IDEAL_FOR = [
+  'Домаќинства што сакаат чиста вода за пиење и готвење',
+  'Простории со тврда вода и бигор',
+  'Семејства со мали деца',
+];
+
+const RO_MAINTENANCE =
+  'Степените 1–3 се менуваат на 6–12 месеци, мембраната на 24–36 месеци, пост-карбон и минерализатор на 12 месеци. SPAR доаѓа на замена — не ви треба мајстор.';
+
+// Technical specification groups for RO systems (prototype „Техничка спецификација").
+const RO_SPECS: { group: string; label: string; value: string; unit?: string }[] = [
+  { group: 'Квалитет на вода', label: 'pH на излез', value: '8,5+' },
+  { group: 'Квалитет на вода', label: 'Отстранување на TDS', value: '95–99', unit: '%' },
+  { group: 'Квалитет на вода', label: 'Отстранува', value: 'Хлор, бигор, тешки метали, бактерии, вируси' },
+  { group: 'Квалитет на вода', label: 'Додадени минерали', value: 'Калциум, магнезиум' },
+  { group: 'Технички', label: 'Степени на филтрација', value: '6' },
+  { group: 'Технички', label: 'Проток', value: '~600', unit: 'GPD [потврди]' },
+  { group: 'Технички', label: 'Работен притисок', value: '3–6', unit: 'бари [потврди]' },
+  { group: 'Технички', label: 'Гаранција', value: '10', unit: 'години' },
+];
+
+// Product-scoped FAQ applied to every product (prototype „Често поставувани прашања").
+const PRODUCT_FAQS = [
+  { question: 'Дали монтажата е навистина бесплатна?', answer: 'Да. Нашиот техничар доаѓа, монтира и ве обучува — без дополнителен трошок.' },
+  { question: 'Колку често се менуваат филтрите?', answer: 'Степените 1–3 на 6–12 месеци, мембраната на 24–36 месеци. Ве потсетуваме и доаѓаме на замена.' },
+  { question: 'Дали водата останува здрава за пиење?', answer: 'Да. По реверзната осмоза додаваме минерали (калциум, магнезиум) и pH 8,5+ за баланс на вкус и здравје.' },
+  { question: 'Можам ли да плаќам на рати?', answer: 'Да — плаќање во готово или на рати, договорено при нарачка.' },
+];
+
+const isRoCategory = (cat: string) => cat === 'pod-mijalnik' || cat === 'dispenzeri';
 
 // Product chips (feature tags on cards + comparison table source).
 const CHIPS: Record<string, string[]> = {
@@ -143,6 +184,9 @@ async function main() {
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
         features: (CHIPS[p.slug] ?? []).map((text) => ({ text })),
+        idealFor: isRoCategory(p.cat) ? RO_IDEAL_FOR : [],
+        includedInPrice: DEFAULT_INCLUDED,
+        maintenanceNote: isRoCategory(p.cat) ? RO_MAINTENANCE : null,
         featured: p.featured ?? false,
         audience: (p.audience ?? 'B2C') as ProductAudience,
       },
@@ -158,6 +202,9 @@ async function main() {
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
         features: (CHIPS[p.slug] ?? []).map((text) => ({ text })),
+        idealFor: isRoCategory(p.cat) ? RO_IDEAL_FOR : [],
+        includedInPrice: DEFAULT_INCLUDED,
+        maintenanceNote: isRoCategory(p.cat) ? RO_MAINTENANCE : null,
         featured: p.featured ?? false,
         status: PublishStatus.PUBLISHED,
         warrantyYears: 10,
@@ -184,11 +231,40 @@ async function main() {
       }
     }
 
-    // Flagship gets the 6 stages.
-    if (p.slug === 'spar-crystal-digital-600hf') {
+    // Under-sink RO systems get the 6 filtration stages + full technical specs.
+    if (p.cat === 'pod-mijalnik') {
       await prisma.productStage.deleteMany({ where: { productId: product.id } });
-      await prisma.productStage.createMany({
-        data: FLAGSHIP_STAGES.map((s) => ({ ...s, productId: product.id })),
+      await prisma.productStage.createMany({ data: FLAGSHIP_STAGES.map((s) => ({ ...s, productId: product.id })) });
+    }
+    if (isRoCategory(p.cat)) {
+      await prisma.productSpec.deleteMany({ where: { productId: product.id } });
+      await prisma.productSpec.createMany({
+        data: RO_SPECS.map((s, i) => ({ productId: product.id, group: s.group, label: s.label, value: s.value, unit: s.unit ?? null, sortOrder: i })),
+      });
+    }
+
+    // Product-scoped FAQ for every product.
+    await prisma.faq.deleteMany({ where: { productId: product.id } });
+    await prisma.faq.createMany({
+      data: PRODUCT_FAQS.map((f, i) => ({ tenantId: TENANT, productId: product.id, question: f.question, answer: f.answer, scope: FaqScope.PRODUCT, sortOrder: i })),
+    });
+  }
+
+  // Related products — up to 3 others in the same category.
+  const allProducts = await prisma.product.findMany({ where: { tenantId: TENANT }, select: { id: true, categoryId: true } });
+  const byCategory = new Map<number, string[]>();
+  for (const pr of allProducts) {
+    const list = byCategory.get(pr.categoryId) ?? [];
+    list.push(pr.id);
+    byCategory.set(pr.categoryId, list);
+  }
+  for (const pr of allProducts) {
+    const siblings = (byCategory.get(pr.categoryId) ?? []).filter((id) => id !== pr.id).slice(0, 3);
+    await prisma.relatedProduct.deleteMany({ where: { productId: pr.id } });
+    if (siblings.length > 0) {
+      await prisma.relatedProduct.createMany({
+        data: siblings.map((relatedId, i) => ({ productId: pr.id, relatedId, sortOrder: i })),
+        skipDuplicates: true,
       });
     }
   }
