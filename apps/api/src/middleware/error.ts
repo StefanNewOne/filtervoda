@@ -42,6 +42,14 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
     return;
   }
 
+  // http-errors compatible (e.g. csrf-csrf's 403 InvalidCsrfTokenError, multer 413).
+  const httpStatus = (err as { statusCode?: number; status?: number })?.statusCode ?? (err as { status?: number })?.status;
+  if (typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500) {
+    const msg = httpStatus === 403 ? 'Барањето не е дозволено (CSRF).' : 'Барањето не е валидно.';
+    res.status(httpStatus).json({ error: msg, correlationId });
+    return;
+  }
+
   logger.error(
     { err, stack: (err as Error)?.stack, endpoint: req.path, correlationId },
     'unhandled error',
