@@ -70,3 +70,8 @@ if (!parsed.success) {
 export const env = parsed.data;
 export const isProd = env.NODE_ENV === 'production';
 export const isTest = env.NODE_ENV === 'test';
+
+// Loud warning: the lead form has NO bot protection while Turnstile is bypassed in production.
+if (isProd && env.TURNSTILE_DEV_BYPASS) {
+  console.warn('⚠️  TURNSTILE_DEV_BYPASS=true in production — the lead form has NO CAPTCHA. Set real Turnstile keys + TURNSTILE_DEV_BYPASS=false before public launch.');
+}

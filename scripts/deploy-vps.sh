@@ -58,10 +58,15 @@ ssh "${SSH_OPTS[@]}" "$REMOTE" bash -euo pipefail -s <<REMOTE
   echo "  building + starting containers (first run pulls images + builds — a few minutes)…"
   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 
+  DC="docker compose --env-file .env.production -f docker-compose.prod.yml"
+
+  # Reload Caddy so an edited (bind-mounted) Caddyfile takes effect without recreating the container.
+  echo "  reloading Caddy config…"
+  \$DC exec -T caddy caddy reload --config /etc/caddy/Caddyfile </dev/null 2>/dev/null || true
+
   # Wait for Postgres, then migrate + seed inside the api container.
   # NOTE: every \`exec -T\` MUST redirect stdin from /dev/null — otherwise it consumes the rest
   # of THIS heredoc as its own stdin and the following commands never run.
-  DC="docker compose --env-file .env.production -f docker-compose.prod.yml"
   echo "  waiting for database…"
   for i in \$(seq 1 30); do
     if \$DC exec -T postgres pg_isready -U "\${POSTGRES_USER:-filtervoda}" </dev/null >/dev/null 2>&1; then break; fi

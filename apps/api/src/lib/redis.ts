@@ -13,14 +13,24 @@ export const redis = new Redis(env.REDIS_URL, {
 
 redis.on('error', (err) => logger.error({ err }, 'redis error'));
 
-/** Cache a JSON value with TTL (seconds). */
+/** Cache a JSON value with TTL (seconds). Fail-open: a Redis blip must never break a write. */
 export async function cacheSet(key: string, value: unknown, ttlSec: number): Promise<void> {
-  await redis.set(key, JSON.stringify(value), 'EX', ttlSec);
+  try {
+    await redis.set(key, JSON.stringify(value), 'EX', ttlSec);
+  } catch (err) {
+    logger.warn({ err, key }, 'cache.set.failed');
+  }
 }
 
+/** Fail-open: on any Redis error, behave as a cache miss so the caller recomputes from origin. */
 export async function cacheGet<T>(key: string): Promise<T | null> {
-  const raw = await redis.get(key);
-  return raw ? (JSON.parse(raw) as T) : null;
+  try {
+    const raw = await redis.get(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch (err) {
+    logger.warn({ err, key }, 'cache.get.failed');
+    return null;
+  }
 }
 
 /** Invalidate keys by prefix (used on publish). */

@@ -21,6 +21,12 @@ export interface MailInput {
 }
 
 export async function sendMail(input: MailInput): Promise<void> {
+  // No SMTP configured (e.g. preview before [D-7]) → skip cleanly instead of failing the outbox
+  // job against a non-existent 'mailhog' host (which would pile up in „Проблеми со испорака").
+  if (!env.SMTP_HOST) {
+    logger.warn({ subject: input.subject }, 'email.skipped.no_smtp');
+    return;
+  }
   await transport.sendMail({
     from: env.MAIL_FROM ?? 'SPAR Company <no-reply@filtervoda.mk>',
     to: input.to,

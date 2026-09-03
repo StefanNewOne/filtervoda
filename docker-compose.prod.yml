@@ -14,10 +14,12 @@ services:
     depends_on:
       api: { condition: service_started }
       redis: { condition: service_healthy }
+    mem_limit: 768m
     restart: always
 
   admin:
     build: { context: ., dockerfile: apps/admin/Dockerfile }
+    mem_limit: 128m
     restart: always
 
   api:
@@ -33,6 +35,7 @@ services:
       interval: 20s
       timeout: 5s
       retries: 5
+    mem_limit: 768m
     restart: always
 
   postgres:
@@ -49,11 +52,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 1g
     restart: always
 
   redis:
     image: redis:7-alpine
-    command: redis-server --appendonly yes
+    # Cap memory + LRU-evict cache keys so cache growth can never OOM the box.
+    command: redis-server --appendonly yes --maxmemory 384mb --maxmemory-policy allkeys-lru
     volumes:
       - redisdata:/data
     healthcheck:
@@ -61,6 +66,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 448m
     restart: always
 
   caddy:

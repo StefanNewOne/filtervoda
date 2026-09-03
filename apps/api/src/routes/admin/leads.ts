@@ -8,11 +8,14 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
 import { logger } from '../../lib/logger.js';
-import { requireFreshReauth } from '../../middleware/auth.js';
+import { requireFreshReauth, requireRole } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error.js';
 import { writeAudit } from '../../services/audit.service.js';
 
 export const adminLeadsRouter = Router();
+
+/** CLIENT_VIEWER is read-only: only ADMIN/EDITOR may mutate leads. */
+const leadEditors = requireRole('ADMIN', 'EDITOR');
 
 adminLeadsRouter.get('/', async (req, res) => {
   const { type, status, product, q, from, to } = req.query as Record<string, string | undefined>;
@@ -55,13 +58,14 @@ adminLeadsRouter.get('/:id', async (req, res) => {
   res.json(lead);
 });
 
-adminLeadsRouter.patch('/:id', async (req, res) => {
+adminLeadsRouter.patch('/:id', leadEditors, async (req, res) => {
+  const id = String(req.params.id);
   const data = leadUpdateSchema.parse(req.body);
-  const before = await prisma.lead.findUnique({ where: { id: req.params.id } });
+  const before = await prisma.lead.findUnique({ where: { id } });
   if (!before) throw new AppError(404, 'Lead не е пронајден');
 
   const lead = await prisma.lead.update({
-    where: { id: req.params.id },
+    where: { id },
     data: {
       ...data,
       contactedAt: data.status && data.status !== 'NEW' && !before.contactedAt ? new Date() : before.contactedAt,
@@ -85,16 +89,16 @@ adminLeadsRouter.patch('/:id', async (req, res) => {
   res.json(lead);
 });
 
-adminLeadsRouter.post('/:id/notes', async (req, res) => {
+adminLeadsRouter.post('/:id/notes', leadEditors, async (req, res) => {
   const { text } = z.object({ text: z.string().min(1).max(2000) }).parse(req.body);
   const note = await prisma.leadNote.create({
-    data: { leadId: req.params.id, userId: req.session.userId as string, text },
+    data: { leadId: String(req.params.id), userId: req.session.userId as string, text },
   });
   res.status(201).json(note);
 });
 
 // GDPR anonymize — destructive → fresh re-auth required.
-adminLeadsRouter.post('/:id/anonymize', requireFreshReauth, async (req, res) => {
+adminLeadsRouter.post('/:id/anonymize', leadEditors, requireFreshReauth, async (req, res) => {
   const id = String(req.params.id);
   await prisma.lead.update({
     where: { id },

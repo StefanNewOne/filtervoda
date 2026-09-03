@@ -33,7 +33,7 @@ adminRouter.use(requireAuth, adminLimiter);
 // CSRF on state-changing verbs only (GET/HEAD are safe).
 adminRouter.use((req, res, next) => (['GET', 'HEAD', 'OPTIONS'].includes(req.method) ? next() : csrfProtection(req, res, next)));
 
-// Leads — all authenticated roles may read/manage (incl. CLIENT_VIEWER).
+// Leads — all authenticated roles may READ; mutations are ADMIN/EDITOR-only (guarded per-route).
 adminRouter.use('/leads', adminLeadsRouter);
 
 // Everything below is content/system — CLIENT_VIEWER is excluded.
