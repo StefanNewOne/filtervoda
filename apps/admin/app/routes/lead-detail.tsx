@@ -20,22 +20,31 @@ interface LeadDetail {
   section?: string;
   referrer?: string;
   createdAt: string;
+  anonymizedAt?: string;
   notes: { id: string; text: string; createdAt: string }[];
   events: { id: string; type: string; createdAt: string }[];
 }
+
+const input = 'w-full rounded-md border border-[var(--color-neutral-200)] px-3 py-2 text-sm';
 
 export default function LeadDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
   const [note, setNote] = useState('');
   const [lostReason, setLostReason] = useState('');
+  const [lostOpen, setLostOpen] = useState(false);
+
+  // Anonymize (destructive → fresh re-auth).
+  const [anonOpen, setAnonOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [anonError, setAnonError] = useState<string | null>(null);
 
   const { data: lead } = useQuery({ queryKey: ['lead', id], queryFn: () => apiClient.get<LeadDetail>(`/admin/leads/${id}`) });
 
   const updateStatus = useMutation({
     mutationFn: (status: string) =>
       apiClient.patch(`/admin/leads/${id}`, { status, ...(status === 'LOST' ? { lostReason } : {}) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['lead', id] }),
+    onSuccess: () => { setLostOpen(false); setLostReason(''); qc.invalidateQueries({ queryKey: ['lead', id] }); },
   });
 
   const addNote = useMutation({
@@ -43,7 +52,24 @@ export default function LeadDetail() {
     onSuccess: () => { setNote(''); qc.invalidateQueries({ queryKey: ['lead', id] }); },
   });
 
+  const anonymize = useMutation({
+    mutationFn: async () => {
+      await apiClient.post('/auth/reauth', { password });
+      return apiClient.post(`/admin/leads/${id}/anonymize`);
+    },
+    onSuccess: () => { setAnonOpen(false); setPassword(''); qc.invalidateQueries({ queryKey: ['lead', id] }); },
+    onError: (e) => setAnonError((e as Error).message),
+  });
+
   if (!lead) return <p className="text-[var(--color-neutral-500)]">Се вчитува…</p>;
+
+  const isAnonymized = Boolean(lead.anonymizedAt);
+
+  // LOST needs a reason first: clicking LOST opens the reason input rather than firing immediately.
+  const onStatusClick = (s: string) => {
+    if (s === 'LOST') { setLostOpen(true); return; }
+    updateStatus.mutate(s);
+  };
 
   return (
     <>
@@ -69,18 +95,24 @@ export default function LeadDetail() {
             <div className="mb-2 flex items-center gap-2 text-sm">Статус: <StatusPill status={lead.status} /></div>
             <div className="flex flex-wrap gap-1.5">
               {LEAD_STATUSES.map((s) => (
-                <Btn key={s} variant={s === lead.status ? 'primary' : 'ghost'} onClick={() => updateStatus.mutate(s)}>
+                <Btn key={s} variant={s === lead.status ? 'primary' : 'ghost'} onClick={() => onStatusClick(s)}>
                   {LEAD_STATUS_LABELS_MK[s]}
                 </Btn>
               ))}
             </div>
-            {(lead.status === 'LOST' || lostReason) && (
-              <input
-                className="mt-3 w-full rounded-md border border-[var(--color-neutral-200)] px-3 py-2 text-sm"
-                placeholder="Причина за „Изгубено“"
-                value={lostReason}
-                onChange={(e) => setLostReason(e.target.value)}
-              />
+            {lostOpen && (
+              <div className="mt-3 space-y-2">
+                <input
+                  className={input}
+                  placeholder="Причина за „Изгубено“"
+                  value={lostReason}
+                  onChange={(e) => setLostReason(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Btn disabled={!lostReason.trim() || updateStatus.isPending} onClick={() => updateStatus.mutate('LOST')}>Потврди „Изгубено“</Btn>
+                  <Btn variant="ghost" onClick={() => { setLostOpen(false); setLostReason(''); }}>Откажи</Btn>
+                </div>
+              </div>
             )}
           </div>
 
@@ -95,6 +127,32 @@ export default function LeadDetail() {
                 <li key={n.id} className="rounded-md bg-[var(--color-neutral-50)] p-2">{n.text}</li>
               ))}
             </ul>
+          </div>
+
+          <div className="mt-6 border-t border-[var(--color-neutral-200)] pt-4">
+            {isAnonymized ? (
+              <p className="text-sm text-[var(--color-neutral-500)]">Lead-от е анонимизиран.</p>
+            ) : !anonOpen ? (
+              <Btn variant="danger" onClick={() => { setAnonOpen(true); setAnonError(null); }}>Анонимизирај</Btn>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-[var(--color-danger-600)]">Ова трајно ги брише личните податоци. Внесете ја вашата лозинка за потврда.</p>
+                <input
+                  type="password"
+                  className={input}
+                  placeholder="Лозинка"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                {anonError && <p className="text-sm text-[var(--color-danger-600)]">{anonError}</p>}
+                <div className="flex gap-2">
+                  <Btn variant="danger" disabled={!password || anonymize.isPending} onClick={() => { setAnonError(null); anonymize.mutate(); }}>
+                    {anonymize.isPending ? 'Се анонимизира…' : 'Потврди анонимизација'}
+                  </Btn>
+                  <Btn variant="ghost" onClick={() => { setAnonOpen(false); setPassword(''); setAnonError(null); }}>Откажи</Btn>
+                </div>
+              </div>
+            )}
           </div>
         </Card>
 

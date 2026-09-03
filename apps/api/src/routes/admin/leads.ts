@@ -17,21 +17,25 @@ export const adminLeadsRouter = Router();
 /** CLIENT_VIEWER is read-only: only ADMIN/EDITOR may mutate leads. */
 const leadEditors = requireRole('ADMIN', 'EDITOR');
 
-adminLeadsRouter.get('/', async (req, res) => {
-  const { type, status, product, q, from, to } = req.query as Record<string, string | undefined>;
-  const where = {
+/** Shared filter predicate for list + export (so „export the current view" works). */
+function leadWhere(query: Record<string, string | undefined>) {
+  const { type, status, product, q, from, to } = query;
+  return {
     ...(type ? { type: type as 'B2C' | 'B2B' | 'CONTACT' | 'ADVISOR' } : {}),
     ...(status ? { status: status as 'NEW' } : {}),
     ...(product ? { productId: product } : {}),
     ...(from || to ? { createdAt: { gte: from ? new Date(from) : undefined, lte: to ? new Date(to) : undefined } } : {}),
     ...(q ? { OR: [{ name: { contains: q, mode: 'insensitive' as const } }, { phone: { contains: q } }, { company: { contains: q, mode: 'insensitive' as const } }] } : {}),
   };
-  const leads = await prisma.lead.findMany({ where, orderBy: { createdAt: 'desc' }, take: 200 });
+}
+
+adminLeadsRouter.get('/', async (req, res) => {
+  const leads = await prisma.lead.findMany({ where: leadWhere(req.query as Record<string, string | undefined>), orderBy: { createdAt: 'desc' }, take: 200 });
   res.json(leads);
 });
 
 adminLeadsRouter.get('/export', async (req, res) => {
-  const leads = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' }, take: 5000 });
+  const leads = await prisma.lead.findMany({ where: leadWhere(req.query as Record<string, string | undefined>), orderBy: { createdAt: 'desc' }, take: 5000 });
   const cols = ['id', 'createdAt', 'type', 'status', 'name', 'phone', 'email', 'city', 'company', 'productId', 'section'];
   const header = cols.join(',');
   const rows = leads.map((l) =>

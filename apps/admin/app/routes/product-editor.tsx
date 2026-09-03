@@ -1,22 +1,36 @@
+import { PRODUCT_AUDIENCES } from '@filtervoda/shared';
 import * as Tabs from '@radix-ui/react-tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { MediaPicker } from '../components/MediaPicker';
 import { Btn, Card, PageHeader } from '../components/ui';
 import { apiClient } from '../lib/api';
 
-const TABS = ['Основно', 'Придобивки', 'Степени', 'Спецификација', 'Цена и беџови', 'SEO'];
+const TABS = ['Основно', 'Придобивки', 'Степени', 'Спецификација', 'Галерија', 'Поврзани', 'ЧПП', 'Цена и беџови', 'SEO'];
 const input = 'w-full rounded-md border border-[var(--color-neutral-200)] px-3 py-2 text-sm';
 
 interface Spec { group: string; label: string; value: string; unit?: string }
 interface Stage { order: number; name: string; removes: string; whyItMatters: string }
+interface ProductImage { mediaId: string; alt?: string; sortOrder?: number; isPrimary?: boolean; media?: { id: string; url: string; alt: string } }
+interface RelatedRow { relatedId: string; sortOrder?: number }
+interface ProductFaq { id: number; question: string; answer: string; scope: string; productId?: string; sortOrder: number }
 interface Product {
   id: string; name: string; slug: string; tagline?: string; status: string;
+  categoryId?: number; audience?: string; showPrice?: boolean; featured?: boolean;
   priceRegular?: number; priceSale?: number; badges: string[];
   idealFor: string[]; includedInPrice: string[]; maintenanceNote?: string;
   features: { text: string }[]; seoTitle?: string; seoDescription?: string;
-  specs: Spec[]; stages: Stage[];
+  specs: Spec[]; stages: Stage[]; images: ProductImage[]; related?: RelatedRow[];
 }
+interface Category { id: number; name: string }
+interface ProductRow { id: string; name: string }
+
+const AUDIENCE_LABELS: Record<(typeof PRODUCT_AUDIENCES)[number], string> = {
+  B2C: 'Домаќинства (B2C)',
+  B2B: 'Фирми (B2B)',
+  BOTH: 'Двете',
+};
 
 function commaList(arr?: string[]) { return (arr ?? []).join(', '); }
 function parseList(s: string) { return s.split(',').map((x) => x.trim()).filter(Boolean); }
@@ -25,20 +39,38 @@ export default function ProductEditor() {
   const { id } = useParams();
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ['product', id], queryFn: () => apiClient.get<Product>(`/admin/products/${id}`) });
+  const { data: categories = [] } = useQuery({ queryKey: ['categories'], queryFn: () => apiClient.get<Category[]>('/admin/categories') });
+  const { data: allProducts = [] } = useQuery({ queryKey: ['products'], queryFn: () => apiClient.get<ProductRow[]>('/admin/products') });
+  const { data: allFaqs = [] } = useQuery({ queryKey: ['faqs'], queryFn: () => apiClient.get<ProductFaq[]>('/admin/faqs') });
+
   const [f, setF] = useState<Partial<Product>>({});
   const [specs, setSpecs] = useState<Spec[]>([]);
   const [stages, setStages] = useState<Stage[]>([]);
+  const [imageIds, setImageIds] = useState<string[]>([]);
+  const [relatedIds, setRelatedIds] = useState<string[]>([]);
+  const [faqQ, setFaqQ] = useState('');
+  const [faqA, setFaqA] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (data) { setF(data); setSpecs(data.specs ?? []); setStages(data.stages ?? []); }
+    if (data) {
+      setF(data);
+      setSpecs(data.specs ?? []);
+      setStages(data.stages ?? []);
+      setImageIds((data.images ?? []).map((i) => i.mediaId));
+      setRelatedIds((data.related ?? []).map((r) => r.relatedId));
+    }
   }, [data]);
 
   const say = (m: string) => { setMsg(m); setTimeout(() => setMsg(null), 2500); };
 
+  const productFaqs = allFaqs.filter((q) => q.scope === 'PRODUCT' && q.productId === id);
+
   const saveBasic = useMutation({
     mutationFn: () => apiClient.patch(`/admin/products/${id}`, {
-      name: f.name, tagline: f.tagline, priceRegular: f.priceRegular, priceSale: f.priceSale,
+      name: f.name, tagline: f.tagline, categoryId: f.categoryId, audience: f.audience,
+      showPrice: f.showPrice, featured: f.featured,
+      priceRegular: f.priceRegular, priceSale: f.priceSale,
       badges: f.badges, idealFor: f.idealFor, includedInPrice: f.includedInPrice,
       maintenanceNote: f.maintenanceNote, features: f.features, seoTitle: f.seoTitle, seoDescription: f.seoDescription,
     }),
@@ -46,9 +78,29 @@ export default function ProductEditor() {
   });
   const saveSpecs = useMutation({ mutationFn: () => apiClient.put(`/admin/products/${id}/specs`, specs), onSuccess: () => say('Спецификацијата е зачувана') });
   const saveStages = useMutation({ mutationFn: () => apiClient.put(`/admin/products/${id}/stages`, stages), onSuccess: () => say('Степените се зачувани') });
+  const saveImages = useMutation({
+    mutationFn: () => apiClient.put(`/admin/products/${id}/images`, imageIds.map((mediaId, i) => ({ mediaId, alt: '', sortOrder: i, isPrimary: i === 0 }))),
+    onSuccess: () => { say('Галеријата е зачувана'); qc.invalidateQueries({ queryKey: ['product', id] }); },
+  });
+  const saveRelated = useMutation({
+    mutationFn: () => apiClient.put(`/admin/products/${id}/related`, relatedIds.map((relatedId, i) => ({ relatedId, sortOrder: i }))),
+    onSuccess: () => { say('Поврзаните производи се зачувани'); qc.invalidateQueries({ queryKey: ['product', id] }); },
+  });
+  const addFaq = useMutation({
+    mutationFn: () => apiClient.post('/admin/faqs', { question: faqQ, answer: faqA, scope: 'PRODUCT', productId: id, sortOrder: productFaqs.length }),
+    onSuccess: () => { setFaqQ(''); setFaqA(''); say('Прашањето е додадено'); qc.invalidateQueries({ queryKey: ['faqs'] }); },
+  });
+  const delFaq = useMutation({
+    mutationFn: (faqId: number) => apiClient.del(`/admin/faqs/${faqId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['faqs'] }),
+  });
   const publish = useMutation({ mutationFn: (a: 'publish' | 'unpublish') => apiClient.post(`/admin/products/${id}/${a}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['product', id] }) });
 
   if (!data) return <p className="text-[var(--color-neutral-500)]">Се вчитува…</p>;
+
+  const toggleRelated = (rid: string) => {
+    setRelatedIds((cur) => (cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid]));
+  };
 
   return (
     <>
@@ -76,6 +128,21 @@ export default function ProductEditor() {
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Име</span><input className={input} value={f.name ?? ''} onChange={(e) => setF({ ...f, name: e.target.value })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Tagline</span><input className={input} value={f.tagline ?? ''} onChange={(e) => setF({ ...f, tagline: e.target.value })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Slug</span><input className={input} value={f.slug ?? ''} disabled /></label>
+            <label className="block text-sm">
+              <span className="text-[var(--color-neutral-500)]">Категорија</span>
+              <select className={input} value={f.categoryId ?? ''} onChange={(e) => setF({ ...f, categoryId: e.target.value ? Number(e.target.value) : undefined })}>
+                <option value="">— Избери —</option>
+                {categories.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+              </select>
+            </label>
+            <label className="block text-sm">
+              <span className="text-[var(--color-neutral-500)]">Публика</span>
+              <select className={input} value={f.audience ?? 'B2C'} onChange={(e) => setF({ ...f, audience: e.target.value })}>
+                {PRODUCT_AUDIENCES.map((a) => (<option key={a} value={a}>{AUDIENCE_LABELS[a]}</option>))}
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.showPrice ?? true} onChange={(e) => setF({ ...f, showPrice: e.target.checked })} /><span>Прикажи цена</span></label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.featured ?? false} onChange={(e) => setF({ ...f, featured: e.target.checked })} /><span>Истакнат</span></label>
             <Btn onClick={() => saveBasic.mutate()}>Зачувај</Btn>
           </Card>
         </Tabs.Content>
@@ -123,6 +190,48 @@ export default function ProductEditor() {
             <div className="flex gap-2 pt-2">
               <Btn variant="ghost" onClick={() => setSpecs([...specs, { group: '', label: '', value: '', unit: '' }])}>+ Ред</Btn>
               <Btn onClick={() => saveSpecs.mutate()}>Зачувај спецификација</Btn>
+            </div>
+          </Card>
+        </Tabs.Content>
+
+        <Tabs.Content value="Галерија">
+          <Card className="max-w-2xl space-y-3">
+            <span className="block text-sm text-[var(--color-neutral-500)]">Слики (првата е главна)</span>
+            <MediaPicker value={imageIds} multi onChange={setImageIds} />
+            <Btn onClick={() => saveImages.mutate()}>Зачувај галерија</Btn>
+          </Card>
+        </Tabs.Content>
+
+        <Tabs.Content value="Поврзани">
+          <Card className="max-w-2xl space-y-2">
+            <span className="block text-sm text-[var(--color-neutral-500)]">Поврзани производи</span>
+            <div className="max-h-80 space-y-1 overflow-y-auto">
+              {allProducts.filter((p) => p.id !== id).map((p) => (
+                <label key={p.id} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={relatedIds.includes(p.id)} onChange={() => toggleRelated(p.id)} />
+                  <span>{p.name}</span>
+                </label>
+              ))}
+            </div>
+            <Btn onClick={() => saveRelated.mutate()}>Зачувај поврзани</Btn>
+          </Card>
+        </Tabs.Content>
+
+        <Tabs.Content value="ЧПП">
+          <Card className="max-w-2xl space-y-3">
+            <ul className="space-y-2">
+              {productFaqs.map((q) => (
+                <li key={q.id} className="flex items-start justify-between gap-2 rounded-md bg-[var(--color-neutral-50)] p-2 text-sm">
+                  <div><div className="font-medium">{q.question}</div><div className="text-[var(--color-neutral-500)]">{q.answer}</div></div>
+                  <button className="text-[var(--color-danger-600)]" onClick={() => delFaq.mutate(q.id)}>Избриши</button>
+                </li>
+              ))}
+              {productFaqs.length === 0 && <li className="text-sm text-[var(--color-neutral-500)]">Сè уште нема прашања.</li>}
+            </ul>
+            <div className="space-y-2 border-t border-[var(--color-neutral-200)] pt-3">
+              <input className={input} placeholder="Прашање" value={faqQ} onChange={(e) => setFaqQ(e.target.value)} />
+              <textarea className={input} rows={2} placeholder="Одговор" value={faqA} onChange={(e) => setFaqA(e.target.value)} />
+              <Btn disabled={faqQ.trim().length < 3 || faqA.trim().length < 3 || addFaq.isPending} onClick={() => addFaq.mutate()}>+ Додај прашање</Btn>
             </div>
           </Card>
         </Tabs.Content>
