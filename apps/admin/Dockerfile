@@ -5,6 +5,7 @@ COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/admin/package.json apps/admin/
 RUN npm ci
+COPY tsconfig.base.json ./
 COPY packages/shared packages/shared
 COPY apps/admin apps/admin
 RUN npm run build --workspace apps/admin

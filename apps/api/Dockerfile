@@ -5,6 +5,7 @@ COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
 RUN npm ci
+COPY tsconfig.base.json ./
 COPY packages/shared packages/shared
 COPY apps/api apps/api
 RUN npx --workspace apps/api prisma generate \
