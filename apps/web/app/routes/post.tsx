@@ -14,7 +14,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 /** Single post as exposed by the public API (loosely typed content HTML). */
-type PostDetail = { title: string; content?: { html?: string } | null };
+type PostDetail = { title: string; content?: { html?: string } | null; coverUrl?: string | null };
 
 export default function Post({ loaderData }: Route.ComponentProps) {
   const post = loaderData.post as PostDetail;
@@ -37,12 +37,14 @@ export default function Post({ loaderData }: Route.ComponentProps) {
       <div className="mt-[6px] grid items-start gap-[60px] lg:grid-cols-[1fr_300px]">
         <article>
           <span className={`text-[13px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>ЕДУКАТИВНО</span>
-          {/* TODO(blog): hero image + related product when DTO exposes them */}
           <h1
             className={`${s.display} ${s.ink} mt-4 max-w-[24em] text-[clamp(32px,4vw,54px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}
           >
             {post.title}
           </h1>
+          {post.coverUrl && (
+            <img src={post.coverUrl} alt={post.title} className={`mt-8 aspect-[16/9] w-full bg-[var(--color-neutral-100)] object-cover ${s.cardR}`} />
+          )}
           {post.content?.html && (
             <div
               className="mt-[34px] max-w-[34em] text-[17px] leading-[1.75] text-[var(--color-muted)] [&_blockquote]:my-[34px] [&_blockquote]:rounded-[18px] [&_blockquote]:bg-[var(--color-neutral-100)] [&_blockquote]:px-[28px] [&_blockquote]:py-[24px] [&_blockquote]:text-[19px] [&_blockquote]:font-medium [&_blockquote]:leading-[1.6] [&_blockquote]:text-[var(--color-foreground)] [&_h2]:mt-[40px] [&_h2]:text-[28px] [&_h2]:font-medium [&_h2]:text-[var(--color-foreground)] [&_li]:ml-5 [&_li]:list-disc [&_p]:mt-4 [&_p]:text-[17px]"

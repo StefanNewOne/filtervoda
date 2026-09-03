@@ -30,8 +30,8 @@ export const api = {
     get<ProductCardDto[]>(`/public/products${category ? `?category=${encodeURIComponent(category)}` : ''}`),
   product: (slug: string) => getOrNull<ProductDetailDto>(`/public/products/${slug}`),
   categories: () => get<{ id: number; slug: string; name: string }[]>('/public/categories'),
-  posts: () => get<{ slug: string; title: string; excerpt?: string; publishedAt?: string }[]>('/public/posts'),
-  post: (slug: string) => getOrNull<{ slug: string; title: string; content?: { html?: string } | null }>(`/public/posts/${slug}`),
+  posts: () => get<{ slug: string; title: string; excerpt?: string; coverUrl?: string | null; publishedAt?: string }[]>('/public/posts'),
+  post: (slug: string) => getOrNull<{ slug: string; title: string; content?: { html?: string } | null; coverUrl?: string | null }>(`/public/posts/${slug}`),
   faq: (scope: 'GLOBAL' | 'PRODUCT' | 'B2B') => get<{ question: string; answer: string }[]>(`/public/faq?scope=${scope}`),
   packages: () => get<B2bPackageDto[]>('/public/packages'),
   testimonials: (scope?: 'B2C' | 'B2B') =>

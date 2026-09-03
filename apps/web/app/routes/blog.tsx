@@ -14,8 +14,8 @@ export async function loader() {
   return { posts: await api.posts() };
 }
 
-/** Post as exposed by the public API (no image/category field on the DTO yet). */
-type PostListItem = { slug: string; title: string; excerpt?: string };
+/** Post as exposed by the public API (cover image temporary until CMS holds real covers). */
+type PostListItem = { slug: string; title: string; excerpt?: string; coverUrl?: string | null };
 
 export default function Blog({ loaderData }: Route.ComponentProps) {
   const posts = loaderData.posts as PostListItem[];
@@ -54,7 +54,11 @@ export default function Blog({ loaderData }: Route.ComponentProps) {
               to={`/soveti/${p.slug}`}
               className={`group block overflow-hidden border bg-[var(--color-background)] text-left ${s.border} ${s.cardR} transition hover:border-[var(--color-cta)]`}
             >
-              <div className={`aspect-[16/10] border-b ${s.border} bg-[var(--color-neutral-100)]`} aria-hidden="true" />
+              {p.coverUrl ? (
+                <img src={p.coverUrl} alt={p.title} loading="lazy" className={`aspect-[16/10] w-full border-b ${s.border} bg-[var(--color-neutral-100)] object-cover`} />
+              ) : (
+                <div className={`aspect-[16/10] border-b ${s.border} bg-[var(--color-neutral-100)]`} aria-hidden="true" />
+              )}
               <div className="p-[22px]">
                 <span className={`text-[12px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>СОВЕТ</span>
                 <h3 className={`${s.display} ${s.ink} mt-[10px] text-[18px] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>

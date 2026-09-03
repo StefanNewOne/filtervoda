@@ -294,11 +294,25 @@ async function main() {
       html: '<p>Галоните носат трошок што расте со тимот, нарачки, носење и простор за складирање.</p><h2>Решението</h2><p>Апарат со реверзна осмоза, топла и ладна вода, за фиксен месечен износ — сè вклучено.</p>',
     },
   ];
+  // Temporary post cover images (served by web at /img/products) until the CMS holds real covers.
+  const POST_COVERS: Record<string, string> = {
+    'reverzna-osmoza-kako-funkcionira': 'digital.png',
+    'cista-voda-na-rabota-za-firmi': 'dispenzer.jpg',
+  };
   for (const p of POSTS) {
+    // Resolve a Media row for the temporary cover.
+    let coverMediaId: string | null = null;
+    const coverFile = POST_COVERS[p.slug];
+    if (coverFile) {
+      const url = `/img/products/${coverFile}`;
+      let media = await prisma.media.findFirst({ where: { url } });
+      if (!media) media = await prisma.media.create({ data: { tenantId: TENANT, driver: 'static', key: coverFile, url, alt: p.title, variants: [] } });
+      coverMediaId = media.id;
+    }
     await prisma.post.upsert({
       where: { tenantId_slug: { tenantId: TENANT, slug: p.slug } },
-      update: { title: p.title, excerpt: p.excerpt, content: { html: p.html }, status: 'PUBLISHED', publishedAt: new Date('2026-08-01') },
-      create: { tenantId: TENANT, slug: p.slug, title: p.title, excerpt: p.excerpt, content: { html: p.html }, status: 'PUBLISHED', publishedAt: new Date('2026-08-01') },
+      update: { title: p.title, excerpt: p.excerpt, content: { html: p.html }, coverMediaId, status: 'PUBLISHED', publishedAt: new Date('2026-08-01') },
+      create: { tenantId: TENANT, slug: p.slug, title: p.title, excerpt: p.excerpt, content: { html: p.html }, coverMediaId, status: 'PUBLISHED', publishedAt: new Date('2026-08-01') },
     });
   }
 

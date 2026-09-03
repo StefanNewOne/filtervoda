@@ -37,22 +37,41 @@ publicRouter.get('/public/categories', async (_req, res) => {
   res.json(data);
 });
 
+/** Resolve cover Media ids → a { id: url } map (posts hold coverMediaId, not a relation). */
+async function coverUrls(ids: (string | null)[]): Promise<Map<string, string>> {
+  const clean = ids.filter((x): x is string => Boolean(x));
+  if (clean.length === 0) return new Map();
+  const media = await prisma.media.findMany({ where: { id: { in: clean } }, select: { id: true, url: true } });
+  return new Map(media.map((m) => [m.id, m.url]));
+}
+
 publicRouter.get('/public/posts', async (_req, res) => {
-  const data = await withDefaultTtl(`${CACHE_NS.posts}list`, () =>
-    prisma.post.findMany({
+  const data = await withDefaultTtl(`${CACHE_NS.posts}list`, async () => {
+    const posts = await prisma.post.findMany({
       where: { status: 'PUBLISHED', deletedAt: null },
       orderBy: { publishedAt: 'desc' },
       select: { slug: true, title: true, excerpt: true, coverMediaId: true, publishedAt: true },
-    }),
-  );
+    });
+    const urls = await coverUrls(posts.map((p) => p.coverMediaId));
+    return posts.map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      coverUrl: p.coverMediaId ? (urls.get(p.coverMediaId) ?? null) : null,
+      publishedAt: p.publishedAt,
+    }));
+  });
   res.json(data);
 });
 
 publicRouter.get('/public/posts/:slug', async (req, res) => {
   const { slug } = req.params;
-  const data = await withDefaultTtl(`${CACHE_NS.posts}one:${slug}`, () =>
-    prisma.post.findFirst({ where: { slug, status: 'PUBLISHED', deletedAt: null } }),
-  );
+  const data = await withDefaultTtl(`${CACHE_NS.posts}one:${slug}`, async () => {
+    const post = await prisma.post.findFirst({ where: { slug, status: 'PUBLISHED', deletedAt: null } });
+    if (!post) return null;
+    const urls = await coverUrls([post.coverMediaId]);
+    return { ...post, coverUrl: post.coverMediaId ? (urls.get(post.coverMediaId) ?? null) : null };
+  });
   if (!data) {
     res.status(404).json({ error: 'Статијата не е пронајдена', correlationId: req.correlationId });
     return;

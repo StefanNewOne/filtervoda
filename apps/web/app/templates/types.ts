@@ -12,6 +12,7 @@ export interface PostCard {
   slug: string;
   title: string;
   excerpt?: string;
+  coverUrl?: string | null;
 }
 
 export interface HomeProps {

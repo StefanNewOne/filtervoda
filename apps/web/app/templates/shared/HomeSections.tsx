@@ -45,7 +45,11 @@ export function ArticlesSection({ posts }: { posts: PostCard[] }) {
       <div className="mt-[34px] grid gap-[18px] md:grid-cols-3">
         {posts.map((p) => (
           <Link key={p.slug} to={`/soveti/${p.slug}`} className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] transition hover:border-[var(--color-cta)]">
-            <div className="aspect-[16/10] bg-[var(--color-neutral-100)]" aria-hidden />
+            {p.coverUrl ? (
+              <img src={p.coverUrl} alt={p.title} loading="lazy" className="aspect-[16/10] w-full bg-[var(--color-neutral-100)] object-cover" />
+            ) : (
+              <div className="aspect-[16/10] bg-[var(--color-neutral-100)]" aria-hidden />
+            )}
             <div className="p-[22px]">
               <div className="font-[family-name:var(--font-mono)] text-[12px] font-extrabold tracking-[0.04em] text-[var(--color-cta)]">СОВЕТ</div>
               <h3 className="mt-2.5 text-[18px] font-medium text-[var(--color-foreground)]">{p.title}</h3>
