@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { formatPrice } from '../components/ui';
 import { PageHeader, useSkin } from '../components/PageShell';
 import { useLeadModal } from '../components/LeadModal';
@@ -24,7 +24,11 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
   const { ProductCard } = useTemplate();
   const s = useSkin();
   const { open } = useLeadModal();
-  const [active, setActive] = useState<string>('all');
+  // Filter is URL-driven (?cat=slug) so footer/category links deep-link into a filtered view.
+  const [params, setParams] = useSearchParams();
+  const active = params.get('cat') ?? 'all';
+  const setActive = (key: string) =>
+    setParams(key === 'all' ? {} : { cat: key }, { preventScrollReset: true });
   const shown = active === 'all' ? products : products.filter((p) => p.categorySlug === active);
 
   const chips: { key: string; label: string }[] = [

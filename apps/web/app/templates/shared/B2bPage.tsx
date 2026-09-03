@@ -9,7 +9,7 @@ import { skinFor } from '../skin';
 
 const PROBLEMS = ['Трошок што расте со тимот', 'Нарачки и носење', 'Простор за складирање', 'Хигиена на галоните', 'Нема топла вода за кафе', 'Пластика и имиџ'];
 const INCLUDED = ['Апарат за топла и ладна вода', 'Бесплатна монтажа', 'Редовна замена на филтри', 'Сервис и одржување', 'Замена при дефект', 'Без инвестиција'];
-const INDUSTRIES = ['Канцеларии', 'Кафулиња и ресторани', 'Ординации', 'Салони', 'Теретани', 'Хотели', 'Градинки и училишта', 'Автосалони', 'Продавници'];
+const INDUSTRIES = ['Канцеларии', 'Кафулиња и ресторани', 'Ординации', 'Салони', 'Теретани', 'Хотели', 'Градинки и училишта', 'Автосалони', 'Продавници', 'Аптеки', 'Пекари и слаткарници', 'Автосервиси'];
 
 export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackageDto[]; settings: PublicSettings; faq?: { question: string; answer: string }[] }) {
   const s = skinFor(useTemplateId());
@@ -23,7 +23,9 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
     [employees, solution, unitPrice, sparFrom],
   );
   const solLabel = solution === 'GALLONS' ? 'галони' : 'шишиња';
-  const barSpar = `${Math.max(6, Math.round((result.sparMonthly / Math.max(result.currentMonthly, 1)) * 100))}%`;
+  // Clamp to 100% — when there's no saving (few employees) SPAR ≥ current, which would otherwise
+  // render a bar wider than its container and overflow the viewport.
+  const barSpar = `${Math.min(100, Math.max(6, Math.round((result.sparMonthly / Math.max(result.currentMonthly, 1)) * 100)))}%`;
   const avoidedPerYear = result.units * 12;
   const hasSavings = result.annualSaving > 0;
 
@@ -121,7 +123,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
               <div className={`${s.display} mt-2 text-[40px] font-medium tracking-[-0.04em]`}>{fmtPrice(result.currentMonthly)}<span className="text-[16px] font-semibold text-[#A9BFDC]"> /мес.</span></div>
               <div className="mt-3.5 h-2.5 rounded-full bg-[#6FC4F7]" style={{ width: '100%' }} />
 
-              <div className="mt-[30px] text-[13px] font-extrabold tracking-[0.04em] text-[#6FC4F7]">СО SPAR: ОД</div>
+              <div className="mt-[30px] text-[13px] font-extrabold tracking-[0.04em] text-[#6FC4F7]">СО SPAR ОД</div>
               <div className={`${s.display} mt-2 text-[40px] font-medium tracking-[-0.04em] text-[#7BE0A0]`}>{fmtPrice(result.sparMonthly)}<span className="text-[16px] font-semibold text-[#A9BFDC]"> /мес.</span></div>
               <div className="mt-3.5 h-2.5 rounded-full bg-[#16803B] transition-[width] duration-500" style={{ width: barSpar }} />
 
@@ -179,6 +181,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
         <section className="py-10"><H2>За кои бизниси</H2>
           <div className="mt-8 flex flex-wrap gap-2">
             {INDUSTRIES.map((x) => <span key={x} className={`rounded-[16px] border ${s.border} px-[18px] py-[22px] text-[15px] font-semibold text-[#21375A]`}>{x}</span>)}
+            <span className={`rounded-[16px] border border-dashed ${s.border} px-[18px] py-[22px] text-[15px] font-semibold ${s.muted}`}>И вашата дејност</span>
           </div>
         </section>
 

@@ -11,11 +11,12 @@ const FOOTER_BG: Record<string, string> = {
 };
 
 const CATEGORY_LINKS: [string, string][] = [
-  ['/proizvodi', 'Системи под мијалник'],
-  ['/proizvodi', 'Диспензери'],
-  ['/proizvodi', 'Филтрација за цел дом'],
-  ['/proizvodi', 'Заштита од бигор'],
-  ['/proizvodi', 'Додатоци и мерачи'],
+  ['/proizvodi?cat=pod-mijalnik', 'Системи под мијалник'],
+  ['/proizvodi?cat=dispenzeri', 'Диспензери'],
+  ['/proizvodi?cat=cel-dom', 'Филтрација за цел дом'],
+  ['/proizvodi?cat=zastita-bigor', 'Заштита од бигор'],
+  ['/proizvodi?cat=meraci', 'Мерачи'],
+  ['/proizvodi?cat=dodatoci', 'Додатоци'],
 ];
 
 export function Footer({ settings }: { settings: PublicSettings }) {
@@ -36,12 +37,6 @@ export function Footer({ settings }: { settings: PublicSettings }) {
               <a key={p} href={`tel:${p}`} className={`${s.display} text-[19px] font-medium`}>{p}</a>
             ))}
           </div>
-          <a
-            href="/admin/"
-            className="mt-5 inline-block rounded-full border border-[rgba(111,196,247,0.4)] px-4 py-2 text-[13px] font-bold text-[#6FC4F7]"
-          >
-            Админ панел
-          </a>
         </div>
         <FooterCol label="ПРОИЗВОДИ" links={CATEGORY_LINKS} />
         <FooterCol label="САЈТ" links={[['/za-nas', 'За нас'], ['/kontakt', 'Контакт'], ['/soveti', 'Совети'], ['/za-biznis', 'За фирми']]} />
