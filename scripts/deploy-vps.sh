@@ -68,9 +68,9 @@ ssh "${SSH_OPTS[@]}" "$REMOTE" bash -euo pipefail -s <<REMOTE
     sleep 2
   done
   echo "  running migrations…"
-  \$DC exec -T api npx prisma migrate deploy --schema prisma/schema.prisma </dev/null
+  \$DC exec -T api npx --workspace apps/api prisma migrate deploy </dev/null
   echo "  seeding (idempotent)…"
-  \$DC exec -T api npm run seed </dev/null || true
+  \$DC exec -T api npx --yes tsx apps/api/prisma/seed.ts </dev/null || true
 
   # Health check via the api container (127.0.0.1, not localhost → avoid IPv6 ::1 refusal).
   echo "  health check…"
