@@ -60,9 +60,9 @@ ssh "${SSH_OPTS[@]}" "$REMOTE" bash -euo pipefail -s <<REMOTE
 
   DC="docker compose --env-file .env.production -f docker-compose.prod.yml"
 
-  # Reload Caddy so an edited (bind-mounted) Caddyfile takes effect without recreating the container.
+  # Reload Caddy so an edited (dir-mounted) Caddyfile takes effect without recreating the container.
   echo "  reloading Caddy config…"
-  \$DC exec -T caddy caddy reload --config /etc/caddy/Caddyfile </dev/null 2>/dev/null || true
+  \$DC exec -T caddy caddy reload --config /etc/caddy/conf/Caddyfile.production </dev/null 2>/dev/null || true
 
   # Wait for Postgres, then migrate + seed inside the api container.
   # NOTE: every \`exec -T\` MUST redirect stdin from /dev/null — otherwise it consumes the rest

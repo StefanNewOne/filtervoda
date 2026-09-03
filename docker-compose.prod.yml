@@ -71,6 +71,10 @@ services:
 
   caddy:
     image: caddy:2-alpine
+    # Mount the DIRECTORY (not the single file): a bind-mounted file pins to its inode, so a
+    # redeploy that replaces it (tar/scp = new inode) is invisible until recreate. A dir mount
+    # reflects file replacements, so `caddy reload` picks up Caddyfile edits.
+    command: caddy run --config /etc/caddy/conf/Caddyfile.production --adapter caddyfile
     depends_on: [web, admin, api]
     environment:
       SITE_DOMAIN: ${SITE_DOMAIN}
@@ -78,7 +82,7 @@ services:
       - '80:80'
       - '443:443'
     volumes:
-      - ./infra/Caddyfile.production:/etc/caddy/Caddyfile:ro
+      - ./infra:/etc/caddy/conf:ro
       - caddydata:/data # issued TLS certs persist here
       - caddyconfig:/config
     restart: always
