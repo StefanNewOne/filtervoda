@@ -14,6 +14,8 @@ RUN npx --workspace apps/api prisma generate \
 FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+# Prisma engines on Alpine (musl) need openssl at runtime for migrate deploy.
+RUN apk add --no-cache openssl
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
