@@ -1,0 +1,43 @@
+# Production reverse proxy — automatic TLS via Let's Encrypt.
+# One domain ({$SITE_DOMAIN}) serves the SSR storefront + /admin + /api.
+# Works with the sslip.io preview (135.181.156.104.sslip.io) today and filtervoda.mk later.
+# The www→apex redirect is only added once the real domain is bound (block at the bottom) —
+# with sslip.io that domain doesn't resolve here.
+
+{$SITE_DOMAIN:localhost} {
+	encode gzip zstd
+
+	# Long cache for hashed static assets.
+	@static {
+		path *.css *.js *.woff2 *.avif *.webp *.jpg *.jpeg *.png *.svg *.ico
+	}
+	header @static Cache-Control "public, max-age=31536000, immutable"
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Backend API (Express).
+	handle /api/* {
+		reverse_proxy api:3001
+	}
+
+	# Admin SPA (static, served by nginx in the admin container on :8080).
+	handle /admin* {
+		reverse_proxy admin:8080
+	}
+
+	# Storefront — React Router 7 SSR (Node) with Redis full-page cache.
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+# --- Enable once filtervoda.mk's A record points at this VPS ---
+# www.filtervoda.mk {
+# 	redir https://filtervoda.mk{uri} permanent
+# }
