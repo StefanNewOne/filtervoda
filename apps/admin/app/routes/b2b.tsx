@@ -14,10 +14,13 @@ export default function B2b() {
   const { data: settings = [] } = useQuery({ queryKey: ['settings'], queryFn: () => apiClient.get<{ key: string; value: unknown }[]>('/admin/settings') });
   const [calc, setCalc] = useState<CalcParams>({ litersPerPersonDay: 1.5, workingDays: 22, gallonLiters: 19, defaultPricePerGallon: 120 });
   const [np, setNp] = useState({ name: '', priceFrom: 0, description: '', includes: '' });
+  const [logos, setLogos] = useState('');
 
   useEffect(() => {
     const c = settings.find((s) => s.key === 'calculator.params')?.value as CalcParams | undefined;
     if (c) setCalc(c);
+    const l = settings.find((s) => s.key === 'b2b.trustLogos')?.value as string[] | undefined;
+    if (l) setLogos(l.join('\n'));
   }, [settings]);
 
   const createPkg = useMutation({
@@ -26,6 +29,10 @@ export default function B2b() {
   });
   const delPkg = useMutation({ mutationFn: (id: string) => apiClient.del(`/admin/packages/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['packages'] }) });
   const saveCalc = useMutation({ mutationFn: () => apiClient.put('/admin/settings/calculator.params', { value: calc }), onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }) });
+  const saveLogos = useMutation({
+    mutationFn: () => apiClient.put('/admin/settings/b2b.trustLogos', { value: logos.split('\n').map((x) => x.trim()).filter(Boolean) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
 
   return (
     <>
@@ -61,6 +68,13 @@ export default function B2b() {
           <label className="text-sm">Цена по галон (ден.)<input className={input} type="number" value={calc.defaultPricePerGallon} onChange={(e) => setCalc({ ...calc, defaultPricePerGallon: Number(e.target.value) })} /></label>
         </div>
         <Btn className="mt-3" onClick={() => saveCalc.mutate()}>Зачувај параметри</Btn>
+      </Card>
+
+      <h2 className="mb-2 mt-8 text-sm font-semibold">Логоа „Им веруваат фирми"</h2>
+      <Card className="max-w-2xl">
+        <p className="mb-2 text-xs text-[var(--color-neutral-500)]">По една URL на лого во ред (качи ги преку Медиуми и залепи ги URL-ата). Празно = сивите „ЛОГО" полиња.</p>
+        <textarea className={`${input} font-mono`} rows={6} placeholder="/img/logos/klient1.png&#10;https://res.cloudinary.com/…/klient2.png" value={logos} onChange={(e) => setLogos(e.target.value)} />
+        <Btn className="mt-3" onClick={() => saveLogos.mutate()}>Зачувај логоа</Btn>
       </Card>
     </>
   );

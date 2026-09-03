@@ -64,9 +64,18 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
         <div className="mx-auto max-w-[1200px] px-5 py-6">
           <div className={`${s.mono} mb-3 text-center text-[11px] tracking-[0.14em] ${s.muted}`}>ИМ ВЕРУВААТ ФИРМИ НИЗ МАКЕДОНИЈА</div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={`grid h-8 place-items-center rounded-md border ${s.border} bg-white ${s.mono} text-[10px] ${s.muted}`}>ЛОГО</div>
-            ))}
+            {(settings.trustLogos && settings.trustLogos.length > 0
+              ? settings.trustLogos
+              : Array.from({ length: 6 }, () => '')
+            ).map((url, i) =>
+              url ? (
+                <div key={i} className={`grid h-8 place-items-center rounded-md border ${s.border} bg-white px-2`}>
+                  <img src={url} alt="Лого на клиент" className="max-h-6 max-w-full object-contain" loading="lazy" />
+                </div>
+              ) : (
+                <div key={i} className={`grid h-8 place-items-center rounded-md border ${s.border} bg-white ${s.mono} text-[10px] ${s.muted}`}>ЛОГО</div>
+              ),
+            )}
           </div>
         </div>
       </div>

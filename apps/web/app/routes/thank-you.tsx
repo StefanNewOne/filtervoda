@@ -1,6 +1,6 @@
-import { telHref } from '@filtervoda/shared';
+import { telHref, type PublicSettings } from '@filtervoda/shared';
 import { Check } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useRouteLoaderData } from 'react-router';
 import { useSkin } from '../components/PageShell';
 
 export function meta() {
@@ -18,16 +18,19 @@ const STEPS = [
 
 export default function ThankYou() {
   const s = useSkin();
+  const root = useRouteLoaderData('root') as { settings?: PublicSettings } | undefined;
+  const c = root?.settings?.content;
+  const phone = root?.settings?.phones?.[0] ?? '076/676/819';
   return (
     <main className="mx-auto max-w-[780px] px-5 pb-[140px] pt-24 text-center">
       <div className="mx-auto grid size-[74px] place-items-center rounded-full bg-[#16803B] text-white">
         <Check size={34} />
       </div>
       <h1 className={`${s.display} ${s.ink} mt-8 text-[clamp(34px,4.4vw,56px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>
-        Благодариме за интересот!
+        {c?.thankyouTitle ?? 'Благодариме за интересот!'}
       </h1>
       <p className={`mt-5 text-[19px] leading-[1.6] ${s.muted}`}>
-        Вашето барање е примено. Ќе ве контактираме во рок од еден работен ден на телефонот што го оставивте.
+        {c?.thankyouText ?? 'Вашето барање е примено. Ќе ве контактираме во рок од еден работен ден на телефонот што го оставивте.'}
       </p>
 
       <div className="mt-[44px] grid gap-3.5 text-left sm:grid-cols-3">
@@ -41,8 +44,8 @@ export default function ThankYou() {
 
       <p className={`mt-10 text-[17px] ${s.muted}`}>
         Итно? Повикајте{' '}
-        <a href={telHref('076/676/819')} className={`font-semibold ${s.ink}`}>
-          076/676/819
+        <a href={telHref(phone)} className={`font-semibold ${s.ink}`}>
+          {phone}
         </a>
       </p>
 

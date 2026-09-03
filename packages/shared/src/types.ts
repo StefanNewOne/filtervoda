@@ -128,12 +128,15 @@ export interface PublicSettings {
   ga4Id?: string;
   metaPixelId?: string;
   turnstileSiteKey?: string;
+  trustLogos?: string[]; // B2B „ИМ ВЕРУВААТ ФИРМИ" logo image URLs
   content?: {
     heroH1?: string;
     heroH2?: string;
     heroCta?: string;
     advisorTitle?: string;
     advisorText?: string;
+    thankyouTitle?: string;
+    thankyouText?: string;
   };
 }
 

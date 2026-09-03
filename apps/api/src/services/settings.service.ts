@@ -6,6 +6,7 @@ import type { PublicSettings, TemplateId } from '@filtervoda/shared';
 import type { Prisma } from '@prisma/client';
 import { env } from '../config/env.js';
 import { prisma } from '../lib/prisma.js';
+import { CACHE_NS, purge } from './cache.js';
 
 async function readAll(): Promise<Record<string, unknown>> {
   const rows = await prisma.setting.findMany();
@@ -23,6 +24,8 @@ export async function setSetting(key: string, value: Prisma.InputJsonValue): Pro
     update: { value },
     create: { tenantId: 1, key, value },
   });
+  // Refresh the settings cache + storefront page cache so edits show up immediately.
+  await purge(CACHE_NS.settings);
 }
 
 export async function getPublicSettings(): Promise<PublicSettings> {
@@ -49,12 +52,15 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     ga4Id: (s['tracking.ga4Id'] as string) || env.GA4_ID,
     metaPixelId: (s['tracking.metaPixelId'] as string) || env.META_PIXEL_ID,
     turnstileSiteKey: env.TURNSTILE_SITE_KEY,
+    trustLogos: (s['b2b.trustLogos'] as string[]) ?? [],
     content: {
       heroH1: s['content.hero.h1'] as string | undefined,
       heroH2: s['content.hero.h2'] as string | undefined,
       heroCta: s['content.hero.cta'] as string | undefined,
       advisorTitle: s['content.advisor.title'] as string | undefined,
       advisorText: s['content.advisor.text'] as string | undefined,
+      thankyouTitle: s['content.thankyou.title'] as string | undefined,
+      thankyouText: s['content.thankyou.text'] as string | undefined,
     },
   };
 }
