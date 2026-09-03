@@ -14,6 +14,9 @@ export const CACHE_NS = {
   redirects: 'cache:redirects:',
 } as const;
 
+/** Full-page HTML cache written by the web SSR server; cleared on any publish. */
+const PAGE_CACHE_NS = 'pagecache:';
+
 /** Return cached value or compute, cache, and return it. */
 export async function cached<T>(key: string, ttl: number, compute: () => Promise<T>): Promise<T> {
   const hit = await cacheGet<T>(key);
@@ -26,7 +29,8 @@ export async function cached<T>(key: string, ttl: number, compute: () => Promise
 export const withDefaultTtl = <T>(key: string, compute: () => Promise<T>) =>
   cached(key, PAGE_CACHE_TTL_SEC, compute);
 
-/** Purge one or more namespaces (call on publish / setting change). */
+/** Purge one or more namespaces (call on publish / setting change). Always also clears the
+ * storefront full-page cache so rendered HTML never serves stale content after a publish. */
 export async function purge(...namespaces: string[]): Promise<void> {
-  await Promise.all(namespaces.map((ns) => cacheInvalidate(ns)));
+  await Promise.all([...namespaces, PAGE_CACHE_NS].map((ns) => cacheInvalidate(ns)));
 }

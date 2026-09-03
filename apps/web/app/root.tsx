@@ -12,10 +12,24 @@ export const links: LinksFunction = () => [
   { rel: 'preload', href: '/fonts/manrope-var.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
 ];
 
+/** Safe fallback so the shell always renders even if the API is briefly unavailable. */
+const DEFAULT_SETTINGS = {
+  phones: ['076/676/819'],
+  emails: [],
+  social: {},
+  activeTemplate: 'b1' as const,
+  featureFlags: {},
+};
+
 /** Root loader runs on every request — loads the active template + public settings. */
 export async function loader() {
-  const settings = await api.settings();
-  return { settings };
+  try {
+    const settings = await api.settings();
+    return { settings };
+  } catch {
+    // Never let a transient API hiccup turn every page into an error screen.
+    return { settings: DEFAULT_SETTINGS as Awaited<ReturnType<typeof api.settings>> };
+  }
 }
 
 /** Turn per-template token overrides into an inline style block (applied to :root). */

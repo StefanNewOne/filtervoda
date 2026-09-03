@@ -11,7 +11,9 @@ services:
     environment:
       - NODE_ENV=production
       - INTERNAL_API_URL=http://api:3001
-    depends_on: [api]
+    depends_on:
+      api: { condition: service_started }
+      redis: { condition: service_healthy }
     restart: always
 
   admin:

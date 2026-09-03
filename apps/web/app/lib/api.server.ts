@@ -10,15 +10,23 @@ import type {
 } from '@filtervoda/shared';
 
 const BASE = process.env.INTERNAL_API_URL ?? 'http://api:3001';
+const TIMEOUT_MS = 4000;
+
+/** Headers for trusted internal SSR calls: identify as internal to bypass the read rate limiter. */
+function headers(): HeadersInit {
+  const h: Record<string, string> = { Accept: 'application/json' };
+  if (process.env.INTERNAL_API_SECRET) h['X-Internal-Secret'] = process.env.INTERNAL_API_SECRET;
+  return h;
+}
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}/api/v1${path}`, { headers: { Accept: 'application/json' } });
+  const res = await fetch(`${BASE}/api/v1${path}`, { headers: headers(), signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (!res.ok) throw new Response('API error', { status: res.status });
   return (await res.json()) as T;
 }
 
 async function getOrNull<T>(path: string): Promise<T | null> {
-  const res = await fetch(`${BASE}/api/v1${path}`, { headers: { Accept: 'application/json' } });
+  const res = await fetch(`${BASE}/api/v1${path}`, { headers: headers(), signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (res.status === 404) return null;
   if (!res.ok) throw new Response('API error', { status: res.status });
   return (await res.json()) as T;

@@ -19,5 +19,6 @@ COPY apps/web/package.json apps/web/
 RUN npm ci --omit=dev
 COPY --from=build /app/packages/shared/src packages/shared/src
 COPY --from=build /app/apps/web/build apps/web/build
+COPY --from=build /app/apps/web/server.js apps/web/server.js
 EXPOSE 3000
 CMD ["npm", "run", "start", "--workspace", "apps/web"]

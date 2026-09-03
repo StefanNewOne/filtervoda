@@ -69,8 +69,15 @@ ssh "${SSH_OPTS[@]}" "$REMOTE" bash -euo pipefail -s <<REMOTE
   done
   echo "  running migrations…"
   \$DC exec -T api npx --workspace apps/api prisma migrate deploy </dev/null
-  echo "  seeding (idempotent)…"
-  \$DC exec -T api npx --yes tsx apps/api/prisma/seed.ts </dev/null || true
+  # Seed ONLY on a fresh database — never on redeploy, or it would overwrite admin edits
+  # (prices, phones, the active template) back to shipped defaults.
+  COUNT=\$(\$DC exec -T postgres psql -U "\${POSTGRES_USER:-filtervoda}" -d "\${POSTGRES_DB:-filtervoda}" -tAc 'SELECT COUNT(*) FROM "Product"' </dev/null 2>/dev/null | tr -d '[:space:]')
+  if [ "\$COUNT" = "0" ]; then
+    echo "  seeding fresh database…"
+    \$DC exec -T api npx --yes tsx apps/api/prisma/seed.ts </dev/null || true
+  else
+    echo "  skipping seed (database already has \$COUNT products — preserving admin edits)"
+  fi
 
   # Health check via the api container (127.0.0.1, not localhost → avoid IPv6 ::1 refusal).
   echo "  health check…"

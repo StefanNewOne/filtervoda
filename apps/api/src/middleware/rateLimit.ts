@@ -3,9 +3,16 @@
  * Redis store so limits hold across instances. Values from shared constants.
  */
 import { RATE_LIMIT } from '@filtervoda/shared';
+import type { Request } from 'express';
 import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
+import { env } from '../config/env.js';
 import { redis } from '../lib/redis.js';
+
+/** Trusted internal SSR calls carry a shared secret header and are exempt from public limits. */
+function isInternal(req: Request): boolean {
+  return Boolean(env.INTERNAL_API_SECRET) && req.get('x-internal-secret') === env.INTERNAL_API_SECRET;
+}
 
 function store(prefix: string) {
   return new RedisStore({
@@ -60,4 +67,5 @@ export const publicReadLimiter = rateLimit({
   legacyHeaders: false,
   store: store('read'),
   message,
+  skip: isInternal, // server-side SSR fan-out shares one container IP — don't throttle it
 });

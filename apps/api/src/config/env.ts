@@ -17,6 +17,9 @@ const envSchema = z.object({
   CRON_SECRET: z.string().min(1),
   IP_HASH_SECRET: z.string().min(1),
   PREVIEW_SECRET: z.string().min(1),
+  // Shared secret so trusted server-side SSR calls bypass the public read rate limiter
+  // (all SSR traffic arrives from one internal container IP, which would otherwise throttle).
+  INTERNAL_API_SECRET: z.string().optional(),
 
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().optional(),
