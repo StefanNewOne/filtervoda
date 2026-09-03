@@ -1,4 +1,5 @@
 import type { PublicSettings } from '@filtervoda/shared';
+import { telHref } from '@filtervoda/shared';
 import { Link } from 'react-router';
 import { useTemplateId } from '../context';
 import { skinFor } from '../skin';
@@ -34,7 +35,7 @@ export function Footer({ settings }: { settings: PublicSettings }) {
           </p>
           <div className="mt-4 flex flex-col gap-1">
             {settings.phones.map((p) => (
-              <a key={p} href={`tel:${p}`} className={`${s.display} text-[19px] font-medium`}>{p}</a>
+              <a key={p} href={telHref(p)} className={`${s.display} text-[19px] font-medium`}>{p}</a>
             ))}
           </div>
         </div>

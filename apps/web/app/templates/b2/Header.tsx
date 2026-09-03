@@ -1,3 +1,4 @@
+import { telHref } from '@filtervoda/shared';
 import { Menu, Phone, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -28,10 +29,10 @@ export function Header({ phones }: { phones: string[] }) {
             <Link key={n.to} to={n.to} className="rounded-full px-3.5 py-2.5 text-[15px] font-semibold text-white hover:bg-[rgba(255,255,255,0.14)]">{n.label}</Link>
           ))}
         </nav>
-        <a href={`tel:${phone}`} className="hidden text-[15px] font-bold text-white sm:block">{phone}</a>
+        <a href={telHref(phone)} className="hidden text-[15px] font-bold text-white sm:block">{phone}</a>
         <button onClick={() => openLead()} className="hidden rounded-full bg-[#16803B] px-5 py-3 text-[15px] font-bold text-white shadow-[0_10px_30px_rgba(22,128,59,0.34)] transition hover:brightness-110 md:inline-block">Побарај понуда</button>
         <div className="ml-auto flex items-center gap-1 md:hidden">
-          <a href={`tel:${phone}`} className="p-2" aria-label="Повикај"><Phone size={22} className="text-white" /></a>
+          <a href={telHref(phone)} className="p-2" aria-label="Повикај"><Phone size={22} className="text-white" /></a>
           <button className="p-2" aria-label="Мени" aria-expanded={open} onClick={() => setOpen((v) => !v)}>{open ? <X size={22} className="text-white" /> : <Menu size={22} className="text-white" />}</button>
         </div>
       </div>

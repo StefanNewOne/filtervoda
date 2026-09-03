@@ -59,3 +59,15 @@ export function formatMkPhoneDisplay(e164: string): string {
   const sub = n.slice(1 + MK_CC.length); // 8 digits
   return `0${sub.slice(0, 2)}/${sub.slice(2, 5)}/${sub.slice(5)}`;
 }
+
+/** `tel:` href with a dialable E.164 number (in-app browsers won't dial `076/676/819`). */
+export function telHref(raw: string): string {
+  const n = normalizeMkPhone(raw);
+  return `tel:${n ?? raw.replace(/[^\d+]/g, '')}`;
+}
+
+/** Viber deep link — requires bare international digits, no `+`/spaces/slashes. */
+export function viberHref(raw: string): string {
+  const n = normalizeMkPhone(raw) ?? raw;
+  return `viber://chat?number=${n.replace(/[^\d]/g, '')}`;
+}

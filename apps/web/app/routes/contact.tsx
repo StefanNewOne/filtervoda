@@ -1,3 +1,4 @@
+import { telHref, viberHref } from '@filtervoda/shared';
 import { LeadForm } from '../components/LeadForm';
 import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { api } from '../lib/api.server';
@@ -17,7 +18,7 @@ export default function Contact({ loaderData }: Route.ComponentProps) {
 
   const firstPhone = settings.phones[0];
   const viberTarget = settings.viber ?? (firstPhone ? firstPhone.replace(/\D/g, '') : undefined);
-  const viberHref = viberTarget ? `viber://chat?number=${encodeURIComponent(viberTarget)}` : undefined;
+  const viberLink = viberTarget ? viberHref(viberTarget) : undefined;
   const workingHours = settings.workingHours ?? 'Пон–Саб · 09:00–18:00';
 
   return (
@@ -28,13 +29,13 @@ export default function Contact({ loaderData }: Route.ComponentProps) {
         <div>
           <div className="grid gap-3.5 sm:grid-cols-2">
             {settings.phones.map((p, i) => (
-              <a key={p} href={`tel:${p}`} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
+              <a key={p} href={telHref(p)} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
                 <div className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted}`}>{i === 0 ? 'ТЕЛЕФОН' : `ТЕЛЕФОН ${i + 1}`}</div>
                 <div className={`mt-2.5 ${s.display} text-[20px] font-medium ${s.ink}`}>{p}</div>
               </a>
             ))}
-            {viberHref && (
-              <a href={viberHref} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
+            {viberLink && (
+              <a href={viberLink} className={`block min-h-[44px] border ${s.border} ${s.cardR} p-6`}>
                 <div className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted}`}>ВИБЕР</div>
                 <div className={`mt-2.5 text-[17px] font-bold ${s.ink}`}>Пишете ни</div>
               </a>

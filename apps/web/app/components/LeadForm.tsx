@@ -7,6 +7,7 @@ import { isValidMkPhone } from '@filtervoda/shared';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import type { CalcInput } from './LeadModal';
 import { Turnstile } from './Turnstile';
 import { Button } from './ui';
 
@@ -26,11 +27,13 @@ interface Fields {
 export function LeadForm({
   type,
   productId,
+  calcInput,
   onSuccess,
   compact,
 }: {
   type: LeadType;
   productId?: string;
+  calcInput?: CalcInput;
   phones?: string[];
   viber?: string;
   onSuccess?: () => void;
@@ -54,6 +57,7 @@ export function LeadForm({
       message: values.message || undefined,
       productId,
       ...(type === 'B2B' ? { company: values.company, city: values.city } : { city: values.city }),
+      ...(calcInput ? { calcInput } : {}),
       consent: values.consent,
       context: {
         pageUrl: typeof window !== 'undefined' ? window.location.href : '',
@@ -70,7 +74,13 @@ export function LeadForm({
       setServerError('Барањето не помина. Проверете ги полињата и обидете се повторно.');
       return;
     }
-    (window as unknown as { dataLayer?: unknown[] }).dataLayer?.push({ event: 'generate_lead', form_type: type, product_id: productId });
+    // Reset the single-use Turnstile token so a second form/submit can't reuse it.
+    if (typeof window !== 'undefined') (window as { __turnstileToken?: string }).__turnstileToken = undefined;
+    const leadId = (await res.json().catch(() => ({})))?.leadId as string | undefined;
+    const w = window as unknown as { dataLayer?: unknown[]; fbq?: (...a: unknown[]) => void };
+    w.dataLayer?.push({ event: 'generate_lead', form_type: type, product_id: productId });
+    // Browser Pixel Lead uses the lead id as event_id — matches the server CAPI event → deduped.
+    if (typeof w.fbq === 'function' && leadId) w.fbq('track', 'Lead', { content_category: type }, { eventID: leadId });
     if (onSuccess) onSuccess();
     navigate('/blagodarime');
   }
@@ -94,11 +104,17 @@ export function LeadForm({
         {errors.phone && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.phone.message}</p>}
       </div>
 
+      {/* Company is required for B2B even in the compact modal (was being dropped). */}
+      {type === 'B2B' && (
+        <div>
+          <input className={inputCls} placeholder="Име на фирма" aria-invalid={!!errors.company} {...register('company', { required: 'Внесете име на фирма' })} />
+          {errors.company && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.company.message}</p>}
+        </div>
+      )}
       {!compact && (
         <>
           <input className={inputCls} type="email" placeholder="Email (опционално)" {...register('email')} />
           <input className={inputCls} placeholder="Град" {...register('city')} />
-          {type === 'B2B' && <input className={inputCls} placeholder="Име на фирма" {...register('company', { required: 'Внесете име на фирма' })} />}
           <textarea className={inputCls} rows={3} placeholder="Порака (опционално)" {...register('message')} />
         </>
       )}

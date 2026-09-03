@@ -1,4 +1,4 @@
-import { computeSavings, type B2bPackageDto, type PublicSettings } from '@filtervoda/shared';
+import { computeSavings, telHref, type B2bPackageDto, type PublicSettings } from '@filtervoda/shared';
 import * as Slider from '@radix-ui/react-slider';
 import { useMemo, useState } from 'react';
 import { LeadForm } from '../../components/LeadForm';
@@ -28,6 +28,8 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
   const barSpar = `${Math.min(100, Math.max(6, Math.round((result.sparMonthly / Math.max(result.currentMonthly, 1)) * 100)))}%`;
   const avoidedPerYear = result.units * 12;
   const hasSavings = result.annualSaving > 0;
+  // Carried into the B2B lead so the shop sees what the visitor calculated.
+  const calcInput = { employees, solution, pricePerUnit: unitPrice };
 
   const H2 = ({ children }: { children: React.ReactNode }) => (
     <h2 className={`${s.display} ${s.ink} text-[clamp(28px,3.2vw,44px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>{children}</h2>
@@ -43,7 +45,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
             <h1 className={`${s.display} mt-4 text-[clamp(36px,4.6vw,66px)] font-semibold text-white ${s.headingUpper ? 'uppercase' : ''}`}>Заборавете на галоните. Неограничена чиста вода за вашиот тим.</h1>
             <p className="mt-5 max-w-xl text-[19px] leading-[1.55] text-[#A9BFDC]">Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ.</p>
             <div className="mt-8">
-              <button onClick={() => open({ type: 'B2B' })} className={s.cta}>Побарај понуда за фирма</button>
+              <button onClick={() => open({ type: 'B2B', calcInput })} className={s.cta}>Побарај понуда за фирма</button>
             </div>
             <p className="mt-4 text-sm text-[#6FC4F7]">Бесплатна проценка · Без скриени трошоци · Брза монтажа</p>
           </div>
@@ -141,7 +143,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
                   </div>
                 )}
               </div>
-              <button onClick={() => open({ type: 'B2B' })} className="mt-7 w-full rounded-[14px] bg-[#16803B] px-6 py-[18px] text-[17px] font-bold text-white transition hover:brightness-110">Добиј точна понуда</button>
+              <button onClick={() => open({ type: 'B2B', calcInput })} className="mt-7 w-full rounded-[14px] bg-[#16803B] px-6 py-[18px] text-[17px] font-bold text-white transition hover:brightness-110">Добиј точна понуда</button>
             </div>
           </div>
         </section>
@@ -243,13 +245,13 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
                   {hasSavings && <> · заштеда ≈ {fmtPrice(result.annualSaving)} годишно</>}
                 </p>
               </div>
-              <a href="tel:076676819" className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
+              <a href={telHref(settings.phones[0] ?? '076/676/819')} className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
               <div className="mt-4 flex flex-wrap gap-2 text-sm text-[#56698A]">
                 <span>Бесплатна проценка</span> · <span>Без скриени трошоци</span> · <span>Брза монтажа</span>
               </div>
             </div>
             <div className={`rounded-[var(--radius-card)] border ${s.border} bg-white p-[26px]`}>
-              <LeadForm type="B2B" phones={settings.phones} viber={settings.viber} />
+              <LeadForm type="B2B" calcInput={calcInput} phones={settings.phones} viber={settings.viber} />
             </div>
           </div>
         </section>

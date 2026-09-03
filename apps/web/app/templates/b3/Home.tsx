@@ -1,3 +1,4 @@
+import { telHref } from '@filtervoda/shared';
 import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 import { LeadForm } from '../../components/LeadForm';
@@ -123,7 +124,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <div>
             <h2 className="text-[clamp(26px,2.8vw,38px)] font-medium text-[#071A3A]">{content.advisorTitle || 'Не знаете кој систем ви одговара?'}</h2>
             <p className="mt-3.5 text-[17px] leading-[1.55] text-[#46597A]">{content.advisorText || 'Оставете телефон — ќе ве советуваме бесплатно.'}</p>
-            <a href={`tel:${phone}`} className="mt-5 inline-block font-[family-name:JetBrains_Mono] text-[22px] font-medium text-[#071A3A]">{phone}</a>
+            <a href={telHref(phone)} className="mt-5 inline-block font-[family-name:JetBrains_Mono] text-[22px] font-medium text-[#071A3A]">{phone}</a>
           </div>
           <div className="rounded-[10px] border border-[#DCE4EE] bg-white p-[26px]">
             <LeadForm type="ADVISOR" phones={settings.phones} viber={settings.viber} />

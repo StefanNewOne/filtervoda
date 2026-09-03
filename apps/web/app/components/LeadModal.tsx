@@ -8,8 +8,10 @@ import { X } from 'lucide-react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { LeadForm } from './LeadForm';
 
+export type CalcInput = { employees: number; solution: 'GALLONS' | 'BOTTLES'; pricePerUnit?: number };
+
 interface LeadModalContext {
-  open: (opts?: { productId?: string; productName?: string; type?: 'B2C' | 'B2B' | 'CONTACT' | 'ADVISOR' }) => void;
+  open: (opts?: { productId?: string; productName?: string; type?: 'B2C' | 'B2B' | 'CONTACT' | 'ADVISOR'; calcInput?: CalcInput }) => void;
 }
 
 const Ctx = createContext<LeadModalContext | null>(null);
@@ -29,12 +31,12 @@ export function LeadModalProvider({
   phones: string[];
   viber?: string;
 }) {
-  const [state, setState] = useState<{ open: boolean; productId?: string; productName?: string; type: 'B2C' | 'B2B' | 'CONTACT' | 'ADVISOR' }>(
+  const [state, setState] = useState<{ open: boolean; productId?: string; productName?: string; type: 'B2C' | 'B2B' | 'CONTACT' | 'ADVISOR'; calcInput?: CalcInput }>(
     { open: false, type: 'B2C' },
   );
 
   const open = useCallback<LeadModalContext['open']>((opts) => {
-    setState({ open: true, productId: opts?.productId, productName: opts?.productName, type: opts?.type ?? 'B2C' });
+    setState({ open: true, productId: opts?.productId, productName: opts?.productName, type: opts?.type ?? 'B2C', calcInput: opts?.calcInput });
     if (typeof window !== 'undefined') {
       (window as unknown as { dataLayer?: unknown[] }).dataLayer?.push({
         event: 'lead_form_open',
@@ -65,6 +67,7 @@ export function LeadModalProvider({
             <LeadForm
               type={state.type}
               productId={state.productId}
+              calcInput={state.calcInput}
               phones={phones}
               viber={viber}
               onSuccess={() => setState((s) => ({ ...s, open: false }))}

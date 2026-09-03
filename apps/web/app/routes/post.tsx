@@ -72,13 +72,15 @@ export default function Post({ loaderData }: Route.ComponentProps) {
             <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>СПОДЕЛИ</span>
             <div className="mt-[14px] flex flex-wrap gap-2">
               <a
-                href="https://facebook.com"
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof document !== 'undefined' ? window.location.href : '')}`}
+                target="_blank"
+                rel="noopener"
                 className={`inline-flex min-h-[44px] items-center rounded-[10px] border px-[14px] py-[10px] text-[13px] font-bold ${s.border} ${s.ink}`}
               >
                 Facebook
               </a>
               <a
-                href="viber://forward"
+                href={`viber://forward?text=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
                 className={`inline-flex min-h-[44px] items-center rounded-[10px] border px-[14px] py-[10px] text-[13px] font-bold ${s.border} ${s.ink}`}
               >
                 Viber

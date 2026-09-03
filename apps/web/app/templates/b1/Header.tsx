@@ -1,3 +1,4 @@
+import { telHref } from '@filtervoda/shared';
 import { Menu, Phone, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -32,7 +33,7 @@ export function Header({ phones }: { phones: string[] }) {
           ))}
         </nav>
 
-        <a href={`tel:${phone}`} className="hidden text-[15px] font-bold tracking-[-0.01em] text-[#08182F] sm:block md:ml-0">
+        <a href={telHref(phone)} className="hidden text-[15px] font-bold tracking-[-0.01em] text-[#08182F] sm:block md:ml-0">
           {phone}
         </a>
         <button
@@ -43,7 +44,7 @@ export function Header({ phones }: { phones: string[] }) {
         </button>
 
         <div className="ml-auto flex items-center gap-1 md:hidden">
-          <a href={`tel:${phone}`} className="p-2" aria-label="Повикај"><Phone size={22} className="text-[#08182F]" /></a>
+          <a href={telHref(phone)} className="p-2" aria-label="Повикај"><Phone size={22} className="text-[#08182F]" /></a>
           <button className="p-2" aria-label="Мени" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
             {open ? <X size={22} className="text-[#08182F]" /> : <Menu size={22} className="text-[#08182F]" />}
           </button>

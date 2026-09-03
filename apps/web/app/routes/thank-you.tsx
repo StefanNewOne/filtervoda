@@ -1,3 +1,4 @@
+import { telHref } from '@filtervoda/shared';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router';
 import { useSkin } from '../components/PageShell';
@@ -40,7 +41,7 @@ export default function ThankYou() {
 
       <p className={`mt-10 text-[17px] ${s.muted}`}>
         Итно? Повикајте{' '}
-        <a href="tel:076676819" className={`font-semibold ${s.ink}`}>
+        <a href={telHref('076/676/819')} className={`font-semibold ${s.ink}`}>
           076/676/819
         </a>
       </p>

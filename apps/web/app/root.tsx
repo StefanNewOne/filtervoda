@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router';
 import type { Route } from './+types/root';
@@ -62,6 +63,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Consent Mode v2 — everything denied by default until the banner grants (runs before GTM/Pixel). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});",
+          }}
+        />
         {overrides ? <style dangerouslySetInnerHTML={{ __html: overrides }} /> : null}
       </head>
       <body className="min-h-screen">{children}</body>
@@ -72,9 +80,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { settings } = useLoaderData<typeof loader>();
   const T = useTemplate();
-  if (typeof window !== 'undefined' && settings.turnstileSiteKey) {
-    (window as unknown as { __turnstileSiteKey?: string }).__turnstileSiteKey = settings.turnstileSiteKey;
-  }
+  useEffect(() => {
+    if (settings.turnstileSiteKey) {
+      (window as unknown as { __turnstileSiteKey?: string }).__turnstileSiteKey = settings.turnstileSiteKey;
+    }
+  }, [settings.turnstileSiteKey]);
   return (
     <LeadModalProvider phones={settings.phones} viber={settings.viber}>
       <T.Header phones={settings.phones} />
@@ -83,7 +93,7 @@ export default function App() {
       </main>
       <T.Footer settings={settings} />
       <T.StickyBar phones={settings.phones} viber={settings.viber} />
-      <ConsentBanner text={settings.cookieBannerText} gtmId={settings.gtmId} />
+      <ConsentBanner text={settings.cookieBannerText} gtmId={settings.gtmId} pixelId={settings.metaPixelId} />
       <ScrollRestoration />
       <Scripts />
     </LeadModalProvider>

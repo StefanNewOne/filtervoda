@@ -8,7 +8,35 @@ import { Button } from './ui';
 type Consent = { analytics: boolean; marketing: boolean } | null;
 const KEY = 'fv-consent-v2';
 
-function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: string) {
+type FbqFn = ((...a: unknown[]) => void) & { callMethod?: (...a: unknown[]) => void; queue: unknown[]; loaded?: boolean; version?: string; push?: unknown };
+
+/** Load the Meta Pixel base code once, then fire PageView (only after marketing consent). */
+function loadPixel(pixelId: string) {
+  const w = window as unknown as { fbq?: FbqFn; _fbq?: FbqFn; _fbqLoaded?: boolean };
+  if (w._fbqLoaded && typeof w.fbq === 'function') {
+    w.fbq('track', 'PageView');
+    return;
+  }
+  const n = ((...args: unknown[]) => {
+    if (n.callMethod) n.callMethod(...args);
+    else n.queue.push(args);
+  }) as FbqFn;
+  n.queue = [];
+  n.loaded = true;
+  n.version = '2.0';
+  n.push = n;
+  w.fbq = n;
+  if (!w._fbq) w._fbq = n;
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+  document.head.appendChild(script);
+  w._fbqLoaded = true;
+  n('init', pixelId);
+  n('track', 'PageView');
+}
+
+function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: string, pixelId?: string) {
   const w = window as unknown as { dataLayer?: unknown[]; gtag?: (...a: unknown[]) => void };
   w.dataLayer = w.dataLayer || [];
   function gtag(...args: unknown[]) {
@@ -27,9 +55,11 @@ function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: stri
     s.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
     document.head.appendChild(s);
   }
+  // Meta Pixel loads only after marketing consent (PRD §11.3 — nothing before consent).
+  if (pixelId && consent.marketing) loadPixel(pixelId);
 }
 
-export function ConsentBanner({ text, gtmId }: { text?: string; gtmId?: string }) {
+export function ConsentBanner({ text, gtmId, pixelId }: { text?: string; gtmId?: string; pixelId?: string }) {
   const [consent, setConsent] = useState<Consent>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -39,15 +69,15 @@ export function ConsentBanner({ text, gtmId }: { text?: string; gtmId?: string }
     if (stored) {
       const parsed = JSON.parse(stored) as { analytics: boolean; marketing: boolean };
       setConsent(parsed);
-      apply(parsed, gtmId);
+      apply(parsed, gtmId, pixelId);
     }
     setReady(true);
-  }, [gtmId]);
+  }, [gtmId, pixelId]);
 
   function choose(c: { analytics: boolean; marketing: boolean }) {
     localStorage.setItem(KEY, JSON.stringify(c));
     setConsent(c);
-    apply(c, gtmId);
+    apply(c, gtmId, pixelId);
   }
 
   if (!ready || consent) return null;
