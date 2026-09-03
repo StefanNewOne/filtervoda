@@ -24,7 +24,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "commit": "cz",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "config": {
     "commitizen": {
