@@ -30,6 +30,11 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
   const hasSavings = result.annualSaving > 0;
   // Carried into the B2B lead so the shop sees what the visitor calculated.
   const calcInput = { employees, solution, pricePerUnit: unitPrice };
+  // Editable-from-admin content with hardcoded fallbacks; calculator behind a feature flag.
+  const problems = settings.b2b?.problems?.length ? settings.b2b.problems : PROBLEMS;
+  const included = settings.b2b?.included?.length ? settings.b2b.included : INCLUDED;
+  const industries = settings.b2b?.industries?.length ? settings.b2b.industries : INDUSTRIES;
+  const showCalculator = settings.featureFlags?.calculator !== false;
 
   const H2 = ({ children }: { children: React.ReactNode }) => (
     <h2 className={`${s.display} ${s.ink} text-[clamp(28px,3.2vw,44px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>{children}</h2>
@@ -83,17 +88,18 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
       <div className="mx-auto max-w-[1200px] px-5">
         <section className="py-14"><H2>Колку навистина ве чинат галоните?</H2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PROBLEMS.map((p) => <div key={p} className={`rounded-[18px] border ${s.border} p-6 text-[15px]`}>{p}</div>)}
+            {problems.map((p) => <div key={p} className={`rounded-[18px] border ${s.border} p-6 text-[15px]`}>{p}</div>)}
           </div>
         </section>
 
         <section className="py-6"><H2>Еден месечен износ. Сè вклучено.</H2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {INCLUDED.map((p) => <div key={p} className={`rounded-[18px] border ${s.border} ${s.softBg} p-6 text-[15px]`}>{p}</div>)}
+            {included.map((p) => <div key={p} className={`rounded-[18px] border ${s.border} ${s.softBg} p-6 text-[15px]`}>{p}</div>)}
           </div>
         </section>
 
-        {/* CALCULATOR */}
+        {/* CALCULATOR — behind the feature.calculator flag */}
+        {showCalculator && (
         <section className="py-10"><H2>Пресметајте колку заштедувате</H2>
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             {/* Inputs */}
@@ -156,6 +162,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
             </div>
           </div>
         </section>
+        )}
 
         {/* 3 STEPS */}
         <section className="py-10"><H2>Како функционира</H2>
@@ -191,7 +198,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
 
         <section className="py-10"><H2>За кои бизниси</H2>
           <div className="mt-8 flex flex-wrap gap-2">
-            {INDUSTRIES.map((x) => <span key={x} className={`rounded-[16px] border ${s.border} px-[18px] py-[22px] text-[15px] font-semibold text-[#21375A]`}>{x}</span>)}
+            {industries.map((x) => <span key={x} className={`rounded-[16px] border ${s.border} px-[18px] py-[22px] text-[15px] font-semibold text-[#21375A]`}>{x}</span>)}
             <span className={`rounded-[16px] border border-dashed ${s.border} px-[18px] py-[22px] text-[15px] font-semibold ${s.muted}`}>И вашата дејност</span>
           </div>
         </section>

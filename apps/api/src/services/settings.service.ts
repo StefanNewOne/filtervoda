@@ -53,6 +53,11 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     metaPixelId: (s['tracking.metaPixelId'] as string) || env.META_PIXEL_ID,
     turnstileSiteKey: env.TURNSTILE_SITE_KEY,
     trustLogos: (s['b2b.trustLogos'] as string[]) ?? [],
+    b2b: {
+      problems: s['b2b.problems'] as string[] | undefined,
+      included: s['b2b.included'] as string[] | undefined,
+      industries: s['b2b.industries'] as string[] | undefined,
+    },
     content: {
       heroH1: s['content.hero.h1'] as string | undefined,
       heroH2: s['content.hero.h2'] as string | undefined,

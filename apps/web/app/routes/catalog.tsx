@@ -92,7 +92,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
       {shown.length > 1 && (
         <section className="mt-20">
           <h2 className={`${s.display} ${s.ink} text-[clamp(26px,2.8vw,38px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>
-            Споредба на системите под мијалник
+            Споредба на моделите
           </h2>
           <p className={`mt-3 text-[15px] ${s.muted}`}>Лизгајте хоризонтално за да ги видите сите колони.</p>
           <div className={`mt-6 overflow-x-auto rounded-[20px] border ${s.border}`}>

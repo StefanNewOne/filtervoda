@@ -129,6 +129,7 @@ export interface PublicSettings {
   metaPixelId?: string;
   turnstileSiteKey?: string;
   trustLogos?: string[]; // B2B „ИМ ВЕРУВААТ ФИРМИ" logo image URLs
+  b2b?: { problems?: string[]; included?: string[]; industries?: string[] };
   content?: {
     heroH1?: string;
     heroH2?: string;

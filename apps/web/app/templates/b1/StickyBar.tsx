@@ -15,7 +15,7 @@ export function StickyBar({ phones, viber }: { phones: string[]; viber?: string 
         <a href={viber ? viberHref(viber) : '#'} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-[#D9E9FB] text-[14px] font-bold text-[#08182F]">
           <MessageCircle size={17} /> Viber
         </a>
-        <button onClick={() => open()} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-[#1156E0] text-[14px] font-bold text-white">
+        <button onClick={() => open()} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-[var(--color-cta)] text-[14px] font-bold text-[var(--color-cta-fg)]">
           <Send size={17} /> Барање
         </button>
       </div>
