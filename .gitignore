@@ -43,3 +43,4 @@ Thumbs.db
 # Uploaded media (local)
 apps/api/uploads/
 minio-data/
+backups/

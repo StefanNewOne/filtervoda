@@ -55,6 +55,10 @@ ssh "${SSH_OPTS[@]}" "$REMOTE" bash -euo pipefail -s <<REMOTE
   rm -f /tmp/fv.tar.gz
   cd "\$REMOTE_DIR"
 
+  # Snapshot DB + uploads before touching anything (safety net; no-op on the first deploy).
+  echo "  pre-deploy backup…"
+  bash scripts/backup.sh </dev/null >/dev/null 2>&1 || echo "  (backup skipped — no running stack yet)"
+
   echo "  building + starting containers (first run pulls images + builds — a few minutes)…"
   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 
