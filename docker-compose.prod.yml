@@ -30,6 +30,9 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
+    volumes:
+      # Persist admin-uploaded media across redeploys (local storage driver → lives on the VPS).
+      - uploads:/app/apps/api/uploads
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/api/v1/health']
       interval: 20s
@@ -92,3 +95,4 @@ volumes:
   redisdata:
   caddydata:
   caddyconfig:
+  uploads: # admin-uploaded media (local storage driver)
