@@ -3,6 +3,7 @@
  * The public POST /leads has no session → no CSRF token; it uses Origin allowlist + Turnstile.
  */
 import { doubleCsrf } from 'csrf-csrf';
+import type { Request, Response } from 'express';
 import { env, isProd } from '../config/env.js';
 
 const { doubleCsrfProtection, generateToken } = doubleCsrf({
@@ -16,4 +17,9 @@ const { doubleCsrfProtection, generateToken } = doubleCsrf({
 });
 
 export const csrfProtection = doubleCsrfProtection;
-export { generateToken as generateCsrfToken };
+
+// Always overwrite (no reuse-validation): a stale CSRF cookie from an older config would
+// otherwise make generateToken THROW on /auth/login & /auth/me → 403 → can't log in.
+export function generateCsrfToken(req: Request, res: Response): string {
+  return generateToken(req, res, true, false);
+}
