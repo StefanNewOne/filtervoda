@@ -7,6 +7,9 @@ import { env, isProd } from '../config/env.js';
 
 const { doubleCsrfProtection, generateToken } = doubleCsrf({
   getSecret: () => env.SESSION_SECRET,
+  // Required in csrf-csrf v3: binds the token to the session. Without it the token hashed
+  // against `undefined`, so EVERY admin mutation failed CSRF validation (422) — nothing saved.
+  getSessionIdentifier: (req) => req.sessionID ?? '',
   cookieName: isProd ? '__Host-fv.csrf' : 'fv.csrf',
   cookieOptions: { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/' },
   getTokenFromRequest: (req) => req.header('X-CSRF-Token'),
