@@ -96,7 +96,10 @@ const RO_SPECS: { group: string; label: string; value: string; unit?: string }[]
 ];
 
 
-const isRoCategory = (cat: string) => cat === 'pod-mijalnik' || cat === 'dispenzeri';
+// Detailed specs/stages/idealFor are seeded ONLY for the flagship showcase — otherwise every
+// product ends up with identical placeholder specs (they look like clones). The client fills
+// real per-product data via the admin.
+const FLAGSHIP_SLUG = 'spar-crystal-digital-600hf';
 
 // Product chips (feature tags on cards + comparison table source).
 const CHIPS: Record<string, string[]> = {
@@ -177,9 +180,9 @@ async function main() {
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
         features: (CHIPS[p.slug] ?? []).map((text) => ({ text })),
-        idealFor: isRoCategory(p.cat) ? RO_IDEAL_FOR : [],
+        idealFor: p.slug === FLAGSHIP_SLUG ? RO_IDEAL_FOR : [],
         includedInPrice: DEFAULT_INCLUDED,
-        maintenanceNote: isRoCategory(p.cat) ? RO_MAINTENANCE : null,
+        maintenanceNote: p.slug === FLAGSHIP_SLUG ? RO_MAINTENANCE : null,
         featured: p.featured ?? false,
         audience: (p.audience ?? 'B2C') as ProductAudience,
       },
@@ -195,9 +198,9 @@ async function main() {
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
         features: (CHIPS[p.slug] ?? []).map((text) => ({ text })),
-        idealFor: isRoCategory(p.cat) ? RO_IDEAL_FOR : [],
+        idealFor: p.slug === FLAGSHIP_SLUG ? RO_IDEAL_FOR : [],
         includedInPrice: DEFAULT_INCLUDED,
-        maintenanceNote: isRoCategory(p.cat) ? RO_MAINTENANCE : null,
+        maintenanceNote: p.slug === FLAGSHIP_SLUG ? RO_MAINTENANCE : null,
         featured: p.featured ?? false,
         status: PublishStatus.PUBLISHED,
         warrantyYears: 10,
@@ -225,11 +228,11 @@ async function main() {
     }
 
     // Under-sink RO systems get the 6 filtration stages + full technical specs.
-    if (p.cat === 'pod-mijalnik') {
+    if (p.slug === FLAGSHIP_SLUG) {
       await prisma.productStage.deleteMany({ where: { productId: product.id } });
       await prisma.productStage.createMany({ data: FLAGSHIP_STAGES.map((s) => ({ ...s, productId: product.id })) });
     }
-    if (isRoCategory(p.cat)) {
+    if (p.slug === FLAGSHIP_SLUG) {
       await prisma.productSpec.deleteMany({ where: { productId: product.id } });
       await prisma.productSpec.createMany({
         data: RO_SPECS.map((s, i) => ({ productId: product.id, group: s.group, label: s.label, value: s.value, unit: s.unit ?? null, sortOrder: i })),
