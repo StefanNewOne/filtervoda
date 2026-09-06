@@ -85,9 +85,11 @@ adminProductsRouter.delete('/:id', async (req, res) => {
 });
 
 // ── Sub-resources (replace-all: the editor tab sends the full array) ──────────
-const specsSchema = z.array(z.object({ group: z.string().max(80), label: z.string().max(120), value: z.string().max(300), unit: z.string().max(40).optional(), sortOrder: z.number().int().default(0) }));
-const stagesSchema = z.array(z.object({ order: z.number().int(), name: z.string().max(160), removes: z.string().max(300), whyItMatters: z.string().max(300), icon: z.string().max(60).optional() }));
-const imagesSchema = z.array(z.object({ mediaId: z.string().cuid(), alt: z.string().max(300), sortOrder: z.number().int().default(0), isPrimary: z.boolean().default(false) }));
+// .nullish() (not .optional()) on nullable columns: rows loaded from the DB carry `unit: null`
+// / `icon: null`, which .optional() rejects → the admin editor's save 422'd (nothing saved).
+const specsSchema = z.array(z.object({ group: z.string().max(80), label: z.string().max(120), value: z.string().max(300), unit: z.string().max(40).nullish(), sortOrder: z.number().int().default(0) }));
+const stagesSchema = z.array(z.object({ order: z.coerce.number().int(), name: z.string().max(160), removes: z.string().max(300), whyItMatters: z.string().max(300), icon: z.string().max(60).nullish() }));
+const imagesSchema = z.array(z.object({ mediaId: z.string().cuid(), alt: z.string().max(300).nullish(), sortOrder: z.number().int().default(0), isPrimary: z.boolean().default(false) }));
 const relatedSchema = z.array(z.object({ relatedId: z.string().cuid(), sortOrder: z.number().int().default(0) }));
 
 adminProductsRouter.put('/:id/specs', async (req, res) => {
