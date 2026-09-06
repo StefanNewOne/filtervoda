@@ -3,7 +3,7 @@
  * (3 templates + active b1), B2B packages, flagship filtration stages, redirect map.
  * Idempotent (upserts). Run: npm run seed --workspace apps/api
  */
-import { FaqScope, PrismaClient, ProductAudience, PublishStatus } from '@prisma/client';
+import { PrismaClient, ProductAudience, PublishStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -95,13 +95,6 @@ const RO_SPECS: { group: string; label: string; value: string; unit?: string }[]
   { group: 'Технички', label: 'Гаранција', value: '10', unit: 'години' },
 ];
 
-// Product-scoped FAQ applied to every product (prototype „Често поставувани прашања").
-const PRODUCT_FAQS = [
-  { question: 'Дали монтажата е навистина бесплатна?', answer: 'Да. Нашиот техничар доаѓа, монтира и ве обучува — без дополнителен трошок.' },
-  { question: 'Колку често се менуваат филтрите?', answer: 'Степените 1–3 на 6–12 месеци, мембраната на 24–36 месеци. Ве потсетуваме и доаѓаме на замена.' },
-  { question: 'Дали водата останува здрава за пиење?', answer: 'Да. По реверзната осмоза додаваме минерали (калциум, магнезиум) и pH 8,5+ за баланс на вкус и здравје.' },
-  { question: 'Можам ли да плаќам на рати?', answer: 'Да — плаќање во готово или на рати, договорено при нарачка.' },
-];
 
 const isRoCategory = (cat: string) => cat === 'pod-mijalnik' || cat === 'dispenzeri';
 
@@ -243,11 +236,8 @@ async function main() {
       });
     }
 
-    // Product-scoped FAQ for every product.
-    await prisma.faq.deleteMany({ where: { productId: product.id } });
-    await prisma.faq.createMany({
-      data: PRODUCT_FAQS.map((f, i) => ({ tenantId: TENANT, productId: product.id, question: f.question, answer: f.answer, scope: FaqScope.PRODUCT, sortOrder: i })),
-    });
+    // Note: generic FAQ is seeded ONCE as GLOBAL (see FAQS below) and shown on every product
+    // page — NOT duplicated per product (that created 68 identical rows in the admin).
   }
 
   // Related products — up to 3 others in the same category.
@@ -331,6 +321,7 @@ async function main() {
     { question: 'Дали монтажата е навистина бесплатна?', answer: 'Да, монтажата е бесплатна низ цела Македонија при купување на систем.', scope: 'GLOBAL' as const, sortOrder: 1 },
     { question: 'Колку често се менуваат филтрите?', answer: 'Зависно од моделот и потрошувачката, обично на 6–12 месеци. Дигиталните модели ве известуваат.', scope: 'GLOBAL' as const, sortOrder: 2 },
     { question: 'Дали може плаќање на рати?', answer: 'Да, овозможуваме плаќање во готово или на рати.', scope: 'GLOBAL' as const, sortOrder: 3 },
+    { question: 'Дали водата останува здрава за пиење?', answer: 'Да. По реверзната осмоза додаваме минерали (калциум, магнезиум) и pH 8,5+ за баланс на вкус и здравје.', scope: 'GLOBAL' as const, sortOrder: 4 },
     { question: 'Што вклучува месечниот износ за фирми?', answer: 'Апарат за топла и ладна вода, бесплатна монтажа, редовна замена на филтри, сервис и замена при дефект.', scope: 'B2B' as const, sortOrder: 1 },
     { question: 'Дали има почетна инвестиција?', answer: 'Не. Кај изнајмувањето нема почетна инвестиција — плаќате фиксен месечен износ.', scope: 'B2B' as const, sortOrder: 2 },
     { question: 'Колку брзо е монтирањето за фирма?', answer: 'По бесплатната проценка, монтажата е брза и без прекин на работата.', scope: 'B2B' as const, sortOrder: 3 },

@@ -66,6 +66,13 @@ export async function getPublishedProduct(slug: string): Promise<ProductDetailDt
   });
   if (!p) return null;
 
+  // Product page shows product-specific FAQ first, then the shared GLOBAL FAQ (so generic
+  // questions live once as GLOBAL instead of being duplicated onto every product).
+  const globalFaqs = await prisma.faq.findMany({
+    where: { tenantId: p.tenantId, scope: 'GLOBAL' },
+    orderBy: { sortOrder: 'asc' },
+  });
+
   const card = toCard(p);
   const features = Array.isArray(p.features) ? (p.features as { icon?: string; text: string }[]) : [];
   return {
@@ -82,7 +89,7 @@ export async function getPublishedProduct(slug: string): Promise<ProductDetailDt
     stages: p.stages.map((s) => ({ order: s.order, name: s.name, removes: s.removes, whyItMatters: s.whyItMatters, icon: s.icon ?? undefined })),
     specs: p.specs.map((s) => ({ group: s.group, label: s.label, value: s.value, unit: s.unit ?? undefined })),
     related: p.related.map((r) => toCard(r.related)),
-    faqs: p.faqs.map((f) => ({ question: f.question, answer: f.answer })),
+    faqs: [...p.faqs, ...globalFaqs].map((f) => ({ question: f.question, answer: f.answer })),
     seoTitle: p.seoTitle ?? undefined,
     seoDescription: p.seoDescription ?? undefined,
   };
