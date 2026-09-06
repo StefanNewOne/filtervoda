@@ -89,7 +89,7 @@ adminProductsRouter.delete('/:id', async (req, res) => {
 // / `icon: null`, which .optional() rejects → the admin editor's save 422'd (nothing saved).
 const specsSchema = z.array(z.object({ group: z.string().max(80), label: z.string().max(120), value: z.string().max(300), unit: z.string().max(40).nullish(), sortOrder: z.number().int().default(0) }));
 const stagesSchema = z.array(z.object({ order: z.coerce.number().int(), name: z.string().max(160), removes: z.string().max(300), whyItMatters: z.string().max(300), icon: z.string().max(60).nullish() }));
-const imagesSchema = z.array(z.object({ mediaId: z.string().cuid(), alt: z.string().max(300).nullish(), sortOrder: z.number().int().default(0), isPrimary: z.boolean().default(false) }));
+const imagesSchema = z.array(z.object({ mediaId: z.string().cuid(), alt: z.string().max(300).nullish().transform((v) => v ?? ''), sortOrder: z.number().int().default(0), isPrimary: z.boolean().default(false) }));
 const relatedSchema = z.array(z.object({ relatedId: z.string().cuid(), sortOrder: z.number().int().default(0) }));
 
 adminProductsRouter.put('/:id/specs', async (req, res) => {
