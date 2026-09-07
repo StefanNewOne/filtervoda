@@ -34,7 +34,7 @@ export const MODULES: ModuleDef[] = [
   { to: '/tracking', label: 'Tracking и интеграции', dot: 'var(--color-accent-outbox)', group: 'МЕРЕЊЕ', roles: EDITORS },
   { to: '/seo', label: 'SEO', dot: 'var(--color-accent-outbox)', group: 'МЕРЕЊЕ', roles: EDITORS },
   { to: '/redirects', label: 'Редирекции', dot: 'var(--color-accent-outbox)', group: 'МЕРЕЊЕ', roles: EDITORS },
-  { to: '/settings', label: 'Поставки', dot: 'var(--color-accent-settings)', group: 'СИСТЕМ', roles: EDITORS },
+  { to: '/settings', label: 'Напредни поставки', dot: 'var(--color-accent-settings)', group: 'СИСТЕМ', roles: ADMIN },
   { to: '/users', label: 'Корисници', dot: 'var(--color-accent-settings)', group: 'СИСТЕМ', roles: ADMIN },
   { to: '/outbox', label: 'Проблеми со испорака', dot: 'var(--color-accent-outbox)', group: 'СИСТЕМ', roles: EDITORS },
   { to: '/audit', label: 'Audit лог', dot: 'var(--color-accent-settings)', group: 'СИСТЕМ', roles: EDITORS },

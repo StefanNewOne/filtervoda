@@ -19,7 +19,10 @@ export default function Settings() {
 
   return (
     <>
-      <PageHeader title="Поставки" subtitle="Контакти, приматели на нотификации, цени, рати и feature flags" />
+      <PageHeader title="Напредни поставки" subtitle="Директен пристап до сите поставки (сиров JSON) — само за развивач" />
+      <div className="mb-4 rounded-md border border-[var(--color-warning-300,#f0c000)] bg-[var(--color-warning-100,#fff7db)] px-4 py-3 text-sm text-[var(--color-neutral-700)]">
+        ⚠️ Напредно. Обичните текстови менувај ги во соодветните модули (Страници и копи, За фирми, Контакт, Tracking…). Тука се уредува сиров JSON — погрешен формат може да расипе поставка.
+      </div>
       <div className="space-y-2">
         {data.map((s) => {
           const current = edits[s.key] ?? JSON.stringify(s.value);
