@@ -57,7 +57,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
 
       {/* WHY — gradient cards, outlined Oswald numbers */}
       <section className="mx-auto max-w-[1200px] px-5 pb-5 pt-[90px]">
-        <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">Зошто филтрирана вода?</h2>
+        <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">{content.whyTitle || 'Зошто филтрирана вода?'}</h2>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WHY_ITEMS.map((w) => (
             <div key={w.n} className="rounded-[26px] px-6 pb-[30px] pt-7 transition hover:-translate-y-1 [background:linear-gradient(180deg,#F2F8FF,#E2F0FC)]">
@@ -72,7 +72,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* PRODUCTS */}
       <section className="mx-auto max-w-[1200px] px-5 pt-[84px]">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">Најбарани системи</h2>
+          <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">{content.featuredTitle || 'Најбарани системи'}</h2>
           <Link to="/proizvodi" className="text-[16px] font-bold text-[#1156E0]">Сите производи →</Link>
         </div>
         <div className="mt-[34px] grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
@@ -84,7 +84,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="px-5 pt-[90px]">
         <div className="mx-auto max-w-[1200px] rounded-[40px] px-5 py-16 text-white [background:linear-gradient(145deg,#071A3A_0%,#0B3C8C_55%,#1E6FE8_100%)]">
           <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">КАКО ФУНКЦИОНИРА</div>
-          <h2 className="mt-4 max-w-[22em] font-[family-name:Oswald] text-[clamp(28px,3.2vw,44px)] font-medium">Како функционира — 6 степени на филтрација</h2>
+          <h2 className="mt-4 max-w-[22em] font-[family-name:Oswald] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 flex gap-3.5 overflow-x-auto pb-2">
             {STAGES.map((s) => (
               <div key={s.n} className="w-[268px] shrink-0 rounded-[26px] border border-[rgba(191,227,250,0.3)] bg-[rgba(255,255,255,0.08)] px-6 pb-[30px] pt-[26px]">
@@ -104,7 +104,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
-          <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">Што велат нашите клиенти</h2>
+          <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">{content.testimonialsTitle || 'Што велат нашите клиенти'}</h2>
           <div className="mt-[34px] grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {testimonials.slice(0, 3).map((t) => (
               <figure key={t.id} className="m-0 rounded-[26px] border border-[#E4EDF9] bg-white p-7">
@@ -117,7 +117,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         </section>
       )}
 
-      <ArticlesSection posts={posts} />
+      <ArticlesSection posts={posts} title={content.articlesTitle} />
 
       {/* FINAL CTA */}
       <section className="mx-auto max-w-[1200px] px-5 pb-[100px] pt-[90px]">

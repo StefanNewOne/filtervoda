@@ -366,6 +366,22 @@ async function main() {
     'feature.compareTable': true,
     'feature.advisorForm': true,
     'calculator.params': { litersPerPersonDay: 1.5, workingDays: 22, gallonLiters: 19, defaultPricePerGallon: 120 },
+    // Editable copy — seeded with the storefront defaults so the admin shows real text to edit.
+    'content.hero.h1': 'Чиста, алкална вода директно од вашата чешма.',
+    'content.hero.h2': 'Системи за филтрација со бесплатна монтажа и 10 години гаранција — низ цела Македонија.',
+    'content.hero.cta': 'Побарај бесплатна консултација',
+    'content.why.title': 'Зошто филтрирана вода?',
+    'content.featured.title': 'Најбарани системи',
+    'content.stages.title': 'Како функционира — 6 степени на филтрација',
+    'content.testimonials.title': 'Што велат нашите клиенти',
+    'content.articles.title': 'Совети за чиста вода',
+    'content.advisor.title': 'Не знаете кој систем ви одговара?',
+    'content.advisor.text': 'Оставете телефон — ќе ве советуваме бесплатно.',
+    'content.thankyou.title': 'Благодариме за интересот!',
+    'content.thankyou.text': 'Вашето барање е примено. Ќе ве контактираме во рок од еден работен ден на телефонот што го оставивте.',
+    'b2b.problems': ['Трошок што расте со тимот', 'Нарачки и носење', 'Простор за складирање', 'Хигиена на галоните', 'Нема топла вода за кафе', 'Пластика и имиџ'],
+    'b2b.included': ['Апарат за топла и ладна вода', 'Бесплатна монтажа', 'Редовна замена на филтри', 'Сервис и одржување', 'Замена при дефект', 'Без инвестиција'],
+    'b2b.industries': ['Канцеларии', 'Кафулиња и ресторани', 'Ординации', 'Салони', 'Теретани', 'Хотели', 'Градинки и училишта', 'Автосалони', 'Продавници', 'Аптеки', 'Пекари и слаткарници', 'Автосервиси'],
   };
   for (const [key, value] of Object.entries(settings)) {
     await prisma.setting.upsert({

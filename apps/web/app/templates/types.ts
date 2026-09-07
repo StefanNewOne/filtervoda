@@ -17,13 +17,7 @@ export interface PostCard {
 
 export interface HomeProps {
   featured: ProductCardDto[];
-  content: {
-    heroH1?: string;
-    heroH2?: string;
-    heroCta?: string;
-    advisorTitle?: string;
-    advisorText?: string;
-  };
+  content: NonNullable<PublicSettings['content']>;
   testimonials: Testimonial[];
   posts: PostCard[];
   faq: { question: string; answer: string }[];

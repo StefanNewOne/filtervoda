@@ -56,7 +56,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
 
       {/* WHY — white cards with teal top border, mono numbers */}
       <section className="mx-auto max-w-[1200px] px-5 pb-5 pt-[90px]">
-        <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">Зошто филтрирана вода?</h2>
+        <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">{content.whyTitle || 'Зошто филтрирана вода?'}</h2>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WHY_ITEMS.map((w) => (
             <div key={w.n} className="rounded-[10px] border border-[#DCE4EE] border-t-2 border-t-[#45E0FF] bg-white px-[22px] pb-7 pt-[26px] transition hover:border-[#0E7490] hover:shadow-[0_12px_30px_rgba(7,26,58,0.08)]">
@@ -71,7 +71,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* PRODUCTS */}
       <section className="mx-auto max-w-[1200px] px-5 pt-[84px]">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">Најбарани системи</h2>
+          <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">{content.featuredTitle || 'Најбарани системи'}</h2>
           <Link to="/proizvodi" className="text-[16px] font-bold text-[#0E7490]">Сите производи →</Link>
         </div>
         <div className="mt-[34px] grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
@@ -83,7 +83,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="px-5 pt-[90px]">
         <div className="mx-auto max-w-[1200px] rounded-[32px] bg-[#071A3A] px-5 py-16 text-white">
           <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#45E0FF]">КАКО ФУНКЦИОНИРА</div>
-          <h2 className="mt-4 max-w-[22em] text-[clamp(28px,3.2vw,44px)] font-medium">Како функционира — 6 степени на филтрација</h2>
+          <h2 className="mt-4 max-w-[22em] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 grid gap-px overflow-hidden rounded-[10px] border border-[rgba(111,196,247,0.22)] bg-[rgba(111,196,247,0.22)] sm:grid-cols-2 lg:grid-cols-3">
             {STAGES.map((s) => (
               <div key={s.n} className="bg-[#071A3A] px-6 pb-[30px] pt-[26px]">
@@ -103,7 +103,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
-          <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">Што велат нашите клиенти</h2>
+          <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">{content.testimonialsTitle || 'Што велат нашите клиенти'}</h2>
           <div className="mt-[34px] grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {testimonials.slice(0, 3).map((t) => (
               <figure key={t.id} className="m-0 rounded-[10px] border border-[#DCE4EE] bg-white p-7">
@@ -116,7 +116,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         </section>
       )}
 
-      <ArticlesSection posts={posts} />
+      <ArticlesSection posts={posts} title={content.articlesTitle} />
 
       {/* FINAL CTA */}
       <section className="mx-auto max-w-[1200px] px-5 pb-[100px] pt-[90px]">

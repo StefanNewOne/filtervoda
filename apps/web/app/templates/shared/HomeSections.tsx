@@ -34,12 +34,12 @@ export function B2bTeaser() {
 }
 
 /** „Совети за чиста вода" home articles preview — shared. */
-export function ArticlesSection({ posts }: { posts: PostCard[] }) {
+export function ArticlesSection({ posts, title }: { posts: PostCard[]; title?: string }) {
   if (posts.length === 0) return null;
   return (
     <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
       <div className="flex items-end justify-between gap-4">
-        <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[var(--color-foreground)]">Совети за чиста вода</h2>
+        <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[var(--color-foreground)]">{title || 'Совети за чиста вода'}</h2>
         <Link to="/soveti" className="text-[16px] font-bold text-[var(--color-cta)]">Сите совети →</Link>
       </div>
       <div className="mt-[34px] grid gap-[18px] md:grid-cols-3">

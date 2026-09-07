@@ -35,10 +35,17 @@ adminProductsRouter.get('/', async (_req, res) => {
 adminProductsRouter.get('/:id', async (req, res) => {
   const product = await prisma.product.findUnique({
     where: { id: req.params.id },
-    include: { specs: true, stages: true, images: { include: { media: true } }, faqs: true },
+    include: {
+      specs: { orderBy: { sortOrder: 'asc' } },
+      stages: { orderBy: { order: 'asc' } },
+      images: { include: { media: true }, orderBy: { sortOrder: 'asc' } },
+      faqs: true,
+      related: { include: { related: { select: { id: true, name: true } } }, orderBy: { sortOrder: 'asc' } },
+    },
   });
   if (!product) throw new AppError(404, 'Производот не е пронајден');
-  res.json(product);
+  // Flatten related into the shape the editor expects: [{ relatedId, name }].
+  res.json({ ...product, related: product.related.map((r) => ({ relatedId: r.relatedId, name: r.related.name })) });
 });
 
 adminProductsRouter.post('/', async (req, res) => {

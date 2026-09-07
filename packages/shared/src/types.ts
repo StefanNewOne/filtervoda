@@ -134,6 +134,11 @@ export interface PublicSettings {
     heroH1?: string;
     heroH2?: string;
     heroCta?: string;
+    whyTitle?: string;
+    featuredTitle?: string;
+    stagesTitle?: string;
+    testimonialsTitle?: string;
+    articlesTitle?: string;
     advisorTitle?: string;
     advisorText?: string;
     thankyouTitle?: string;
