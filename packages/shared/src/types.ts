@@ -129,7 +129,29 @@ export interface PublicSettings {
   metaPixelId?: string;
   turnstileSiteKey?: string;
   trustLogos?: string[]; // B2B „ИМ ВЕРУВААТ ФИРМИ" logo image URLs
-  b2b?: { problems?: string[]; included?: string[]; industries?: string[] };
+  b2b?: {
+    problems?: string[];
+    included?: string[];
+    industries?: string[];
+    heroLabel?: string;
+    heroH1?: string;
+    heroSubhead?: string;
+    heroCta?: string;
+    heroTrust?: string;
+    logosTitle?: string;
+    problemsTitle?: string;
+    includedTitle?: string;
+    calcTitle?: string;
+    stepsTitle?: string;
+    packagesTitle?: string;
+    industriesTitle?: string;
+    comparisonTitle?: string;
+    faqTitle?: string;
+    formTitle?: string;
+    formText?: string;
+    steps?: { title: string; desc: string }[];
+    comparison?: { label: string; gallons: string; buy: string; rent: string }[];
+  };
   content?: {
     heroH1?: string;
     heroH2?: string;

@@ -17,6 +17,35 @@ export default function B2b() {
   const [logos, setLogos] = useState('');
   const [txt, setTxt] = useState({ problems: '', included: '', industries: '' });
 
+  // Simple page-copy strings.
+  const STR_KEYS = [
+    'heroLabel', 'heroH1', 'heroSubhead', 'heroCta', 'heroTrust', 'logosTitle',
+    'problemsTitle', 'includedTitle', 'calcTitle', 'stepsTitle', 'packagesTitle',
+    'industriesTitle', 'comparisonTitle', 'faqTitle', 'formTitle', 'formText',
+  ] as const;
+  type StrKey = (typeof STR_KEYS)[number];
+  const STR_LABELS: Record<StrKey, string> = {
+    heroLabel: 'Hero — ознака',
+    heroH1: 'Hero — наслов',
+    heroSubhead: 'Hero — поднаслов',
+    heroCta: 'Hero — копче (CTA)',
+    heroTrust: 'Hero — доверба (ред под копчето)',
+    logosTitle: 'Наслов на логоа',
+    problemsTitle: 'Наслов — проблеми',
+    includedTitle: 'Наслов — што е вклучено',
+    calcTitle: 'Наслов — калкулатор',
+    stepsTitle: 'Наслов — како функционира',
+    packagesTitle: 'Наслов — пакети',
+    industriesTitle: 'Наслов — за кои бизниси',
+    comparisonTitle: 'Наслов — споредба',
+    faqTitle: 'Наслов — ЧПП',
+    formTitle: 'Наслов — форма',
+    formText: 'Текст над формата',
+  };
+  const [str, setStr] = useState<Record<StrKey, string>>(() => Object.fromEntries(STR_KEYS.map((k) => [k, ''])) as Record<StrKey, string>);
+  const [steps, setSteps] = useState('');
+  const [comparison, setComparison] = useState('');
+
   useEffect(() => {
     const c = settings.find((s) => s.key === 'calculator.params')?.value as CalcParams | undefined;
     if (c) setCalc(c);
@@ -24,6 +53,13 @@ export default function B2b() {
     if (l) setLogos(l.join('\n'));
     const arr = (key: string) => (settings.find((s) => s.key === key)?.value as string[] | undefined)?.join('\n') ?? '';
     setTxt({ problems: arr('b2b.problems'), included: arr('b2b.included'), industries: arr('b2b.industries') });
+    const strVal = (key: string) => (settings.find((s) => s.key === key)?.value as string | undefined) ?? '';
+    setStr(Object.fromEntries(STR_KEYS.map((k) => [k, strVal(`b2b.${k}`)])) as Record<StrKey, string>);
+    const stepsVal = settings.find((s) => s.key === 'b2b.steps')?.value as { title: string; desc: string }[] | undefined;
+    if (stepsVal) setSteps(stepsVal.map((x) => `${x.title} | ${x.desc}`).join('\n'));
+    const cmpVal = settings.find((s) => s.key === 'b2b.comparison')?.value as { label: string; gallons: string; buy: string; rent: string }[] | undefined;
+    if (cmpVal) setComparison(cmpVal.map((x) => `${x.label} | ${x.gallons} | ${x.buy} | ${x.rent}`).join('\n'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
   const lines = (v: string) => v.split('\n').map((x) => x.trim()).filter(Boolean);
 
@@ -42,6 +78,36 @@ export default function B2b() {
       await apiClient.put('/admin/settings/b2b.problems', { value: lines(txt.problems) });
       await apiClient.put('/admin/settings/b2b.included', { value: lines(txt.included) });
       await apiClient.put('/admin/settings/b2b.industries', { value: lines(txt.industries) });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
+  const saveStrings = useMutation({
+    mutationFn: async () => {
+      for (const k of STR_KEYS) {
+        await apiClient.put(`/admin/settings/b2b.${k}`, { value: str[k].trim() });
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
+  const saveSteps = useMutation({
+    mutationFn: () => {
+      const parsed = lines(steps).map((row) => {
+        const i = row.indexOf('|');
+        const title = i === -1 ? row : row.slice(0, i).trim();
+        const desc = i === -1 ? '' : row.slice(i + 1).trim();
+        return { title, desc };
+      });
+      return apiClient.put('/admin/settings/b2b.steps', { value: parsed });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
+  const saveComparison = useMutation({
+    mutationFn: () => {
+      const parsed = lines(comparison).map((row) => {
+        const [label = '', gallons = '', buy = '', rent = ''] = row.split('|').map((x) => x.trim());
+        return { label, gallons, buy, rent };
+      });
+      return apiClient.put('/admin/settings/b2b.comparison', { value: parsed });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
   });
@@ -97,6 +163,36 @@ export default function B2b() {
           <label className="text-sm">За кои бизниси<textarea className={input} rows={4} value={txt.industries} onChange={(e) => setTxt({ ...txt, industries: e.target.value })} /></label>
         </div>
         <Btn className="mt-3" onClick={() => saveTxt.mutate()}>Зачувај текстови</Btn>
+      </Card>
+
+      <h2 className="mb-2 mt-8 text-sm font-semibold">Текстови на страницата</h2>
+      <Card className="max-w-2xl">
+        <div className="grid gap-3">
+          {STR_KEYS.map((k) => (
+            <label key={k} className="text-sm">
+              {STR_LABELS[k]}
+              {k === 'heroH1' || k === 'heroSubhead' || k === 'formText' ? (
+                <textarea className={input} rows={2} value={str[k]} onChange={(e) => setStr({ ...str, [k]: e.target.value })} />
+              ) : (
+                <input className={input} value={str[k]} onChange={(e) => setStr({ ...str, [k]: e.target.value })} />
+              )}
+            </label>
+          ))}
+        </div>
+        <Btn className="mt-3" onClick={() => saveStrings.mutate()}>Зачувај текстови</Btn>
+      </Card>
+
+      <h2 className="mb-2 mt-8 text-sm font-semibold">Чекори „Како функционира" (по еден во ред: Наслов | Опис)</h2>
+      <Card className="max-w-2xl">
+        <p className="mb-2 text-xs text-[var(--color-neutral-500)]">Нумерирањето (01/02/03) се додава автоматски по редослед.</p>
+        <textarea className={`${input} font-mono`} rows={4} placeholder="Побарајте понуда | Две минути — формата или еден телефонски повик." value={steps} onChange={(e) => setSteps(e.target.value)} />
+        <Btn className="mt-3" onClick={() => saveSteps.mutate()}>Зачувај чекори</Btn>
+      </Card>
+
+      <h2 className="mb-2 mt-8 text-sm font-semibold">Табела за споредба (по еден ред: Ознака | Галони | Купување | Изнајмување)</h2>
+      <Card className="max-w-2xl">
+        <textarea className={`${input} font-mono`} rows={7} placeholder="Месечен трошок | Расте со тимот | Без | Фиксен, предвидлив" value={comparison} onChange={(e) => setComparison(e.target.value)} />
+        <Btn className="mt-3" onClick={() => saveComparison.mutate()}>Зачувај споредба</Btn>
       </Card>
     </>
   );

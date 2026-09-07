@@ -11,6 +11,22 @@ const PROBLEMS = ['Трошок што расте со тимот', 'Нарач�
 const INCLUDED = ['Апарат за топла и ладна вода', 'Бесплатна монтажа', 'Редовна замена на филтри', 'Сервис и одржување', 'Замена при дефект', 'Без инвестиција'];
 const INDUSTRIES = ['Канцеларии', 'Кафулиња и ресторани', 'Ординации', 'Салони', 'Теретани', 'Хотели', 'Градинки и училишта', 'Автосалони', 'Продавници', 'Аптеки', 'Пекари и слаткарници', 'Автосервиси'];
 
+const DEFAULT_STEPS: { title: string; desc: string }[] = [
+  { title: 'Побарајте понуда', desc: 'Две минути — формата или еден телефонски повик.' },
+  { title: 'Бесплатна проценка и монтажа', desc: 'Доаѓаме, гледаме и монтираме без трошок за вас.' },
+  { title: 'Пиете неограничено', desc: 'Ние се грижиме за сè — филтри, сервис, замена.' },
+];
+
+const DEFAULT_COMPARISON: { label: string; gallons: string; buy: string; rent: string }[] = [
+  { label: 'Месечен трошок', gallons: 'Расте со тимот', buy: 'Без', rent: 'Фиксен, предвидлив' },
+  { label: 'Почетна инвестиција', gallons: 'Не', buy: 'Висока', rent: 'Нема' },
+  { label: 'Нарачки и носење', gallons: 'Постојано', buy: 'Не', rent: 'Не' },
+  { label: 'Топла/ладна вода', gallons: 'Не', buy: 'Зависно', rent: 'Да' },
+  { label: 'Замена на филтри и сервис', gallons: 'Не', buy: 'Ваша грижа', rent: 'Вклучено' },
+  { label: 'Замена при дефект', gallons: 'Не', buy: 'Ваша грижа', rent: 'Вклучено' },
+  { label: 'Договорна обврска', gallons: 'Не', buy: 'Не', rent: '12 месеци [потврди]' },
+];
+
 export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackageDto[]; settings: PublicSettings; faq?: { question: string; answer: string }[] }) {
   const s = skinFor(useTemplateId());
   const { open } = useLeadModal();
@@ -34,6 +50,9 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
   const problems = settings.b2b?.problems?.length ? settings.b2b.problems : PROBLEMS;
   const included = settings.b2b?.included?.length ? settings.b2b.included : INCLUDED;
   const industries = settings.b2b?.industries?.length ? settings.b2b.industries : INDUSTRIES;
+  const steps = settings.b2b?.steps?.length ? settings.b2b.steps : DEFAULT_STEPS;
+  const comparison = settings.b2b?.comparison?.length ? settings.b2b.comparison : DEFAULT_COMPARISON;
+  const t = settings.b2b;
   const showCalculator = settings.featureFlags?.calculator !== false;
 
   const H2 = ({ children }: { children: React.ReactNode }) => (
@@ -46,13 +65,13 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
       <section className={`${s.heroDark} px-5`}>
         <div className="mx-auto grid max-w-[1200px] items-center gap-12 py-20 md:grid-cols-[1fr_minmax(0,420px)]">
           <div>
-            <div className={`${s.mono} text-[12px] tracking-[0.14em] text-[#6FC4F7]`}>ЗА ФИРМИ</div>
-            <h1 className={`${s.display} mt-4 text-[clamp(36px,4.6vw,66px)] font-semibold text-white ${s.headingUpper ? 'uppercase' : ''}`}>Заборавете на галоните. Неограничена чиста вода за вашиот тим.</h1>
-            <p className="mt-5 max-w-xl text-[19px] leading-[1.55] text-[#A9BFDC]">Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ.</p>
+            <div className={`${s.mono} text-[12px] tracking-[0.14em] text-[#6FC4F7]`}>{t?.heroLabel ?? 'ЗА ФИРМИ'}</div>
+            <h1 className={`${s.display} mt-4 text-[clamp(36px,4.6vw,66px)] font-semibold text-white ${s.headingUpper ? 'uppercase' : ''}`}>{t?.heroH1 ?? 'Заборавете на галоните. Неограничена чиста вода за вашиот тим.'}</h1>
+            <p className="mt-5 max-w-xl text-[19px] leading-[1.55] text-[#A9BFDC]">{t?.heroSubhead ?? 'Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ.'}</p>
             <div className="mt-8">
-              <button onClick={() => open({ type: 'B2B', calcInput })} className={s.cta}>Побарај понуда за фирма</button>
+              <button onClick={() => open({ type: 'B2B', calcInput })} className={s.cta}>{t?.heroCta ?? 'Побарај понуда за фирма'}</button>
             </div>
-            <p className="mt-4 text-sm text-[#6FC4F7]">Бесплатна проценка · Без скриени трошоци · Брза монтажа</p>
+            <p className="mt-4 text-sm text-[#6FC4F7]">{t?.heroTrust ?? 'Бесплатна проценка · Без скриени трошоци · Брза монтажа'}</p>
           </div>
           <img
             src="/img/products/dispenzer.jpg"
@@ -67,7 +86,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
       {/* Logo bar — trusted by */}
       <div className={`border-b ${s.border} ${s.softBg}`}>
         <div className="mx-auto max-w-[1200px] px-5 py-6">
-          <div className={`${s.mono} mb-3 text-center text-[11px] tracking-[0.14em] ${s.muted}`}>ИМ ВЕРУВААТ ФИРМИ НИЗ МАКЕДОНИЈА</div>
+          <div className={`${s.mono} mb-3 text-center text-[11px] tracking-[0.14em] ${s.muted}`}>{t?.logosTitle ?? 'ИМ ВЕРУВААТ ФИРМИ НИЗ МАКЕДОНИЈА'}</div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             {(settings.trustLogos && settings.trustLogos.length > 0
               ? settings.trustLogos
@@ -86,13 +105,13 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
       </div>
 
       <div className="mx-auto max-w-[1200px] px-5">
-        <section className="py-14"><H2>Колку навистина ве чинат галоните?</H2>
+        <section className="py-14"><H2>{t?.problemsTitle ?? 'Колку навистина ве чинат галоните?'}</H2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {problems.map((p) => <div key={p} className={`rounded-[18px] border ${s.border} p-6 text-[15px]`}>{p}</div>)}
           </div>
         </section>
 
-        <section className="py-6"><H2>Еден месечен износ. Сè вклучено.</H2>
+        <section className="py-6"><H2>{t?.includedTitle ?? 'Еден месечен износ. Сè вклучено.'}</H2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {included.map((p) => <div key={p} className={`rounded-[18px] border ${s.border} ${s.softBg} p-6 text-[15px]`}>{p}</div>)}
           </div>
@@ -100,7 +119,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
 
         {/* CALCULATOR — behind the feature.calculator flag */}
         {showCalculator && (
-        <section className="py-10"><H2>Пресметајте колку заштедувате</H2>
+        <section className="py-10"><H2>{t?.calcTitle ?? 'Пресметајте колку заштедувате'}</H2>
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             {/* Inputs */}
             <div className={`rounded-[24px] border ${s.border} p-[34px]`}>
@@ -165,24 +184,20 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
         )}
 
         {/* 3 STEPS */}
-        <section className="py-10"><H2>Како функционира</H2>
+        <section className="py-10"><H2>{t?.stepsTitle ?? 'Како функционира'}</H2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[
-              { n: '01', t: 'Побарајте понуда', d: 'Две минути — формата или еден телефонски повик.' },
-              { n: '02', t: 'Бесплатна проценка и монтажа', d: 'Доаѓаме, гледаме и монтираме без трошок за вас.' },
-              { n: '03', t: 'Пиете неограничено', d: 'Ние се грижиме за сè — филтри, сервис, замена.' },
-            ].map((st) => (
-              <div key={st.n} className={`rounded-[20px] border ${s.border} p-8`}>
-                <div className={`${s.display} ${s.accent} text-[13px]`}>{st.n}</div>
-                <h3 className={`mt-4 text-[19px] font-medium ${s.ink}`}>{st.t}</h3>
-                <p className="mt-2.5 text-[15px] leading-[1.55] text-[#56698A]">{st.d}</p>
+            {steps.map((st, i) => (
+              <div key={i} className={`rounded-[20px] border ${s.border} p-8`}>
+                <div className={`${s.display} ${s.accent} text-[13px]`}>{String(i + 1).padStart(2, '0')}</div>
+                <h3 className={`mt-4 text-[19px] font-medium ${s.ink}`}>{st.title}</h3>
+                <p className="mt-2.5 text-[15px] leading-[1.55] text-[#56698A]">{st.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* PACKAGES */}
-        <section className="py-10"><H2>Пакети</H2>
+        <section className="py-10"><H2>{t?.packagesTitle ?? 'Пакети'}</H2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {packages.map((pkg, i) => (
               <div key={pkg.id} className={`relative rounded-[22px] border p-8 ${i === 1 ? 'border-2 border-[#1156E0] shadow-[0_20px_50px_rgba(17,86,224,0.14)]' : s.border}`}>
@@ -196,7 +211,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
           </div>
         </section>
 
-        <section className="py-10"><H2>За кои бизниси</H2>
+        <section className="py-10"><H2>{t?.industriesTitle ?? 'За кои бизниси'}</H2>
           <div className="mt-8 flex flex-wrap gap-2">
             {industries.map((x) => <span key={x} className={`rounded-[16px] border ${s.border} px-[18px] py-[22px] text-[15px] font-semibold text-[#21375A]`}>{x}</span>)}
             <span className={`rounded-[16px] border border-dashed ${s.border} px-[18px] py-[22px] text-[15px] font-semibold ${s.muted}`}>И вашата дејност</span>
@@ -204,7 +219,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
         </section>
 
         {/* COMPARISON TABLE */}
-        <section className="py-10"><H2>Галони · Купување · Изнајмување од SPAR</H2>
+        <section className="py-10"><H2>{t?.comparisonTitle ?? 'Галони · Купување · Изнајмување од SPAR'}</H2>
           <div className={`mt-8 overflow-x-auto rounded-[18px] border ${s.border}`}>
             <table className="w-full min-w-[640px] border-collapse text-sm">
               <thead>
@@ -216,20 +231,12 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
                 </tr>
               </thead>
               <tbody>
-                {[
-                  ['Месечен трошок', 'Расте со тимот', 'Без', 'Фиксен, предвидлив'],
-                  ['Почетна инвестиција', 'Не', 'Висока', 'Нема'],
-                  ['Нарачки и носење', 'Постојано', 'Не', 'Не'],
-                  ['Топла/ладна вода', 'Не', 'Зависно', 'Да'],
-                  ['Замена на филтри и сервис', 'Не', 'Ваша грижа', 'Вклучено'],
-                  ['Замена при дефект', 'Не', 'Ваша грижа', 'Вклучено'],
-                  ['Договорна обврска', 'Не', 'Не', '12 месеци [потврди]'],
-                ].map((r) => (
-                  <tr key={r[0]} className={`border-t ${s.border}`}>
-                    <td className={`sticky left-0 bg-[var(--color-background)] px-4 py-3.5 font-semibold ${s.ink}`}>{r[0]}</td>
-                    <td className="px-4 py-3.5 text-[#56698A]">{r[1]}</td>
-                    <td className="px-4 py-3.5 text-[#56698A]">{r[2]}</td>
-                    <td className={`px-4 py-3.5 font-semibold ${s.accent}`}>{r[3]}</td>
+                {comparison.map((r) => (
+                  <tr key={r.label} className={`border-t ${s.border}`}>
+                    <td className={`sticky left-0 bg-[var(--color-background)] px-4 py-3.5 font-semibold ${s.ink}`}>{r.label}</td>
+                    <td className="px-4 py-3.5 text-[#56698A]">{r.gallons}</td>
+                    <td className="px-4 py-3.5 text-[#56698A]">{r.buy}</td>
+                    <td className={`px-4 py-3.5 font-semibold ${s.accent}`}>{r.rent}</td>
                   </tr>
                 ))}
               </tbody>
@@ -239,7 +246,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
 
         {/* FAQ */}
         {faq.length > 0 && (
-          <section className="py-10"><H2>Често поставувани прашања</H2>
+          <section className="py-10"><H2>{t?.faqTitle ?? 'Често поставувани прашања'}</H2>
             <div className={`mt-6 divide-y ${s.border} overflow-hidden rounded-[18px] border ${s.border}`}>
               {faq.map((f, i) => (
                 <details key={i} className="px-6 py-4"><summary className={`cursor-pointer font-semibold ${s.ink}`}>{f.question}</summary><p className="mt-2 text-[15px] text-[#56698A]">{f.answer}</p></details>
@@ -249,10 +256,10 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
         )}
 
         {/* FORM — 2-column info + form */}
-        <section className="py-10 pb-24"><H2>Побарај понуда за фирма</H2>
+        <section className="py-10 pb-24"><H2>{t?.formTitle ?? 'Побарај понуда за фирма'}</H2>
           <div className={`mt-8 grid gap-11 rounded-[var(--radius-card)] border ${s.border} ${s.softBg} p-8 md:grid-cols-2`}>
             <div>
-              <p className={`text-[17px] leading-[1.55] ${s.muted}`}>Оставете податоци за вашата фирма — ќе ве контактираме со точна понуда, бесплатна проценка и термин за монтажа.</p>
+              <p className={`text-[17px] leading-[1.55] ${s.muted}`}>{t?.formText ?? 'Оставете податоци за вашата фирма — ќе ве контактираме со точна понуда, бесплатна проценка и термин за монтажа.'}</p>
               {/* Carry-over from the calculator above */}
               <div className={`mt-5 rounded-[16px] border ${s.border} bg-white p-4`}>
                 <div className={`text-[12px] font-extrabold tracking-[0.04em] ${s.muted}`}>ПРЕНЕСЕНО ОД ПРЕСМЕТКАТА</div>
