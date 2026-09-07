@@ -54,6 +54,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
   const comparison = settings.b2b?.comparison?.length ? settings.b2b.comparison : DEFAULT_COMPARISON;
   const t = settings.b2b;
   const showCalculator = settings.featureFlags?.calculator !== false;
+  const showComparison = settings.featureFlags?.compareTable !== false;
 
   const H2 = ({ children }: { children: React.ReactNode }) => (
     <h2 className={`${s.display} ${s.ink} text-[clamp(28px,3.2vw,44px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>{children}</h2>
@@ -219,6 +220,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
         </section>
 
         {/* COMPARISON TABLE */}
+        {showComparison && (
         <section className="py-10"><H2>{t?.comparisonTitle ?? 'Галони · Купување · Изнајмување од SPAR'}</H2>
           <div className={`mt-8 overflow-x-auto rounded-[18px] border ${s.border}`}>
             <table className="w-full min-w-[640px] border-collapse text-sm">
@@ -243,6 +245,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
             </table>
           </div>
         </section>
+        )}
 
         {/* FAQ */}
         {faq.length > 0 && (
@@ -268,7 +271,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
                   {hasSavings && <> · заштеда ≈ {fmtPrice(result.annualSaving)} годишно</>}
                 </p>
               </div>
-              <a href={telHref(settings.phones[0] ?? '076/676/819')} className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
+              <a href={telHref(settings.phones[0] ?? '076/676/819')} className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>{settings.phones[0] ?? '076/676/819'}</a>
               <div className="mt-4 flex flex-wrap gap-2 text-sm text-[#56698A]">
                 <span>Бесплатна проценка</span> · <span>Без скриени трошоци</span> · <span>Брза монтажа</span>
               </div>

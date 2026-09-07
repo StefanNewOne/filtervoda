@@ -69,7 +69,7 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button className={s.cta} onClick={() => open({ productId: p.id, productName: p.name, type: 'B2C' })}>Побарај понуда</button>
-            <a href={telHref(settings?.phones?.[0] ?? '076/676/819')} className={`inline-flex items-center gap-2 font-bold ${s.ink}`}><Phone size={18} /> Повикај 076/676/819</a>
+            <a href={telHref(settings?.phones?.[0] ?? '076/676/819')} className={`inline-flex items-center gap-2 font-bold ${s.ink}`}><Phone size={18} /> Повикај {settings?.phones?.[0] ?? '076/676/819'}</a>
           </div>
         </div>
       </div>
@@ -248,7 +248,7 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
             <div>
               <H2>Побарајте понуда за {p.name}</H2>
               <p className={`mt-3.5 text-[17px] ${s.muted}`}>Оставете телефон — ќе ве контактираме во рок од еден работен ден со точна понуда и термин за бесплатна монтажа.</p>
-              <a href={telHref(settings?.phones?.[0] ?? '076/676/819')} className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>076/676/819</a>
+              <a href={telHref(settings?.phones?.[0] ?? '076/676/819')} className={`mt-5 inline-block ${s.display} ${s.ink} text-[22px] font-medium`}>{settings?.phones?.[0] ?? '076/676/819'}</a>
             </div>
             <div className={`rounded-[var(--radius-card)] border ${s.border} bg-white p-[26px]`}>
               <LeadForm type="B2C" productId={p.id} phones={settings?.phones ?? []} viber={settings?.viber} />

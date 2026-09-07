@@ -152,27 +152,27 @@ export const productSchema = z.object({
     .regex(/^[a-z0-9-]+$/, { message: 'Само мали букви, бројки и цртички' })
     .max(120),
   name: z.string().min(2).max(160),
-  tagline: z.string().max(200).optional(),
-  shortDescription: z.string().max(400).optional(),
-  description: z.unknown().optional(), // rich JSON
+  tagline: z.string().max(200).nullish(),
+  shortDescription: z.string().max(400).nullish(),
+  description: z.unknown().nullish(), // rich JSON
   categoryId: z.number().int().positive(),
   audience: z.enum(PRODUCT_AUDIENCES),
-  priceRegular: z.number().int().nonnegative().optional(),
-  priceSale: z.number().int().nonnegative().optional(),
+  priceRegular: z.number().int().nonnegative().nullish(),
+  priceSale: z.number().int().nonnegative().nullish(),
   showPrice: z.boolean().default(true),
   badges: z.array(z.string()).default([]),
   features: z.array(z.object({ icon: z.string().optional(), text: z.string().max(300) })).default([]),
   idealFor: z.array(z.string().max(160)).default([]),
   includedInPrice: z.array(z.string().max(200)).default([]),
-  maintenanceNote: z.string().max(2000).optional(),
+  maintenanceNote: z.string().max(2000).nullish(),
   warrantyYears: z.number().int().min(0).max(50).default(10),
   status: z.enum(PUBLISH_STATUSES).default('DRAFT'),
   featured: z.boolean().default(false),
   comparable: z.boolean().default(true),
   sortOrder: z.number().int().default(0),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(160).optional(),
-  ogImageId: z.string().cuid().optional(),
+  seoTitle: z.string().max(70).nullish(),
+  seoDescription: z.string().max(160).nullish(),
+  ogImageId: z.string().cuid().nullish(),
 });
 export type ProductInput = z.infer<typeof productSchema>;
 
@@ -201,7 +201,11 @@ export const faqSchema = z.object({
 export const redirectSchema = z.object({
   fromPath: z.string().startsWith('/'),
   toPath: z.string().startsWith('/'),
-  statusCode: z.union([z.literal(301), z.literal(302)]).default(301),
+  statusCode: z.coerce
+    .number()
+    .int()
+    .refine((v) => v === 301 || v === 302, { message: 'Само 301 или 302' })
+    .default(301),
 });
 
 export const userSchema = z.object({

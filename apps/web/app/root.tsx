@@ -42,6 +42,7 @@ function tokenOverridesCss(tokens?: Record<string, string>): string | null {
     accent: '--color-accent',
     radius: '--radius-cta',
     font: '--font-display',
+    mono: '--font-mono',
   };
   const decls = Object.entries(tokens)
     .filter(([k, v]) => map[k] && v)
@@ -93,7 +94,7 @@ export default function App() {
       </main>
       <T.Footer settings={settings} />
       <T.StickyBar phones={settings.phones} viber={settings.viber} />
-      <ConsentBanner text={settings.cookieBannerText} gtmId={settings.gtmId} pixelId={settings.metaPixelId} />
+      <ConsentBanner text={settings.cookieBannerText} gtmId={settings.gtmId} pixelId={settings.metaPixelId} ga4Id={settings.ga4Id} />
       <ScrollRestoration />
       <Scripts />
     </LeadModalProvider>

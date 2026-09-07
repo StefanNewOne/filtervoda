@@ -10,8 +10,18 @@ export default function Faq() {
       fields={[
         { key: 'question', label: 'Прашање' },
         { key: 'answer', label: 'Одговор' },
-        { key: 'scope', label: 'Опсег (GLOBAL/PRODUCT/B2B)' },
-        { key: 'sortOrder', label: 'Редослед', type: 'number' },
+        {
+          key: 'scope',
+          label: 'Опсег',
+          type: 'select',
+          defaultValue: 'GLOBAL',
+          options: [
+            { value: 'GLOBAL', label: 'Глобално (цел сајт)' },
+            { value: 'PRODUCT', label: 'По производ' },
+            { value: 'B2B', label: 'За фирми' },
+          ],
+        },
+        { key: 'sortOrder', label: 'Редослед', type: 'number', defaultValue: '0' },
       ]}
     />
   );

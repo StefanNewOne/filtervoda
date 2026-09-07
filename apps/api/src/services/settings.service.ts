@@ -36,6 +36,13 @@ export async function getPublicSettings(): Promise<PublicSettings> {
   const flagKeys = Object.keys(s).filter((k) => k.startsWith('feature.'));
   const featureFlags = Object.fromEntries(flagKeys.map((k) => [k.replace('feature.', ''), Boolean(s[k])]));
 
+  // Trust logos are stored as media IDs (uploaded via the picker). Resolve each to its URL;
+  // pass through any entry that is already a URL/path (backward compatible with pasted links).
+  const rawLogos = (s['b2b.trustLogos'] as string[]) ?? [];
+  const logoMedia = rawLogos.length ? await prisma.media.findMany({ where: { id: { in: rawLogos }, deletedAt: null } }) : [];
+  const logoUrlById = new Map(logoMedia.map((m) => [m.id, m.url]));
+  const trustLogos = rawLogos.map((x) => logoUrlById.get(x) ?? x);
+
   return {
     phones: (s['contact.phones'] as string[]) ?? [],
     viber: s['contact.viber'] as string | undefined,
@@ -52,7 +59,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     ga4Id: (s['tracking.ga4Id'] as string) || env.GA4_ID,
     metaPixelId: (s['tracking.metaPixelId'] as string) || env.META_PIXEL_ID,
     turnstileSiteKey: env.TURNSTILE_SITE_KEY,
-    trustLogos: (s['b2b.trustLogos'] as string[]) ?? [],
+    trustLogos,
     b2b: {
       problems: s['b2b.problems'] as string[] | undefined,
       included: s['b2b.included'] as string[] | undefined,

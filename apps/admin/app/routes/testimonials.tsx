@@ -12,8 +12,17 @@ export default function Testimonials() {
         { key: 'company', label: 'Фирма' },
         { key: 'city', label: 'Град' },
         { key: 'text', label: 'Текст' },
-        { key: 'rating', label: 'Оценка (1–5)', type: 'number' },
-        { key: 'scope', label: 'Опсег (B2C/B2B)' },
+        { key: 'rating', label: 'Оценка (1–5)', type: 'number', defaultValue: '5' },
+        {
+          key: 'scope',
+          label: 'Опсег',
+          type: 'select',
+          defaultValue: 'B2C',
+          options: [
+            { value: 'B2C', label: 'Домаќинства (B2C)' },
+            { value: 'B2B', label: 'Фирми (B2B)' },
+          ],
+        },
       ]}
     />
   );

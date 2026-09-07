@@ -6,8 +6,10 @@ import { Btn, Card, PageHeader } from './ui';
 export interface SettingField {
   key: string;
   label: string;
-  type?: 'text' | 'textarea' | 'number' | 'boolean' | 'list';
+  type?: 'text' | 'textarea' | 'number' | 'boolean' | 'list' | 'object';
   hint?: string;
+  /** For type 'object': the editable sub-keys (e.g. facebook / instagram). */
+  subFields?: { key: string; label: string }[];
 }
 
 /** Edits a curated set of Setting keys with friendly labels. Values are stored as JSON. */
@@ -48,6 +50,21 @@ export function SettingsGroup({ title, subtitle, fields }: { title: string; subt
                 <input type="number" className={input} value={Number(v ?? 0)} onChange={(e) => set(fld.key, Number(e.target.value))} />
               ) : fld.type === 'list' ? (
                 <input className={input} value={Array.isArray(v) ? v.join(', ') : ''} onChange={(e) => set(fld.key, e.target.value.split(',').map((x) => x.trim()).filter(Boolean))} />
+              ) : fld.type === 'object' ? (
+                <div className="space-y-2">
+                  {(fld.subFields ?? []).map((sub) => {
+                    const obj = (v && typeof v === 'object' ? (v as Record<string, unknown>) : {}) as Record<string, unknown>;
+                    return (
+                      <input
+                        key={sub.key}
+                        className={input}
+                        placeholder={sub.label}
+                        value={String(obj[sub.key] ?? '')}
+                        onChange={(e) => set(fld.key, { ...obj, [sub.key]: e.target.value })}
+                      />
+                    );
+                  })}
+                </div>
               ) : (
                 <input className={input} value={String(v ?? '')} onChange={(e) => set(fld.key, e.target.value)} />
               )}

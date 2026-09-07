@@ -46,7 +46,8 @@ adminTemplatesRouter.put('/:templateId/tokens', async (req, res) => {
   const all = (await getSetting<Record<string, Record<string, string | undefined>>>('design.templateTokens')) ?? {};
   all[templateId] = tokens;
   await setSetting('design.templateTokens', all);
-  await purge(CACHE_NS.settings);
+  // Tokens (colours/fonts/radius) affect every page — purge the same set as activation.
+  await purge(CACHE_NS.settings, CACHE_NS.products, CACHE_NS.posts, CACHE_NS.packages);
   await writeAudit({
     actorId: req.session.userId,
     actorName: req.session.role ?? 'admin',

@@ -36,7 +36,7 @@ function loadPixel(pixelId: string) {
   n('track', 'PageView');
 }
 
-function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: string, pixelId?: string) {
+function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: string, pixelId?: string, ga4Id?: string) {
   const w = window as unknown as { dataLayer?: unknown[]; gtag?: (...a: unknown[]) => void };
   w.dataLayer = w.dataLayer || [];
   function gtag(...args: unknown[]) {
@@ -55,11 +55,21 @@ function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: stri
     s.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
     document.head.appendChild(s);
   }
+  // GA4 via gtag.js — fires directly on analytics consent so a standalone GA4 ID (no GTM tag) still works.
+  if (ga4Id && consent.analytics && !document.getElementById('ga4-script')) {
+    const s = document.createElement('script');
+    s.id = 'ga4-script';
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', ga4Id);
+  }
   // Meta Pixel loads only after marketing consent (PRD §11.3 — nothing before consent).
   if (pixelId && consent.marketing) loadPixel(pixelId);
 }
 
-export function ConsentBanner({ text, gtmId, pixelId }: { text?: string; gtmId?: string; pixelId?: string }) {
+export function ConsentBanner({ text, gtmId, pixelId, ga4Id }: { text?: string; gtmId?: string; pixelId?: string; ga4Id?: string }) {
   const [consent, setConsent] = useState<Consent>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -69,15 +79,15 @@ export function ConsentBanner({ text, gtmId, pixelId }: { text?: string; gtmId?:
     if (stored) {
       const parsed = JSON.parse(stored) as { analytics: boolean; marketing: boolean };
       setConsent(parsed);
-      apply(parsed, gtmId, pixelId);
+      apply(parsed, gtmId, pixelId, ga4Id);
     }
     setReady(true);
-  }, [gtmId, pixelId]);
+  }, [gtmId, pixelId, ga4Id]);
 
   function choose(c: { analytics: boolean; marketing: boolean }) {
     localStorage.setItem(KEY, JSON.stringify(c));
     setConsent(c);
-    apply(c, gtmId, pixelId);
+    apply(c, gtmId, pixelId, ga4Id);
   }
 
   if (!ready || consent) return null;

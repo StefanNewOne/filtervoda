@@ -238,8 +238,8 @@ export default function ProductEditor() {
 
         <Tabs.Content value="Цена и беџови">
           <Card className="max-w-2xl space-y-3">
-            <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Регуларна цена (ден.)</span><input type="number" className={input} value={f.priceRegular ?? ''} onChange={(e) => setF({ ...f, priceRegular: Number(e.target.value) })} /></label>
-            <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Акциска цена (ден.)</span><input type="number" className={input} value={f.priceSale ?? ''} onChange={(e) => setF({ ...f, priceSale: Number(e.target.value) })} /></label>
+            <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Регуларна цена (ден.)</span><input type="number" className={input} value={f.priceRegular ?? ''} onChange={(e) => setF({ ...f, priceRegular: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
+            <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Акциска цена (ден.)</span><input type="number" className={input} value={f.priceSale ?? ''} onChange={(e) => setF({ ...f, priceSale: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Беџови (одделено со запирки)</span><input className={input} value={commaList(f.badges)} onChange={(e) => setF({ ...f, badges: parseList(e.target.value) })} /></label>
             <Btn onClick={() => saveBasic.mutate()}>Зачувај</Btn>
           </Card>

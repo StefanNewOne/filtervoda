@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { requireAuth, requireRole } from '../../middleware/auth.js';
 import { csrfProtection } from '../../middleware/csrf.js';
 import { adminLimiter } from '../../middleware/rateLimit.js';
+import { CACHE_NS } from '../../services/cache.js';
 import { crudRouter } from './crud.js';
 import { adminLeadsRouter } from './leads.js';
 import { adminMediaRouter } from './media.js';
@@ -58,9 +59,9 @@ const postCategorySchema = z.object({ slug: z.string().max(120), name: z.string(
 const packageSchema = z.object({ name: z.string(), priceFrom: z.number().int(), description: z.string().optional(), includes: z.array(z.string()).default([]), employeesMin: z.number().int().optional(), employeesMax: z.number().int().optional(), sortOrder: z.number().int().default(0), active: z.boolean().default(true) });
 const testimonialSchema = z.object({ name: z.string(), company: z.string().optional(), city: z.string().optional(), text: z.string(), rating: z.number().int().min(1).max(5).default(5), productId: z.string().optional(), scope: z.enum(['B2C', 'B2B']).default('B2C'), mediaId: z.string().optional(), active: z.boolean().default(true) });
 
-adminRouter.use('/categories', editors, crudRouter({ entity: 'ProductCategory', model: 'productCategory', schema: categorySchema, idType: 'number', orderBy: { sortOrder: 'asc' } }));
-adminRouter.use('/post-categories', editors, crudRouter({ entity: 'PostCategory', model: 'postCategory', schema: postCategorySchema, idType: 'number' }));
-adminRouter.use('/faqs', editors, crudRouter({ entity: 'Faq', model: 'faq', schema: faqSchema, idType: 'number', orderBy: { sortOrder: 'asc' } }));
-adminRouter.use('/packages', editors, crudRouter({ entity: 'B2bPackage', model: 'b2bPackage', schema: packageSchema, orderBy: { sortOrder: 'asc' } }));
-adminRouter.use('/testimonials', editors, crudRouter({ entity: 'Testimonial', model: 'testimonial', schema: testimonialSchema }));
-adminRouter.use('/redirects', editors, crudRouter({ entity: 'Redirect', model: 'redirect', schema: redirectSchema, idType: 'number' }));
+adminRouter.use('/categories', editors, crudRouter({ entity: 'ProductCategory', model: 'productCategory', schema: categorySchema, idType: 'number', orderBy: { sortOrder: 'asc' }, cacheNs: [CACHE_NS.products] }));
+adminRouter.use('/post-categories', editors, crudRouter({ entity: 'PostCategory', model: 'postCategory', schema: postCategorySchema, idType: 'number', cacheNs: [CACHE_NS.posts] }));
+adminRouter.use('/faqs', editors, crudRouter({ entity: 'Faq', model: 'faq', schema: faqSchema, idType: 'number', orderBy: { sortOrder: 'asc' }, cacheNs: [CACHE_NS.faq, CACHE_NS.products] }));
+adminRouter.use('/packages', editors, crudRouter({ entity: 'B2bPackage', model: 'b2bPackage', schema: packageSchema, orderBy: { sortOrder: 'asc' }, cacheNs: [CACHE_NS.packages] }));
+adminRouter.use('/testimonials', editors, crudRouter({ entity: 'Testimonial', model: 'testimonial', schema: testimonialSchema, cacheNs: [] }));
+adminRouter.use('/redirects', editors, crudRouter({ entity: 'Redirect', model: 'redirect', schema: redirectSchema, idType: 'number', cacheNs: [CACHE_NS.redirects] }));

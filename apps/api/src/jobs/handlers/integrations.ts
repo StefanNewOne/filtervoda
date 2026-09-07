@@ -16,13 +16,18 @@ interface LeadJobPayload {
 const META_RETRIABLE = new Set([4, 17, 32, 613]);
 
 export async function handleCapiLead(payload: LeadJobPayload): Promise<void> {
-  if (!env.META_CAPI_TOKEN || !env.META_PIXEL_ID) return; // not configured
+  if (!env.META_CAPI_TOKEN) return; // not configured
   const lead = await prisma.lead.findUnique({ where: { id: payload.leadId } });
   if (!lead) return;
 
-  const activeTemplate = await prisma.setting.findUnique({
-    where: { tenantId_key: { tenantId: 1, key: 'design.activeTemplate' } },
-  });
+  const [activeTemplate, pixelSetting] = await Promise.all([
+    prisma.setting.findUnique({ where: { tenantId_key: { tenantId: 1, key: 'design.activeTemplate' } } }),
+    prisma.setting.findUnique({ where: { tenantId_key: { tenantId: 1, key: 'tracking.metaPixelId' } } }),
+  ]);
+  // Prefer the admin-editable Pixel ID so browser Pixel and server CAPI target the SAME pixel
+  // (event_id dedup breaks otherwise). Fall back to the env value.
+  const pixelId = (typeof pixelSetting?.value === 'string' && pixelSetting.value) || env.META_PIXEL_ID;
+  if (!pixelId) return;
 
   const body = {
     data: [
@@ -54,7 +59,7 @@ export async function handleCapiLead(payload: LeadJobPayload): Promise<void> {
 
   try {
     await axios.post(
-      `https://graph.facebook.com/v21.0/${env.META_PIXEL_ID}/events?access_token=${env.META_CAPI_TOKEN}`,
+      `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${env.META_CAPI_TOKEN}`,
       body,
       { timeout: 8000 },
     );

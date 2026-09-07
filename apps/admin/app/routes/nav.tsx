@@ -11,6 +11,16 @@ export default function Nav() {
         { key: 'contact.emails', label: 'Email адреси', type: 'list' },
         { key: 'contact.address', label: 'Адреса' },
         { key: 'contact.workingHours', label: 'Работно време' },
+        {
+          key: 'contact.social',
+          label: 'Социјални мрежи',
+          type: 'object',
+          hint: 'Целосни линкови',
+          subFields: [
+            { key: 'facebook', label: 'Facebook URL' },
+            { key: 'instagram', label: 'Instagram URL' },
+          ],
+        },
       ]}
     />
   );

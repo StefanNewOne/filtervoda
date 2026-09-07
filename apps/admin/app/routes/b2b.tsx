@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { MediaPicker } from '../components/MediaPicker';
 import { Btn, Card, PageHeader, Table } from '../components/ui';
 import { apiClient } from '../lib/api';
 
@@ -14,7 +15,9 @@ export default function B2b() {
   const { data: settings = [] } = useQuery({ queryKey: ['settings'], queryFn: () => apiClient.get<{ key: string; value: unknown }[]>('/admin/settings') });
   const [calc, setCalc] = useState<CalcParams>({ litersPerPersonDay: 1.5, workingDays: 22, gallonLiters: 19, defaultPricePerGallon: 120 });
   const [np, setNp] = useState({ name: '', priceFrom: 0, description: '', includes: '' });
-  const [logos, setLogos] = useState('');
+  const [editingPkg, setEditingPkg] = useState<string | null>(null);
+  const [logos, setLogos] = useState<string[]>([]);
+  const [showComparison, setShowComparison] = useState(true);
   const [txt, setTxt] = useState({ problems: '', included: '', industries: '' });
 
   // Simple page-copy strings.
@@ -50,7 +53,9 @@ export default function B2b() {
     const c = settings.find((s) => s.key === 'calculator.params')?.value as CalcParams | undefined;
     if (c) setCalc(c);
     const l = settings.find((s) => s.key === 'b2b.trustLogos')?.value as string[] | undefined;
-    if (l) setLogos(l.join('\n'));
+    if (l) setLogos(l);
+    const cmp = settings.find((s) => s.key === 'feature.compareTable')?.value;
+    setShowComparison(cmp !== false);
     const arr = (key: string) => (settings.find((s) => s.key === key)?.value as string[] | undefined)?.join('\n') ?? '';
     setTxt({ problems: arr('b2b.problems'), included: arr('b2b.included'), industries: arr('b2b.industries') });
     const strVal = (key: string) => (settings.find((s) => s.key === key)?.value as string | undefined) ?? '';
@@ -59,18 +64,29 @@ export default function B2b() {
     if (stepsVal) setSteps(stepsVal.map((x) => `${x.title} | ${x.desc}`).join('\n'));
     const cmpVal = settings.find((s) => s.key === 'b2b.comparison')?.value as { label: string; gallons: string; buy: string; rent: string }[] | undefined;
     if (cmpVal) setComparison(cmpVal.map((x) => `${x.label} | ${x.gallons} | ${x.buy} | ${x.rent}`).join('\n'));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
   const lines = (v: string) => v.split('\n').map((x) => x.trim()).filter(Boolean);
 
-  const createPkg = useMutation({
-    mutationFn: () => apiClient.post('/admin/packages', { name: np.name, priceFrom: Number(np.priceFrom), description: np.description, includes: np.includes.split(',').map((x) => x.trim()).filter(Boolean), active: true }),
-    onSuccess: () => { setNp({ name: '', priceFrom: 0, description: '', includes: '' }); qc.invalidateQueries({ queryKey: ['packages'] }); },
+  const resetPkg = () => { setNp({ name: '', priceFrom: 0, description: '', includes: '' }); setEditingPkg(null); };
+  const savePkg = useMutation({
+    mutationFn: () => {
+      const body = { name: np.name, priceFrom: Number(np.priceFrom), description: np.description, includes: np.includes.split(',').map((x) => x.trim()).filter(Boolean), active: true };
+      return editingPkg ? apiClient.patch(`/admin/packages/${editingPkg}`, body) : apiClient.post('/admin/packages', body);
+    },
+    onSuccess: () => { resetPkg(); qc.invalidateQueries({ queryKey: ['packages'] }); },
   });
+  const editPkg = (p: Pkg) => {
+    setNp({ name: p.name, priceFrom: p.priceFrom, description: p.description ?? '', includes: p.includes.join(', ') });
+    setEditingPkg(p.id);
+  };
   const delPkg = useMutation({ mutationFn: (id: string) => apiClient.del(`/admin/packages/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['packages'] }) });
   const saveCalc = useMutation({ mutationFn: () => apiClient.put('/admin/settings/calculator.params', { value: calc }), onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }) });
   const saveLogos = useMutation({
-    mutationFn: () => apiClient.put('/admin/settings/b2b.trustLogos', { value: lines(logos) }),
+    mutationFn: () => apiClient.put('/admin/settings/b2b.trustLogos', { value: logos }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
+  const saveComparison2 = useMutation({
+    mutationFn: () => apiClient.put('/admin/settings/feature.compareTable', { value: showComparison }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
   });
   const saveTxt = useMutation({
@@ -123,18 +139,25 @@ export default function B2b() {
             <td className="px-4 py-2.5 font-medium">{p.name}</td>
             <td className="px-4 py-2.5">{p.priceFrom}</td>
             <td className="px-4 py-2.5 text-xs text-[var(--color-neutral-500)]">{p.includes.join(', ')}</td>
-            <td className="px-4 py-2.5"><button className="text-[var(--color-danger-600)]" onClick={() => delPkg.mutate(p.id)}>Избриши</button></td>
+            <td className="whitespace-nowrap px-4 py-2.5 text-right">
+              <button className="mr-3 text-[var(--color-brand-600,#1a56db)]" onClick={() => editPkg(p)}>Уреди</button>
+              <button className="text-[var(--color-danger-600)]" onClick={() => delPkg.mutate(p.id)}>Избриши</button>
+            </td>
           </tr>
         ))}
       </Table>
       <Card className="mt-3 max-w-2xl">
+        <div className="mb-2 text-sm font-medium">{editingPkg ? 'Уреди пакет' : 'Нов пакет'}</div>
         <div className="grid gap-2 sm:grid-cols-2">
           <input className={input} placeholder="Име" value={np.name} onChange={(e) => setNp({ ...np, name: e.target.value })} />
           <input className={input} type="number" placeholder="Од (ден./мес.)" value={np.priceFrom || ''} onChange={(e) => setNp({ ...np, priceFrom: Number(e.target.value) })} />
           <input className={input} placeholder="Опис" value={np.description} onChange={(e) => setNp({ ...np, description: e.target.value })} />
           <input className={input} placeholder="Вклучува (запирки)" value={np.includes} onChange={(e) => setNp({ ...np, includes: e.target.value })} />
         </div>
-        <Btn className="mt-3" onClick={() => createPkg.mutate()} disabled={!np.name}>Додај пакет</Btn>
+        <div className="mt-3 flex gap-2">
+          <Btn onClick={() => savePkg.mutate()} disabled={!np.name || savePkg.isPending}>{editingPkg ? 'Зачувај пакет' : 'Додај пакет'}</Btn>
+          {editingPkg && <Btn variant="ghost" onClick={resetPkg}>Откажи</Btn>}
+        </div>
       </Card>
 
       <h2 className="mb-2 mt-8 text-sm font-semibold">Параметри на калкулаторот</h2>
@@ -150,8 +173,8 @@ export default function B2b() {
 
       <h2 className="mb-2 mt-8 text-sm font-semibold">Логоа „Им веруваат фирми"</h2>
       <Card className="max-w-2xl">
-        <p className="mb-2 text-xs text-[var(--color-neutral-500)]">По една URL на лого во ред (качи ги преку Медиуми и залепи ги URL-ата). Празно = сивите „ЛОГО" полиња.</p>
-        <textarea className={`${input} font-mono`} rows={6} placeholder="/img/logos/klient1.png&#10;https://res.cloudinary.com/…/klient2.png" value={logos} onChange={(e) => setLogos(e.target.value)} />
+        <p className="mb-2 text-xs text-[var(--color-neutral-500)]">Прикачи или избери логоа од медиумите. Празно = сивите „ЛОГО" полиња.</p>
+        <MediaPicker multi value={logos} onChange={setLogos} />
         <Btn className="mt-3" onClick={() => saveLogos.mutate()}>Зачувај логоа</Btn>
       </Card>
 
@@ -191,6 +214,11 @@ export default function B2b() {
 
       <h2 className="mb-2 mt-8 text-sm font-semibold">Табела за споредба (по еден ред: Ознака | Галони | Купување | Изнајмување)</h2>
       <Card className="max-w-2xl">
+        <label className="mb-3 flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" checked={showComparison} onChange={(e) => { setShowComparison(e.target.checked); }} />
+          Прикажи ја табелата „Галони · Купување · Изнајмување" на сајтот
+        </label>
+        <Btn className="mb-4" variant="ghost" onClick={() => saveComparison2.mutate()}>Зачувај видливост</Btn>
         <textarea className={`${input} font-mono`} rows={7} placeholder="Месечен трошок | Расте со тимот | Без | Фиксен, предвидлив" value={comparison} onChange={(e) => setComparison(e.target.value)} />
         <Btn className="mt-3" onClick={() => saveComparison.mutate()}>Зачувај споредба</Btn>
       </Card>

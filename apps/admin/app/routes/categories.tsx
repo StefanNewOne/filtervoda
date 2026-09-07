@@ -10,7 +10,7 @@ export default function Categories() {
       fields={[
         { key: 'name', label: 'Име' },
         { key: 'slug', label: 'Slug' },
-        { key: 'sortOrder', label: 'Редослед', type: 'number' },
+        { key: 'sortOrder', label: 'Редослед', type: 'number', defaultValue: '0' },
       ]}
     />
   );
