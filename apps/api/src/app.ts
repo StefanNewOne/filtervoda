@@ -25,6 +25,7 @@ export function createApp() {
 
   app.set('trust proxy', 1); // behind Nginx
   app.disable('x-powered-by');
+  app.set('etag', false); // JSON API — no conditional-request 304s (they cause stale admin reads)
 
   app.use(helmet());
   app.use(correlationId);
@@ -66,6 +67,12 @@ export function createApp() {
   app.use('/api/v1', publicLeadsRouter);
   app.use('/api/v1', publicRouter);
   app.use('/api/v1', cronRouter);
+  // Admin API must never be HTTP-cached/revalidated: a 304 would serve a stale settings body
+  // and make a fresh edit look like it "reverted" after saving.
+  app.use('/api/v1/admin', (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    next();
+  });
   app.use('/api/v1/admin', adminRouter);
 
   // Swagger UI — local only (staging/production: behind admin session or off, PRD §12.7).
