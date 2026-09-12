@@ -73,35 +73,10 @@ const DEFAULT_INCLUDED = [
   'Плаќање во готово или на рати',
 ];
 
-// „Идеален за" cards for under-sink / dispenser RO systems.
-const RO_IDEAL_FOR = [
-  'Домаќинства што сакаат чиста вода за пиење и готвење',
-  'Простории со тврда вода и бигор',
-  'Семејства со мали деца',
-];
-
 const RO_MAINTENANCE =
   'Степените 1–3 се менуваат на 6–12 месеци, мембраната на 24–36 месеци, пост-карбон и минерализатор на 12 месеци. SPAR доаѓа на замена — не ви треба мајстор.';
 
-// Technical specification groups for RO systems (prototype „Техничка спецификација").
-const RO_SPECS: { group: string; label: string; value: string; unit?: string }[] = [
-  { group: 'Квалитет на вода', label: 'pH на излез', value: '8,5+' },
-  { group: 'Квалитет на вода', label: 'Отстранување на TDS', value: '95–99', unit: '%' },
-  { group: 'Квалитет на вода', label: 'Отстранува', value: 'Хлор, бигор, тешки метали, бактерии, вируси' },
-  { group: 'Квалитет на вода', label: 'Додадени минерали', value: 'Калциум, магнезиум' },
-  { group: 'Технички', label: 'Степени на филтрација', value: '6' },
-  { group: 'Технички', label: 'Проток', value: '~600', unit: 'GPD [потврди]' },
-  { group: 'Технички', label: 'Работен притисок', value: '3–6', unit: 'бари [потврди]' },
-  { group: 'Технички', label: 'Гаранција', value: '10', unit: 'години' },
-];
-
-
-// Detailed specs/stages/idealFor are seeded ONLY for the flagship showcase — otherwise every
-// product ends up with identical placeholder specs (they look like clones). The client fills
-// real per-product data via the admin.
-const FLAGSHIP_SLUG = 'spar-crystal-digital-600hf';
-
-// Product chips (feature tags on cards + comparison table source).
+// Card feature chips — fallback for any product that has no rewritten benefits in PRODUCT_CONTENT.
 const CHIPS: Record<string, string[]> = {
   'spar-crystal-digital-600hf': ['6 степени', 'Директен проток', 'pH 8.5+', 'Дигитален дисплеј'],
   'spar-crystal-smart': ['6 степени', 'Резервоар', 'pH 8.5+', 'Дигитален дисплеј'],
@@ -120,6 +95,300 @@ const CHIPS: Record<string, string[]> = {
   'tds-merac': ['TDS мерач', 'Дигитален'],
   'aparat-elektroliza': ['Демонстрација', 'Квалитет'],
   'mineralen-tus': ['Минерален', 'Туш'],
+};
+
+// ── Per-product content (rewritten & structured from the legacy filtervoda.mk pages) ──────────
+// Real facts only; specs the old site never stated are LEFT OUT (the client fills them via the
+// friendly admin) — never shown as „[потврди]" on the storefront. See
+// _docs/plans/product-content-draft.md for the full extraction + open questions.
+interface StageSeed { order: number; name: string; removes: string; whyItMatters: string }
+interface SpecSeed { group: string; label: string; value: string; unit?: string }
+interface ProductContent {
+  idealFor?: string[];
+  benefits?: string[];
+  includedInPrice?: string[];
+  maintenanceNote?: string | null;
+  seoDescription?: string;
+  stages?: StageSeed[];
+  specs?: SpecSeed[];
+}
+
+const st = (rows: [string, string, string][]): StageSeed[] => rows.map(([name, removes, whyItMatters], i) => ({ order: i + 1, name, removes, whyItMatters }));
+
+const STAGES_6_STD = FLAGSHIP_STAGES;
+const STAGES_AQUA_SMART = st([
+  ['Седимент филтер (5 микрони)', 'песок и крупни честички', 'Прва линија на заштита.'],
+  ['Карбон филтер', 'хлор и хемиски вкус', 'Појасна и почиста вода.'],
+  ['Активен јаглен', 'мириси и органски материи', 'Природна свежина.'],
+  ['Реверзна осмоза (0,0001 микрон)', '95–99% соли, тешки метали, бактерии и вируси', 'Најфина филтрација.'],
+  ['Пост-карбон филтер', 'преостанати мириси', 'Дотерување на вкусот.'],
+  ['Минерален + алкален филтер', '—', 'Додава минерали и алкална вода.'],
+]);
+const STAGES_AQUA_GLASS = st([
+  ['Седимент филтер (двојна филтрација)', 'песок и нечистотии', 'Груба заштита во два слоја.'],
+  ['Гранулиран јаглен (двојна филтрација)', 'хлор и мирис', 'Појасен вкус.'],
+  ['Карбон блок (двојна филтрација)', 'органски материи', 'Дополнително прочистување.'],
+  ['Реверзна осмоза (15 обвивки, 0,001 микрон)', 'тешки метали, соли и бактерии', 'Срцето на системот.'],
+  ['Пост-карбон + pH стабилизатор', 'преостанати мириси', 'Стабилен вкус и pH.'],
+  ['Минерален филтер', '—', 'Враќа есенцијални минерали.'],
+  ['Алкален филтер', '—', 'Подига алкалност за здрава вода.'],
+]);
+const STAGES_AQUA_PRO = st([
+  ['Седимент (5 микрони)', 'песок, камчиња и заматеност', 'Груба механичка филтрација.'],
+  ['Карбон филтер', 'непријатен вкус и мирис', 'Појасна вода.'],
+  ['Активен јаглен', 'хлор, флуор и бигор', 'Заштита пред мембраната.'],
+  ['Реверзна осмоза (0,0001 микрон)', 'арсен, жива, железо, хемикалии, соли, вируси и бактерии', 'Најфина филтрација.'],
+  ['Пост-карбон филтер', 'преостанати мириси', 'Подобрен вкус.'],
+]);
+const STAGES_AQUA_MINERALS = st([
+  ['Седимент (5 микрони)', 'песок, камчиња и заматеност', 'Груба механичка филтрација.'],
+  ['Карбон филтер', 'непријатен вкус и мирис', 'Појасна вода.'],
+  ['Активен јаглен', 'хлор, флуор и бигор', 'Заштита пред мембраната.'],
+  ['Реверзна осмоза (0,0001 микрон)', 'арсен, жива, железо, хемикалии, соли, вируси и бактерии', 'Најфина филтрација.'],
+  ['Пост-карбон филтер', 'преостанати мириси', 'Подобрен вкус.'],
+  ['Минерален + алкален филтер', '—', 'Додава калциум, калиум и магнезиум; pH над 8,5.'],
+]);
+const STAGES_CEL_DOM = st([
+  ['Седимент филтер (5 микрони)', 'песок, нечистотии и заматеност', 'Груба заштита на целиот дом.'],
+  ['Филтер со активен јаглен', 'хлор', 'Неутрализира хлор.'],
+  ['Филтер со гранулиран јаглен', 'непријатни мириси', 'Подобрен вкус и мирис.'],
+]);
+const STAGES_BB2 = st([
+  ['Седимент филтер (20 микрони)', 'песок, ’рѓа и кал', 'Груба механичка филтрација, штити ги влошките.'],
+  ['Карбон блок', 'хлор', 'Подобрува вкус, боја и мирис.'],
+]);
+const STAGES_BB3 = st([
+  ['Седимент филтер (20 микрони)', 'песок, ’рѓа и кал', 'Прва груба филтрација.'],
+  ['Карбон блок', 'хлор', 'Подобрува вкус, боја и мирис.'],
+  ['Седимент филтер (5 микрони)', 'фини честички', 'Финиш-фаза за поголема бистрина.'],
+]);
+
+const INCLUDED_SMALL = ['Достава низ цела Македонија', 'Плаќање во готово или на рати'];
+
+const PRODUCT_CONTENT: Record<string, ProductContent> = {
+  'spar-crystal-digital-600hf': {
+    idealFor: ['Домаќинства што сакаат врвен модел без резервоар', 'Помал простор под мијалникот', 'Оние што сакаат секогаш свежа вода без складирање'],
+    benefits: ['Директен проток — без резервоар и без складирана вода', 'Дигитален дисплеј за чистотата и состојбата на филтрите', 'Алкална и минерализирана вода (pH 8,5+)', 'Без хлор, хемикалии и бигор'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'SPAR Crystal Digital 600HF — реверзна осмоза со директен проток без резервоар и дигитален дисплеј. 6 степени, алкална вода, бесплатна монтажа.',
+    stages: STAGES_6_STD,
+    specs: [
+      { group: 'Општо', label: 'Тип на систем', value: 'Директен проток (без резервоар)' },
+      { group: 'Општо', label: 'Степени на филтрација', value: '6' },
+      { group: 'Општо', label: 'Дигитален дисплеј', value: 'Да' },
+      { group: 'Квалитет на вода', label: 'pH на излез', value: '8,5+' },
+      { group: 'Квалитет на вода', label: 'Отстранување на TDS', value: '95–99', unit: '%' },
+      { group: 'Гаранција', label: 'Гаранција', value: '10', unit: 'години' },
+    ],
+  },
+  'spar-crystal-smart': {
+    idealFor: ['Домаќинства што сакаат резерва прочистена вода', 'Оние што сакаат индикатор за истрошеност на филтрите'],
+    benefits: ['Резервоар — секогаш достапна прочистена вода', 'Дигитален дисплеј за чистотата и истрошеноста на филтрите', 'Алкална и минерализирана вода (pH 8,5+)', 'Компактен дизајн под мијалник'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'SPAR Crystal Smart — реверзна осмоза со резервоар и дигитален дисплеј. 6 степени, алкална вода, бесплатна монтажа.',
+    stages: STAGES_6_STD,
+    specs: [
+      { group: 'Општо', label: 'Тип на систем', value: 'Со резервоар' },
+      { group: 'Општо', label: 'Степени на филтрација', value: '6' },
+      { group: 'Општо', label: 'Дигитален дисплеј', value: 'Да (чистота + истрошеност)' },
+      { group: 'Квалитет на вода', label: 'pH на излез', value: '8,5+' },
+      { group: 'Квалитет на вода', label: 'Отстранување на TDS', value: '95–99', unit: '%' },
+      { group: 'Гаранција', label: 'Гаранција', value: '10', unit: 'години' },
+    ],
+  },
+  'spar-crystal-pro': {
+    idealFor: ['Домаќинства со ограничен буџет', 'Прв систем за прочистување', 'Квалитетна филтрација без екстра дисплеј'],
+    benefits: ['Најповолен модел во серијата', 'Алкална и минерализирана вода (pH 8,5+)', 'Без хлор, хемикалии и бигор', 'Компактен дизајн под мијалник'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'SPAR Crystal Pro — најповолен систем со реверзна осмоза, 6 степени, алкална вода (pH 8,5+), 10 години гаранција и бесплатна монтажа.',
+    stages: STAGES_6_STD,
+    specs: [
+      { group: 'Општо', label: 'Степени на филтрација', value: '6' },
+      { group: 'Општо', label: 'Дигитален дисплеј', value: 'Не' },
+      { group: 'Квалитет на вода', label: 'pH на излез', value: '8,5+' },
+      { group: 'Квалитет на вода', label: 'Отстранување на TDS', value: '95–99', unit: '%' },
+      { group: 'Гаранција', label: 'Гаранција', value: '10', unit: 'години' },
+    ],
+  },
+  'spar-aqua-smart': {
+    idealFor: ['Домаќинства што сакаат постојан приказ на чистотата', 'Заинтересирани за фина филтрација'],
+    benefits: ['Вграден дисплеј — чистота на водата во реално време', 'RO мембрана до 0,0001 микрон', 'Минерален + алкален завршен филтер', '6 степени филтрација'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'Spar Aqua Smart — паметен прочистувач со реверзна осмоза до 0,0001 микрон и вграден дисплеј. 6 степени, минерален + алкален филтер.',
+    stages: STAGES_AQUA_SMART,
+    specs: [
+      { group: 'Општо', label: 'Степени на филтрација', value: '6' },
+      { group: 'Општо', label: 'Дигитален дисплеј', value: 'Да (чистота во реално време)' },
+      { group: 'Квалитет на вода', label: 'Фина филтрација (RO)', value: '0,0001', unit: 'микрон' },
+    ],
+  },
+  'aqua-glass': {
+    idealFor: ['Домаќинства што сакаат максимален квалитет', 'Оние што бараат алкална минерализирана вода', 'Семејства со поголема потрошувачка'],
+    benefits: ['Двојна филтрација на седимент, јаглен и карбон блок', 'Реверзна осмоза со 15 обвивки (0,001 микрон)', 'Минерален + алкален филтер за здрава алкална вода', 'Резервоар од 12 л (јаглероден челик)'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'AQUA GLASS — трета генерација систем со двојна филтрација, реверзна осмоза 0,001 микрон и минерализација за чиста алкална вода. Бесплатна монтажа.',
+    stages: STAGES_AQUA_GLASS,
+    specs: [
+      { group: 'Општо', label: 'Фази на прочистување', value: '7' },
+      { group: 'Квалитет на вода', label: 'Реверзна осмоза', value: '0,001 (15 обвивки)', unit: 'микрон' },
+      { group: 'Технички', label: 'Резервоар', value: '12', unit: 'литри' },
+      { group: 'Технички', label: 'Материјал на резервоар', value: 'Јаглероден челик' },
+    ],
+  },
+  'spar-aqua-pro': {
+    idealFor: ['Домаќинства што сакаат чиста вода по достапна цена', 'Оние на кои им е доволна класична осмоза'],
+    benefits: ['5-степена реверзна осмоза (0,0001 микрон)', 'Отстранува арсен, жива, железо, хемикалии, соли, вируси и бактерии', 'Задржува хлор, флуор и бигор', 'Компактен и достапен'],
+    includedInPrice: ['Достава низ цела Македонија', 'Бесплатна монтажа од наш техничар', '5 години гаранција', 'Плаќање во готово или на рати'],
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'Спар Аква Про — реверзна осмоза во 5 степени со мембрана 0,0001 микрон. Отстранува тешки метали, соли, вируси и бактерии. 5 години гаранција.',
+    stages: STAGES_AQUA_PRO,
+    specs: [
+      { group: 'Општо', label: 'Фази', value: '5' },
+      { group: 'Квалитет на вода', label: 'Реверзна осмоза', value: '0,0001', unit: 'микрон' },
+      { group: 'Гаранција', label: 'Гаранција', value: '5', unit: 'години' },
+    ],
+  },
+  'spar-aqua-minerals': {
+    idealFor: ['Оние што сакаат минерализирана, алкална вода', 'Надградба над класичната осмоза'],
+    benefits: ['6 степени со реверзна осмоза (0,0001 микрон)', 'Минерален + алкален филтер (калциум, калиум, магнезиум)', 'Подига pH над 8,5', 'Отстранува тешки метали, соли, вируси и бактерии'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'Спар Aqua Minerals — 6-степенска реверзна осмоза со минерален и алкален филтер. Додава калциум, калиум и магнезиум, pH над 8,5.',
+    stages: STAGES_AQUA_MINERALS,
+    specs: [
+      { group: 'Општо', label: 'Фази', value: '6' },
+      { group: 'Квалитет на вода', label: 'Реверзна осмоза', value: '0,0001', unit: 'микрон' },
+      { group: 'Квалитет на вода', label: 'pH на излез', value: 'над 8,5' },
+      { group: 'Квалитет на вода', label: 'Додадени минерали', value: 'Калциум, калиум, магнезиум' },
+    ],
+  },
+  'dispenzer-topla-ladna-ro': {
+    idealFor: ['Канцеларии и работни простори', 'Домаќинства што сакаат веднаш топла и ладна вода', 'Замена за галони и шишиња'],
+    benefits: ['Топла вода до 90°C и ладна до 5°C', '5-фазна реверзна осмоза вградена во апаратот', 'Резервоари од не’рѓосувачки челик', 'Идеален за дом и канцеларија'],
+    includedInPrice: DEFAULT_INCLUDED,
+    maintenanceNote: RO_MAINTENANCE,
+    seoDescription: 'Диспензер со реверзна осмоза во 5 фази — ладна вода до 5°C и топла до 90°C, резервоари од не’рѓосувачки челик. Идеален за дом и канцеларија.',
+    specs: [
+      { group: 'Општо', label: 'Фази на филтрација', value: '5' },
+      { group: 'Топла вода', label: 'Температура', value: 'до 90', unit: '°C' },
+      { group: 'Ладна вода', label: 'Температура', value: 'до 5', unit: '°C' },
+      { group: 'Технички', label: 'Резервоар (ладна)', value: '3,2', unit: 'литри' },
+      { group: 'Технички', label: 'Резервоар (топла)', value: '1,2', unit: 'литри' },
+      { group: 'Технички', label: 'Материјал на резервоари', value: 'Не’рѓосувачки челик' },
+      { group: 'Гаранција', label: 'Гаранција', value: '10', unit: 'години' },
+    ],
+  },
+  'sistem-cel-dom': {
+    idealFor: ['Филтрирана вода на влезот за целиот дом', 'Решение по мерка на буџетот (1 до 3 фази)'],
+    benefits: ['Три варијанти — од основна до напредна заштита', 'Достапен со приклучок 1/2″, 3/4″ и 1″', 'Отстранува песок, нечистотии и заматеност', 'Неутрализира хлор и подобрува вкус и мирис'],
+    includedInPrice: DEFAULT_INCLUDED,
+    seoDescription: 'Систем за филтрација на вода за цело домаќинство — 1, 2 или 3 фази, приклучок 1/2″, 3/4″ или 1″. Отстранува седимент, хлор и мириси.',
+    stages: STAGES_CEL_DOM,
+    specs: [
+      { group: 'Општо', label: 'Варијанти', value: '1 / 2 / 3 фази' },
+      { group: 'Монтажа', label: 'Димензии на приклучок', value: '1/2″, 3/4″, 1″' },
+    ],
+  },
+  'big-blue-2-stepen': {
+    idealFor: ['Домаќинства со песок, ’рѓа и кал во водата', 'Заштита на целиот дом со едноставна монтажа'],
+    benefits: ['Двостепена филтрација за целиот дом', 'Седимент 20 микрони + карбон блок', 'Подобрува вкус, боја и мирис на водата', 'Лесна монтажа на ѕид'],
+    includedInPrice: DEFAULT_INCLUDED,
+    seoDescription: 'Биг Блу 2-степен систем за целиот дом: седимент 20 микрони + карбон блок. Отстранува песок, ’рѓа, кал и хлор.',
+    stages: STAGES_BB2,
+    specs: [
+      { group: 'Влошки', label: 'Степен 1 — седимент', value: '20', unit: 'микрони' },
+      { group: 'Влошки', label: 'Степен 2', value: 'Карбон блок' },
+      { group: 'Монтажа', label: 'Начин', value: 'На ѕид' },
+    ],
+  },
+  'big-blue-3-stepen': {
+    idealFor: ['Домаќинства што сакаат пофина филтрација', 'Вода со повеќе седимент и ’рѓа'],
+    benefits: ['Тристепена филтрација за целиот дом', 'Двојна седиментна филтрација (20 → 5 микрони)', 'Плус карбон блок за вкус, боја и мирис', 'Лесна монтажа на ѕид'],
+    includedInPrice: DEFAULT_INCLUDED,
+    seoDescription: 'Биг Блу тристепен систем за целиот дом: седимент 20 микрони + карбон блок + седимент 5 микрони. Отстранува песок, ’рѓа, кал и хлор.',
+    stages: STAGES_BB3,
+    specs: [
+      { group: 'Влошки', label: 'Степен 1 — седимент', value: '20', unit: 'микрони' },
+      { group: 'Влошки', label: 'Степен 2', value: 'Карбон блок' },
+      { group: 'Влошки', label: 'Степен 3 — седимент', value: '5', unit: 'микрони' },
+      { group: 'Монтажа', label: 'Начин', value: 'На ѕид' },
+    ],
+  },
+  'filter-protiv-bigor': {
+    idealFor: ['Машини за алишта', 'Машини за садови', 'Бојлери и уреди со грејни тела'],
+    benefits: ['Поли-фосфатни кристали што спречуваат таложење бигор', 'Го продолжува животниот век на грејните тела', 'Значителна заштеда на електрична енергија', 'Долгорочна заштита за домашните уреди'],
+    includedInPrice: INCLUDED_SMALL,
+    maintenanceNote: 'Рок на употреба 1–2 години, зависно од условите на користење; замена по потреба.',
+    seoDescription: 'Филтер против бигор со поли-фосфатни кристали за машини за алишта, садови и бојлери. Спречува таложење бигор и штеди енергија.',
+    specs: [
+      { group: 'Медиум', label: 'Состав', value: 'Поли-фосфатни кристали' },
+      { group: 'Трајност', label: 'Рок на употреба', value: '1–2', unit: 'години' },
+      { group: 'Примена', label: 'Уреди', value: 'Машини за алишта, садови, бојлери' },
+    ],
+  },
+  'multifunkcionalna-slavina-hrom': {
+    idealFor: ['Домаќинства со реверзно-осмотски систем', 'Кујни без слободен отвор за дополнителна славина'],
+    benefits: ['3-насочна — топла, ладна и филтрирана вода од една славина', 'Изработена од висококвалитетен не’рѓосувачки челик', 'Хром завршница за модерна кујна', 'Не бара дополнително дупчење на умивалникот'],
+    includedInPrice: INCLUDED_SMALL,
+    seoDescription: '3-насочна кујнска славина од не’рѓосувачки челик со хром завршница — топла, ладна и филтрирана вода од една чешма.',
+    specs: [
+      { group: 'Материјал', label: 'Материјал', value: 'Не’рѓосувачки челик' },
+      { group: 'Материјал', label: 'Завршница', value: 'Хром' },
+      { group: 'Функција', label: 'Тип', value: '3-насочна (топла/ладна/филтрирана)' },
+    ],
+  },
+  'ph-merac': {
+    idealFor: ['Домаќинства што ја следат pH вредноста на водата', 'Сопственици на филтер/RO системи'],
+    benefits: ['Прецизно мерење на pH вредноста', 'Јасен LCD дисплеј', 'Автоматска калибрација', 'Компактен и пренослив — за џеб'],
+    includedInPrice: INCLUDED_SMALL,
+    maintenanceNote: 'Работи на батерија; препорачано периодично калибрирање.',
+    seoDescription: 'Дигитален pH мерач со LCD екран и автоматска калибрација — брзо и прецизно ја проверува pH вредноста на водата.',
+    specs: [
+      { group: 'Мерење', label: 'Големина', value: 'pH' },
+      { group: 'Мерење', label: 'Калибрација', value: 'Автоматска' },
+      { group: 'Дисплеј', label: 'Екран', value: 'LCD' },
+    ],
+  },
+  'tds-merac': {
+    idealFor: ['Проверка на чистотата на филтрирана vs. водоводна вода', 'Сопственици на RO системи'],
+    benefits: ['Мери вкупно растворени материи (TDS) во ppm', 'Автоматска температурна компензација', 'Мери и температура', 'Авто-исклучување за заштеда на батерија'],
+    includedInPrice: INCLUDED_SMALL,
+    maintenanceNote: 'Работи на батерија со авто-исклучување за подолг век.',
+    seoDescription: 'TDS мерач за проверка на чистотата на водата — покажува вкупно растворени материи во ppm, со автоматска температурна компензација.',
+    specs: [
+      { group: 'Мерење', label: 'Големина', value: 'TDS (вкупно растворени материи)' },
+      { group: 'Мерење', label: 'Единица', value: 'ppm' },
+      { group: 'Мерење', label: 'Температурна компензација', value: 'Автоматска (ATC)' },
+      { group: 'Функции', label: 'Авто-исклучување', value: 'Да' },
+    ],
+  },
+  'aparat-elektroliza': {
+    idealFor: ['Визуелна демонстрација на разлика меѓу водоводна и филтрирана вода', 'Брз домашен тест на квалитет'],
+    benefits: ['Брз тест — резултати за 30–60 секунди', 'Едноставна употреба', 'Компактен и пренослив', 'Промена на боја што ги индицира растворените материи'],
+    includedInPrice: INCLUDED_SMALL,
+    seoDescription: 'Апарат за електролиза — брз визуелен тест на квалитетот на водата за 30–60 секунди преку промена на бојата на растворените материи.',
+    specs: [
+      { group: 'Функција', label: 'Тип', value: 'Демонстрациски тест (електролиза)' },
+      { group: 'Функција', label: 'Време на тест', value: '30–60', unit: 'секунди' },
+      { group: 'Индикација', label: 'Метод', value: 'Промена на боја' },
+    ],
+  },
+  'mineralen-tus': {
+    idealFor: ['Корисници со чувствителна кожа и коса', 'Домаќинства што сакаат подобра вода за туширање'],
+    benefits: ['Минерална мешавина — турмалин, германиум и глинени зрнца', 'Помага во балансирање на pH нивото', 'Намалување на хлор за поздрава кожа и коса', 'Лесна монтажа на стандардни тушеви, без алати'],
+    includedInPrice: INCLUDED_SMALL,
+    maintenanceNote: 'Минералните зрнца се потрошен дел — замена на влошокот по потреба.',
+    seoDescription: 'Минерален туш со турмалин и германиум — филтрира вода под туш, балансира pH и намалува хлор за поздрава кожа и коса.',
+    specs: [
+      { group: 'Медиум', label: 'Минерали', value: 'Турмалин, германиум, глинени зрнца' },
+      { group: 'Монтажа', label: 'Компатибилност', value: 'Стандардни тушеви, без алати' },
+    ],
+  },
 };
 
 // Product images (copied from the handoff into apps/web/public/img/products, served at /img/products).
@@ -141,6 +410,24 @@ const IMG: Record<string, string> = {
   'tds-merac': 'tds.jpg',
   'aparat-elektroliza': 'elektroliza.jpg',
   'mineralen-tus': 'tus.png',
+};
+
+// Extra product photos pulled from the legacy filtervoda.mk galleries (different angles/variants
+// than the primary). Added as non-primary gallery images so the product page shows more than one
+// shot. Only products whose legacy gallery had a genuinely different image appear here.
+const IMG_ALT: Record<string, string[]> = {
+  'aqua-glass': ['aqua-glass-alt.png'],
+  'spar-aqua-pro': ['aqua-pro-alt.png'],
+  'spar-aqua-minerals': ['aqua-minerals-alt.png', 'aqua-minerals-alt2.png'],
+  'dispenzer-topla-ladna-ro': ['dispenzer-alt.jpg'],
+  'sistem-cel-dom': ['cel-dom-alt.png', 'cel-dom-alt2.png'],
+  'big-blue-2-stepen': ['big-blue-2-alt.jpg'],
+  'big-blue-3-stepen': ['big-blue-3-alt.jpg'],
+  'filter-protiv-bigor': ['bigor-alt.png', 'bigor-alt2.png'],
+  'multifunkcionalna-slavina-hrom': ['slavina-alt.jpg'],
+  'ph-merac': ['ph-merac-alt.jpg', 'ph-merac-alt2.png'],
+  'tds-merac': ['tds-alt.jpg'],
+  'aparat-elektroliza': ['elektroliza-alt.jpg', 'elektroliza-alt2.jpg'],
 };
 
 const B2B_PACKAGES = [
@@ -169,6 +456,13 @@ async function main() {
   for (const p of PRODUCTS) {
     const categoryId = catIdBySlug.get(p.cat);
     if (!categoryId) throw new Error(`Unknown category ${p.cat} for ${p.slug}`);
+    const c = PRODUCT_CONTENT[p.slug];
+    // Prefer the rewritten per-product content; fall back to card chips when a product has none.
+    const features = (c?.benefits?.length ? c.benefits : (CHIPS[p.slug] ?? [])).map((text) => ({ text }));
+    const idealFor = c?.idealFor ?? [];
+    const includedInPrice = c?.includedInPrice ?? DEFAULT_INCLUDED;
+    const maintenanceNote = c?.maintenanceNote ?? null;
+    const seoDescription = c?.seoDescription ?? null;
     const product = await prisma.product.upsert({
       where: { tenantId_slug: { tenantId: TENANT, slug: p.slug } },
       update: {
@@ -179,10 +473,11 @@ async function main() {
         priceSale: p.priceSale ?? null,
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
-        features: (CHIPS[p.slug] ?? []).map((text) => ({ text })),
-        idealFor: p.slug === FLAGSHIP_SLUG ? RO_IDEAL_FOR : [],
-        includedInPrice: DEFAULT_INCLUDED,
-        maintenanceNote: p.slug === FLAGSHIP_SLUG ? RO_MAINTENANCE : null,
+        features,
+        idealFor,
+        includedInPrice,
+        maintenanceNote,
+        seoDescription,
         featured: p.featured ?? false,
         audience: (p.audience ?? 'B2C') as ProductAudience,
       },
@@ -197,10 +492,11 @@ async function main() {
         priceSale: p.priceSale ?? null,
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
-        features: (CHIPS[p.slug] ?? []).map((text) => ({ text })),
-        idealFor: p.slug === FLAGSHIP_SLUG ? RO_IDEAL_FOR : [],
-        includedInPrice: DEFAULT_INCLUDED,
-        maintenanceNote: p.slug === FLAGSHIP_SLUG ? RO_MAINTENANCE : null,
+        features,
+        idealFor,
+        includedInPrice,
+        maintenanceNote,
+        seoDescription,
         featured: p.featured ?? false,
         status: PublishStatus.PUBLISHED,
         warrantyYears: 10,
@@ -227,15 +523,31 @@ async function main() {
       }
     }
 
-    // Under-sink RO systems get the 6 filtration stages + full technical specs.
-    if (p.slug === FLAGSHIP_SLUG) {
-      await prisma.productStage.deleteMany({ where: { productId: product.id } });
-      await prisma.productStage.createMany({ data: FLAGSHIP_STAGES.map((s) => ({ ...s, productId: product.id })) });
+    // Secondary gallery images from the legacy site (extra angles). Created after the primary,
+    // idempotently, as non-primary images — never wiped, never duplicated on reseed.
+    const altFiles = IMG_ALT[p.slug] ?? [];
+    for (let i = 0; i < altFiles.length; i++) {
+      const altFile = altFiles[i];
+      const altUrl = `/img/products/${altFile}`;
+      let altMedia = await prisma.media.findFirst({ where: { url: altUrl } });
+      if (!altMedia) altMedia = await prisma.media.create({ data: { tenantId: TENANT, driver: 'static', key: altFile, url: altUrl, alt: p.name, variants: [] } });
+      const altExists = await prisma.productImage.findFirst({ where: { productId: product.id, mediaId: altMedia.id } });
+      if (!altExists) {
+        await prisma.productImage.create({ data: { productId: product.id, mediaId: altMedia.id, alt: p.name, sortOrder: i + 1, isPrimary: false } });
+      }
     }
-    if (p.slug === FLAGSHIP_SLUG) {
+
+    // Per-product filtration stages + technical specs (rewritten from the legacy pages).
+    // Replace-all so a reseed always reflects the current content; products without stages
+    // (accessories/meters) simply get none.
+    if (c?.stages?.length) {
+      await prisma.productStage.deleteMany({ where: { productId: product.id } });
+      await prisma.productStage.createMany({ data: c.stages.map((s) => ({ ...s, productId: product.id })) });
+    }
+    if (c?.specs?.length) {
       await prisma.productSpec.deleteMany({ where: { productId: product.id } });
       await prisma.productSpec.createMany({
-        data: RO_SPECS.map((s, i) => ({ productId: product.id, group: s.group, label: s.label, value: s.value, unit: s.unit ?? null, sortOrder: i })),
+        data: c.specs.map((s, i) => ({ productId: product.id, group: s.group, label: s.label, value: s.value, unit: s.unit ?? null, sortOrder: i })),
       });
     }
 
