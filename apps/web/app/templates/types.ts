@@ -7,6 +7,7 @@ export interface Testimonial {
   city?: string;
   text: string;
   rating: number;
+  productId?: string | null;
 }
 export interface PostCard {
   slug: string;

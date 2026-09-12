@@ -457,8 +457,9 @@ async function main() {
     const categoryId = catIdBySlug.get(p.cat);
     if (!categoryId) throw new Error(`Unknown category ${p.cat} for ${p.slug}`);
     const c = PRODUCT_CONTENT[p.slug];
-    // Prefer the rewritten per-product content; fall back to card chips when a product has none.
+    // Long benefit bullets → „Клучни придобивки"; short chips (separate) feed the compare tables.
     const features = (c?.benefits?.length ? c.benefits : (CHIPS[p.slug] ?? [])).map((text) => ({ text }));
+    const chips = CHIPS[p.slug] ?? [];
     const idealFor = c?.idealFor ?? [];
     const includedInPrice = c?.includedInPrice ?? DEFAULT_INCLUDED;
     const maintenanceNote = c?.maintenanceNote ?? null;
@@ -473,6 +474,7 @@ async function main() {
         priceSale: p.priceSale ?? null,
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
+        chips,
         features,
         idealFor,
         includedInPrice,
@@ -492,6 +494,7 @@ async function main() {
         priceSale: p.priceSale ?? null,
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
+        chips,
         features,
         idealFor,
         includedInPrice,
@@ -626,6 +629,7 @@ async function main() {
     { name: 'Билјана С.', city: 'Скопје', text: 'Монтажата беше бесплатна и брза. Водата е одлична, без вкус на хлор.', rating: 5, scope: 'B2C' as const },
     { name: 'Кафе Бар Лума', company: 'Лума', city: 'Скопје', text: 'Се ослободивме од галоните. Топла и ладна вода за тимот, фиксен трошок.', rating: 5, scope: 'B2B' as const },
     { name: 'Дарко И.', city: 'Тетово', text: 'Дигиталниот дисплеј покажува кога треба замена на филтри — многу практично.', rating: 5, scope: 'B2C' as const },
+    { name: 'Марија П.', city: 'Битола', text: 'По монтажата водата е мека и вкусна. Децата пијат директно од чешма без грижа.', rating: 5, scope: 'B2C' as const },
   ];
   for (const t of TESTIMONIALS) {
     const existing = await prisma.testimonial.findFirst({ where: { tenantId: TENANT, name: t.name } });
@@ -641,6 +645,24 @@ async function main() {
     { question: 'Дали има почетна инвестиција?', answer: 'Не. Кај изнајмувањето нема почетна инвестиција — плаќате фиксен месечен износ.', scope: 'B2B' as const, sortOrder: 2 },
     { question: 'Колку брзо е монтирањето за фирма?', answer: 'По бесплатната проценка, монтажата е брза и без прекин на работата.', scope: 'B2B' as const, sortOrder: 3 },
   ];
+  // Remove legacy generic PRODUCT FAQs (an old seed copied the same 4 questions onto every
+  // product → 68 duplicate rows). Generic Q&A now lives once as GLOBAL; genuine product FAQs
+  // are added per product in the admin.
+  await prisma.faq.deleteMany({
+    where: {
+      tenantId: TENANT,
+      scope: 'PRODUCT',
+      question: {
+        in: [
+          'Дали монтажата е навистина бесплатна?',
+          'Колку често се менуваат филтрите?',
+          'Дали може плаќање на рати?',
+          'Можам ли да плаќам на рати?',
+          'Дали водата останува здрава за пиење?',
+        ],
+      },
+    },
+  });
   for (const fq of FAQS) {
     const existing = await prisma.faq.findFirst({ where: { tenantId: TENANT, question: fq.question } });
     if (!existing) await prisma.faq.create({ data: { tenantId: TENANT, ...fq } });

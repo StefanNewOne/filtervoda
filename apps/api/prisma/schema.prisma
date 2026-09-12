@@ -113,6 +113,7 @@ model Product {
   showPrice        Boolean         @default(true)
   currency         String          @default("MKD")
   badges           String[]        @default([])
+  chips            String[]        @default([]) // short comparison/card tags (feed the compare tables)
   features         Json            @default("[]") // [{ icon, text }]
   idealFor         String[]        @default([])
   warrantyYears    Int             @default(10)

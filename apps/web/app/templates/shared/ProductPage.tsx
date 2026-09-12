@@ -223,7 +223,11 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
         {testimonials.length > 0 && (
           <Section><H2>Што велат нашите клиенти</H2>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {testimonials.slice(0, 3).map((t) => (
+              {/* Testimonials assigned to THIS product show first; then fill up to 3 with others. */}
+              {[...testimonials]
+                .sort((a, b) => Number(b.productId === p.id) - Number(a.productId === p.id))
+                .slice(0, 3)
+                .map((t) => (
                 <figure key={t.id} className={`m-0 rounded-[18px] border ${s.border} p-7`}>
                   <div className="text-[14px] tracking-[0.2em] text-[var(--color-warning-500)]">{'★'.repeat(t.rating)}</div>
                   <blockquote className="mt-4 text-[16px] leading-[1.6] text-[#21375A]">„{t.text}"</blockquote>

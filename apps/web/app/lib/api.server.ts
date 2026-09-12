@@ -43,7 +43,7 @@ export const api = {
   faq: (scope: 'GLOBAL' | 'PRODUCT' | 'B2B') => get<{ question: string; answer: string }[]>(`/public/faq?scope=${scope}`),
   packages: () => get<B2bPackageDto[]>('/public/packages'),
   testimonials: (scope?: 'B2C' | 'B2B') =>
-    get<{ id: string; name: string; company?: string; city?: string; text: string; rating: number }[]>(
+    get<{ id: string; name: string; company?: string; city?: string; text: string; rating: number; productId?: string | null }[]>(
       `/public/testimonials${scope ? `?scope=${scope}` : ''}`,
     ),
   redirects: () => get<{ fromPath: string; toPath: string; statusCode: number }[]>('/public/redirects'),

@@ -161,6 +161,7 @@ export const productSchema = z.object({
   priceSale: z.number().int().nonnegative().nullish(),
   showPrice: z.boolean().default(true),
   badges: z.array(z.string()).default([]),
+  chips: z.array(z.string().max(60)).default([]),
   features: z.array(z.object({ icon: z.string().optional(), text: z.string().max(300) })).default([]),
   idealFor: z.array(z.string().max(160)).default([]),
   includedInPrice: z.array(z.string().max(200)).default([]),

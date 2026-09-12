@@ -23,12 +23,15 @@ function toCard(
 ): ProductCardDto {
   const primary = p.images?.find((i) => i.isPrimary) ?? p.images?.[0];
   const features = Array.isArray(p.features) ? (p.features as { text: string }[]) : [];
+  // Short comparison/card chips come from the dedicated `chips` field; fall back to the first
+  // features only for legacy products that have none.
+  const chips = Array.isArray(p.chips) && p.chips.length ? p.chips : features.slice(0, 3).map((f) => f.text);
   return {
     id: p.id,
     slug: p.slug,
     name: p.name,
     tagline: p.tagline ?? undefined,
-    chips: features.slice(0, 3).map((f) => f.text),
+    chips,
     priceRegular: p.priceRegular ?? undefined,
     priceSale: p.priceSale ?? undefined,
     showPrice: p.showPrice,

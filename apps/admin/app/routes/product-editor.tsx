@@ -18,13 +18,14 @@ interface Feature { text: string }
 interface Product {
   id: string; name: string; slug: string; tagline?: string; status: string;
   categoryId?: number; audience?: string; showPrice?: boolean; featured?: boolean;
-  priceRegular?: number; priceSale?: number; badges: string[];
+  priceRegular?: number; priceSale?: number; badges: string[]; chips: string[];
   idealFor: string[]; includedInPrice: string[]; maintenanceNote?: string;
   features: Feature[]; seoTitle?: string; seoDescription?: string;
   specs: Spec[]; stages: Stage[]; images: ProductImage[]; related?: RelatedRow[];
 }
 interface Category { id: number; name: string }
 interface ProductRow { id: string; name: string }
+interface TestimonialRow { id: string; name: string; city?: string; scope: string; productId?: string | null }
 
 const AUDIENCE_LABELS: Record<(typeof PRODUCT_AUDIENCES)[number], string> = {
   B2C: 'Домаќинства (B2C)',
@@ -43,6 +44,7 @@ export default function ProductEditor() {
   const { data: categories = [] } = useQuery({ queryKey: ['categories'], queryFn: () => apiClient.get<Category[]>('/admin/categories') });
   const { data: allProducts = [] } = useQuery({ queryKey: ['products'], queryFn: () => apiClient.get<ProductRow[]>('/admin/products') });
   const { data: allFaqs = [] } = useQuery({ queryKey: ['faqs'], queryFn: () => apiClient.get<ProductFaq[]>('/admin/faqs') });
+  const { data: allTestimonials = [] } = useQuery({ queryKey: ['testimonials'], queryFn: () => apiClient.get<TestimonialRow[]>('/admin/testimonials') });
 
   const [f, setF] = useState<Partial<Product>>({});
   const [specs, setSpecs] = useState<Spec[]>([]);
@@ -71,7 +73,7 @@ export default function ProductEditor() {
       await apiClient.patch(`/admin/products/${id}`, {
         name: f.name, tagline: f.tagline, categoryId: f.categoryId, audience: f.audience,
         showPrice: f.showPrice, featured: f.featured, priceRegular: f.priceRegular, priceSale: f.priceSale,
-        badges: f.badges, idealFor: f.idealFor, includedInPrice: f.includedInPrice,
+        badges: f.badges, chips: f.chips, idealFor: f.idealFor, includedInPrice: f.includedInPrice,
         maintenanceNote: f.maintenanceNote, features: f.features, seoTitle: f.seoTitle, seoDescription: f.seoDescription,
       });
       await apiClient.put(`/admin/products/${id}/specs`, specs.map((s, i) => ({ ...s, sortOrder: i })));
@@ -88,6 +90,10 @@ export default function ProductEditor() {
   const delFaq = useMutation({
     mutationFn: (faqId: number) => apiClient.del(`/admin/faqs/${faqId}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['faqs'] }),
+  });
+  const assignTestimonial = useMutation({
+    mutationFn: ({ tid, assign }: { tid: string; assign: boolean }) => apiClient.patch(`/admin/testimonials/${tid}`, { productId: assign ? id : null }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['testimonials'] }),
   });
   const publish = useMutation({ mutationFn: (a: 'publish' | 'unpublish') => apiClient.post(`/admin/products/${id}/${a}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['product', id] }) });
 
@@ -121,11 +127,11 @@ export default function ProductEditor() {
               </select>
             </label>
             <label className="block text-sm">
-              <span className="text-[var(--color-neutral-500)]">Публика</span>
+              <span className="text-[var(--color-neutral-500)]">Наменето за (каде се прикажува)</span>
               <select className={input} value={f.audience ?? 'B2C'} onChange={(e) => setF({ ...f, audience: e.target.value })}>
                 {PRODUCT_AUDIENCES.map((a) => (<option key={a} value={a}>{AUDIENCE_LABELS[a]}</option>))}
               </select>
-              <Hint>„Двете" го прикажува производот и на каталогот и на страницата За фирми.</Hint>
+              <Hint>Определува за кого е производот: „Домаќинства (B2C)“ — каталог за домови; „Фирми (B2B)“ — понудата за бизниси; „Двете“ — и двете. Ова е тоа што порано пишуваше „Публика“.</Hint>
             </label>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.showPrice ?? true} onChange={(e) => setF({ ...f, showPrice: e.target.checked })} /><span>Прикажи цена на сајтот</span></label>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.featured ?? false} onChange={(e) => setF({ ...f, featured: e.target.checked })} /><span>Истакнат (се прикажува на почетна „Најбарани")</span></label>
@@ -137,6 +143,7 @@ export default function ProductEditor() {
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Регуларна цена (ден.)</span><input type="number" className={input} value={f.priceRegular ?? ''} onChange={(e) => setF({ ...f, priceRegular: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Акциска цена (ден.) — по избор</span><input type="number" className={input} value={f.priceSale ?? ''} onChange={(e) => setF({ ...f, priceSale: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Беџови</span><input className={input} value={commaList(f.badges)} onChange={(e) => setF({ ...f, badges: parseList(e.target.value) })} /><Hint>Одделени со запирки.</Hint></label>
+            <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Чипови (кратки ознаки за споредба)</span><input className={input} value={commaList(f.chips)} onChange={(e) => setF({ ...f, chips: parseList(e.target.value) })} /><Hint>Кратки ознаки што се прикажуваат на картичката и полнат ги табелите „Споредба на модели“ (пр. 6 степени, Резервоар, pH 8.5+, Дигитален дисплеј).</Hint></label>
           </div>
         </SectionCard>
 
@@ -159,7 +166,7 @@ export default function ProductEditor() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Степени на филтрација" hint="Како работи производот — по чекори. Нумерирањето се додава автоматски по редослед.">
+        <SectionCard title="Како функционира" hint="Чекорите на филтрација (на сајтот секцијата се вика „Како функционира“). Нумерирањето се додава автоматски по редослед.">
           <RowsEditor
             rows={stages as unknown as Record<string, unknown>[]}
             columns={[
@@ -219,6 +226,18 @@ export default function ProductEditor() {
               <textarea className={input} rows={2} placeholder="Одговор" value={faqA} onChange={(e) => setFaqA(e.target.value)} />
               <Btn disabled={faqQ.trim().length < 3 || faqA.trim().length < 3 || addFaq.isPending} onClick={() => addFaq.mutate()}>+ Додај прашање</Btn>
             </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Искуства (изјави)" hint="Изберете кои изјави да се прикажат прво за овој производ. Ако не изберете ниту една, се прикажуваат 3 стандардни изјави. Се зачувува веднаш.">
+          <div className="max-h-72 max-w-2xl space-y-1 overflow-y-auto">
+            {allTestimonials.map((t) => (
+              <label key={t.id} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={t.productId === id} onChange={(e) => assignTestimonial.mutate({ tid: t.id, assign: e.target.checked })} />
+                <span>{t.name}{t.city ? `, ${t.city}` : ''} <span className="text-[var(--color-neutral-400)]">· {t.scope}</span></span>
+              </label>
+            ))}
+            {allTestimonials.length === 0 && <p className="text-sm text-[var(--color-neutral-500)]">Нема изјави. Додади во модулот „Искуства“.</p>}
           </div>
         </SectionCard>
 
