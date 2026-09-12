@@ -1,6 +1,13 @@
 # System Overview — filtervoda.mk
 
-Source of truth for architecture. See ADRs for individual decisions.
+Source of truth for architecture. See ADRs for individual decisions. For the whole-system
+entry point (current live state, run/test/deploy, admin CMS, gotchas) start at
+[`AGENTS.md`](../../AGENTS.md).
+
+> **Proxy note:** the diagram below shows the intended Nginx+Certbot topology. **Production
+> currently runs Caddy** (auto-TLS) via `docker-compose.prod.yml` + `infra/Caddyfile.production`
+> on the Hetzner VPS, live at `https://135.181.156.104.sslip.io` until `filtervoda.mk` DNS is
+> bound. Local `docker compose` uses Nginx. Roles/routing are otherwise as drawn.
 
 ## Topology
 
