@@ -103,7 +103,9 @@ export const contactLeadSchema = z.object({
 export const b2bLeadSchema = z.object({
   type: z.literal('B2B'),
   company: z.string().trim().min(2, { message: 'Внесете име на фирма' }).max(160),
-  city: z.string().trim().min(2, { message: 'Ова поле е задолжително' }).max(80),
+  // City is optional for B2B — the company name is the required identifier, and the compact
+  // modal form does not render a city field (a required city there made every submit fail).
+  city: z.string().trim().max(80).optional().or(z.literal('')),
   industry: z.string().trim().max(120).optional(),
   employeesRange: z.string().max(40).optional(),
   currentSolution: z.string().max(120).optional(),
