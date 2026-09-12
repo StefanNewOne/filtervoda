@@ -4,7 +4,7 @@ export default function Testimonials() {
   return (
     <GenericCrud
       title="Искуства на клиенти"
-      subtitle="Изјави за домаќинства и за фирми, со оценка и производ"
+      subtitle="Се прикажуваат на Почетна (опсег B2C) и на страницата За фирми (опсег B2B)"
       endpoint="/admin/testimonials"
       queryKey="testimonials"
       fields={[
