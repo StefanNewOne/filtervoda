@@ -158,6 +158,7 @@ export interface PublicSettings {
     heroH2?: string;
     heroCta?: string;
     heroBadge?: string;
+    heroImage?: string; // resolved URL of the home hero image (right side)
     heroChips?: string[];
     whyTitle?: string;
     whyItems?: { title: string; text: string }[];

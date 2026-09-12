@@ -44,7 +44,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
   const trustLogos = rawLogos.map((x) => logoUrlById.get(x) ?? x);
 
   // Single-image settings are stored as a media id; resolve to a URL (pass through raw paths).
-  const imageIds = [s['b2b.heroImage'], s['content.b2bTeaser.image']].filter((x): x is string => typeof x === 'string' && x.length > 0);
+  const imageIds = [s['b2b.heroImage'], s['content.b2bTeaser.image'], s['content.hero.image']].filter((x): x is string => typeof x === 'string' && x.length > 0);
   const imageMedia = imageIds.length ? await prisma.media.findMany({ where: { id: { in: imageIds }, deletedAt: null } }) : [];
   const imageUrlById = new Map(imageMedia.map((m) => [m.id, m.url]));
   const resolveImage = (v: unknown) => (typeof v === 'string' && v ? (imageUrlById.get(v) ?? v) : undefined);
@@ -95,6 +95,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
       heroH2: s['content.hero.h2'] as string | undefined,
       heroCta: s['content.hero.cta'] as string | undefined,
       heroBadge: s['content.hero.badge'] as string | undefined,
+      heroImage: resolveImage(s['content.hero.image']),
       heroChips: s['content.hero.chips'] as string[] | undefined,
       whyTitle: s['content.why.title'] as string | undefined,
       whyItems: s['content.why.items'] as { title: string; text: string }[] | undefined,

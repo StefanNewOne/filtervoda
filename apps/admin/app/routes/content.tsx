@@ -42,6 +42,7 @@ export default function Content() {
   const [stages, setStages] = useState<StageItem[]>([]);
   const [teaserBullets, setTeaserBullets] = useState<string[]>([]);
   const [teaserImage, setTeaserImage] = useState<string>('');
+  const [heroImage, setHeroImage] = useState<string>('');
 
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
@@ -51,6 +52,7 @@ export default function Content() {
     setStages(val<StageItem[]>('content.stages.items') ?? []);
     setTeaserBullets(val<string[]>('content.b2bTeaser.bullets') ?? []);
     setTeaserImage(val<string>('content.b2bTeaser.image') ?? '');
+    setHeroImage(val<string>('content.hero.image') ?? '');
   }, [settings]);
 
   const asRows = (arr: string[]) => arr.map((v) => ({ text: v }));
@@ -60,6 +62,7 @@ export default function Content() {
     save.run(async () => {
       const put = (key: string, value: unknown) => apiClient.put(`/admin/settings/${key}`, { value });
       for (const f of STR_FIELDS) await put(f.key, str[f.key]?.trim() ?? '');
+      await put('content.hero.image', heroImage);
       await put('content.hero.chips', heroChips);
       await put('content.why.items', whyItems.filter((w) => w.title.trim()));
       await put('content.stages.items', stages.filter((s) => s.name.trim()));
@@ -86,8 +89,13 @@ export default function Content() {
       <PageHeader title="Страници и копи — Почетна" subtitle="Секој текст и секоја секција на почетната страница. Празно поле = стандарден текст." />
 
       <div className="space-y-4 pb-4">
-        <SectionCard title="Hero (најгоре)" hint="Насловот, поднасловот, копчето и ознаката. Чиповите се малите значки под копчето.">
+        <SectionCard title="Hero (најгоре)" hint="Сликата десно, насловот, поднасловот, копчето и ознаката. Чиповите се малите значки под копчето.">
           <div className="max-w-2xl space-y-3">
+            <div>
+              <span className="text-sm text-[var(--color-neutral-500)]">Слика на насловна (десно)</span>
+              <MediaPicker value={heroImage} onChange={(ids) => setHeroImage(ids[0] ?? '')} />
+              <Hint>Празно = се прикажува сликата на првиот истакнат производ.</Hint>
+            </div>
             {['content.hero.h1', 'content.hero.h2', 'content.hero.cta', 'content.hero.badge'].map(strField)}
             <div>
               <span className="text-sm text-[var(--color-neutral-500)]">Hero чипови</span>

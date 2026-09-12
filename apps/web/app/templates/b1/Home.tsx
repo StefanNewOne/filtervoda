@@ -15,6 +15,8 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
   const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
   const stages = content.stages?.length ? content.stages.map((s, i) => ({ n: i + 1, name: s.name, text: s.text })) : STAGES;
   const heroChips = content.heroChips?.length ? content.heroChips : ['10 години гаранција', 'Бесплатна монтажа', 'Достава низ Македонија'];
+  const heroImg = content.heroImage || featured[0]?.image?.url;
+  const heroAlt = featured[0]?.image?.alt || 'Систем за филтрација на вода';
 
   return (
     <>
@@ -43,8 +45,8 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         <div className="relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[28px] border border-[#E4EDF9] [background:radial-gradient(120%_100%_at_50%_30%,#FFFFFF_0%,#F2F8FF_55%,#E6F2FE_100%)]">
           <span className="fv-ripple absolute aspect-square w-[58%] rounded-full border border-[#9FD6F8]" aria-hidden />
           <span className="fv-ripple-2 absolute aspect-square w-[58%] rounded-full border border-[#9FD6F8]" aria-hidden />
-          {featured[0]?.image ? (
-            <img src={featured[0].image.url} alt={featured[0].image.alt} className="relative w-[80%] rounded-[18px] shadow-[0_26px_60px_rgba(8,24,47,0.16)]" />
+          {heroImg ? (
+            <img src={heroImg} alt={heroAlt} className="relative w-[80%] rounded-[18px] shadow-[0_26px_60px_rgba(8,24,47,0.16)]" />
           ) : (
             <div className="relative aspect-[4/5] w-[80%] rounded-[18px] bg-white/60" aria-hidden />
           )}

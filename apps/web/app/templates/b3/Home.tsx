@@ -17,6 +17,8 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
   const phone = settings.phones[0] ?? '076/676/819';
   const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
   const stages = content.stages?.length ? content.stages.map((s, i) => ({ n: i + 1, name: s.name, text: s.text })) : STAGES;
+  const heroImg = content.heroImage || featured[0]?.image?.url;
+  const heroAlt = featured[0]?.image?.alt || 'Систем за филтрација на вода';
 
   return (
     <>
@@ -49,7 +51,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
             <span className="absolute inset-[14px] rounded-[8px] border border-[rgba(69,224,255,0.18)]" aria-hidden />
             <span className="absolute left-[18px] top-[18px] font-[family-name:JetBrains_Mono] text-[10px] tracking-[0.16em] text-[#45E0FF]">LIVE · TDS 012 ppm</span>
             <span className="absolute bottom-[18px] right-[18px] font-[family-name:JetBrains_Mono] text-[10px] tracking-[0.16em] text-[#45E0FF]">pH 8.6</span>
-            {featured[0]?.image ? <img src={featured[0].image.url} alt={featured[0].image.alt} className="w-[76%] rounded-[8px] shadow-[0_26px_60px_rgba(0,0,0,0.45)]" /> : <div aria-hidden />}
+            {heroImg ? <img src={heroImg} alt={heroAlt} className="w-[76%] rounded-[8px] shadow-[0_26px_60px_rgba(0,0,0,0.45)]" /> : <div aria-hidden />}
           </div>
         </div>
       </section>

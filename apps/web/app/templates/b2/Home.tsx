@@ -15,6 +15,8 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
   const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
   const stages = content.stages?.length ? content.stages.map((s, i) => ({ n: i + 1, name: s.name, text: s.text })) : STAGES;
   const heroChips = content.heroChips?.length ? content.heroChips : ['10 години гаранција', 'pH 8.5+', '6 степени на филтрација'];
+  const heroImg = content.heroImage || featured[0]?.image?.url;
+  const heroAlt = featured[0]?.image?.alt || 'Систем за филтрација на вода';
 
   return (
     <>
@@ -46,7 +48,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <div className="relative">
             <span className="absolute -inset-x-6 -bottom-[18px] -top-[26px] [background:radial-gradient(circle_at_50%_40%,rgba(191,227,250,0.35),rgba(191,227,250,0)_70%)] [border-radius:46%_46%_40%_40%/34%_34%_58%_58%]" aria-hidden />
             <div className="relative grid aspect-square place-items-center overflow-hidden rounded-[40px] [background:linear-gradient(180deg,#FFFFFF,#DFEFFC)] shadow-[0_44px_100px_rgba(0,0,0,0.34)]">
-              {featured[0]?.image ? <img src={featured[0].image.url} alt={featured[0].image.alt} className="h-full w-full object-contain p-8" /> : <div aria-hidden />}
+              {heroImg ? <img src={heroImg} alt={heroAlt} className="h-full w-full object-contain p-8" /> : <div aria-hidden />}
               <div className="absolute bottom-[22px] left-[22px] flex flex-wrap gap-2">
                 <span className="rounded-full bg-[rgba(4,18,43,0.72)] px-3.5 py-[9px] text-[12px] font-extrabold text-white backdrop-blur-[8px]">6 степени</span>
                 <span className="rounded-full bg-[rgba(4,18,43,0.72)] px-3.5 py-[9px] text-[12px] font-extrabold text-[#7BE0A0] backdrop-blur-[8px]">pH 8.5+</span>
