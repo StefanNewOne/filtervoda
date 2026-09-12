@@ -43,6 +43,12 @@ export async function getPublicSettings(): Promise<PublicSettings> {
   const logoUrlById = new Map(logoMedia.map((m) => [m.id, m.url]));
   const trustLogos = rawLogos.map((x) => logoUrlById.get(x) ?? x);
 
+  // Single-image settings are stored as a media id; resolve to a URL (pass through raw paths).
+  const imageIds = [s['b2b.heroImage'], s['content.b2bTeaser.image']].filter((x): x is string => typeof x === 'string' && x.length > 0);
+  const imageMedia = imageIds.length ? await prisma.media.findMany({ where: { id: { in: imageIds }, deletedAt: null } }) : [];
+  const imageUrlById = new Map(imageMedia.map((m) => [m.id, m.url]));
+  const resolveImage = (v: unknown) => (typeof v === 'string' && v ? (imageUrlById.get(v) ?? v) : undefined);
+
   return {
     phones: (s['contact.phones'] as string[]) ?? [],
     viber: s['contact.viber'] as string | undefined,
@@ -69,6 +75,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
       heroSubhead: s['b2b.heroSubhead'] as string | undefined,
       heroCta: s['b2b.heroCta'] as string | undefined,
       heroTrust: s['b2b.heroTrust'] as string | undefined,
+      heroImage: resolveImage(s['b2b.heroImage']),
       logosTitle: s['b2b.logosTitle'] as string | undefined,
       problemsTitle: s['b2b.problemsTitle'] as string | undefined,
       includedTitle: s['b2b.includedTitle'] as string | undefined,
@@ -99,6 +106,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
       b2bTeaserTitle: s['content.b2bTeaser.title'] as string | undefined,
       b2bTeaserBullets: s['content.b2bTeaser.bullets'] as string[] | undefined,
       b2bTeaserCta: s['content.b2bTeaser.cta'] as string | undefined,
+      b2bTeaserImage: resolveImage(s['content.b2bTeaser.image']),
       advisorTitle: s['content.advisor.title'] as string | undefined,
       advisorText: s['content.advisor.text'] as string | undefined,
       thankyouTitle: s['content.thankyou.title'] as string | undefined,

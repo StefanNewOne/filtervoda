@@ -138,6 +138,7 @@ export interface PublicSettings {
     heroSubhead?: string;
     heroCta?: string;
     heroTrust?: string;
+    heroImage?: string; // resolved URL of the За фирми hero image
     logosTitle?: string;
     problemsTitle?: string;
     includedTitle?: string;
@@ -168,6 +169,7 @@ export interface PublicSettings {
     b2bTeaserTitle?: string;
     b2bTeaserBullets?: string[];
     b2bTeaserCta?: string;
+    b2bTeaserImage?: string; // resolved URL of the home B2B teaser image
     advisorTitle?: string;
     advisorText?: string;
     thankyouTitle?: string;

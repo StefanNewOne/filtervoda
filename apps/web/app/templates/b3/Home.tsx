@@ -100,7 +100,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         </div>
       </section>
 
-      <B2bTeaser title={content.b2bTeaserTitle} bullets={content.b2bTeaserBullets} cta={content.b2bTeaserCta} />
+      <B2bTeaser title={content.b2bTeaserTitle} bullets={content.b2bTeaserBullets} cta={content.b2bTeaserCta} image={content.b2bTeaserImage} />
 
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (

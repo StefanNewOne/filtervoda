@@ -37,6 +37,7 @@ export default function B2b() {
   const [str, setStr] = useState<Record<StrKey, string>>(() => Object.fromEntries(STR_KEYS.map((k) => [k, ''])) as Record<StrKey, string>);
   const [calc, setCalc] = useState<CalcParams>({ litersPerPersonDay: 1.5, workingDays: 22, gallonLiters: 19, defaultPricePerGallon: 120 });
   const [logos, setLogos] = useState<string[]>([]);
+  const [heroImage, setHeroImage] = useState<string>('');
   const [showComparison, setShowComparison] = useState(true);
   const [problems, setProblems] = useState<string[]>([]);
   const [included, setIncluded] = useState<string[]>([]);
@@ -53,6 +54,7 @@ export default function B2b() {
     setStr(Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}`) ?? ''])) as Record<StrKey, string>);
     const c = val<CalcParams>('calculator.params'); if (c) setCalc(c);
     setLogos(val<string[]>('b2b.trustLogos') ?? []);
+    setHeroImage(val<string>('b2b.heroImage') ?? '');
     setShowComparison(val<boolean>('feature.compareTable') !== false);
     setProblems(val<string[]>('b2b.problems') ?? []);
     setIncluded(val<string[]>('b2b.included') ?? []);
@@ -67,6 +69,7 @@ export default function B2b() {
       for (const k of STR_KEYS) await put(`b2b.${k}`, str[k].trim());
       await put('calculator.params', calc);
       await put('b2b.trustLogos', logos);
+      await put('b2b.heroImage', heroImage);
       await put('feature.compareTable', showComparison);
       await put('b2b.problems', problems);
       await put('b2b.included', included);
@@ -96,7 +99,12 @@ export default function B2b() {
       <PageHeader title="За фирми" subtitle="Секој дел од страницата по редослед — уреди и зачувај" />
 
       <div className="space-y-4 pb-4">
-        <SectionCard title="Hero (најгоре на страницата)" hint="Насловот, поднасловот и копчето што прв ги гледа посетителот.">
+        <SectionCard title="Hero (најгоре на страницата)" hint="Насловот, поднасловот, копчето и сликата што прв ги гледа посетителот.">
+          <div className="mb-4">
+            <span className="text-sm text-[var(--color-neutral-500)]">Hero слика</span>
+            <MediaPicker value={heroImage} onChange={(ids) => setHeroImage(ids[0] ?? '')} />
+            <Hint>Празно = стандардната слика на диспензерот.</Hint>
+          </div>
           <div className="grid max-w-3xl gap-3 sm:grid-cols-2">
             {STR_KEYS.filter((k) => k.startsWith('hero')).map((k) => (
               <label key={k} className="text-sm">

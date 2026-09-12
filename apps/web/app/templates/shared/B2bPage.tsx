@@ -75,7 +75,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
             <p className="mt-4 text-sm text-[#6FC4F7]">{t?.heroTrust ?? 'Бесплатна проценка · Без скриени трошоци · Брза монтажа'}</p>
           </div>
           <img
-            src="/img/products/dispenzer.jpg"
+            src={t?.heroImage || '/img/products/dispenzer.jpg'}
             alt="Диспензер за топла и ладна вода со реверзна осмоза"
             className="w-full rounded-[24px] object-cover"
             style={{ aspectRatio: '4 / 5' }}

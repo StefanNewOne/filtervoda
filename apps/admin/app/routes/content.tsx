@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
 import { Hint, PageHeader, SectionCard } from '../components/ui';
@@ -40,6 +41,7 @@ export default function Content() {
   const [whyItems, setWhyItems] = useState<WhyItem[]>([]);
   const [stages, setStages] = useState<StageItem[]>([]);
   const [teaserBullets, setTeaserBullets] = useState<string[]>([]);
+  const [teaserImage, setTeaserImage] = useState<string>('');
 
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
@@ -48,6 +50,7 @@ export default function Content() {
     setWhyItems(val<WhyItem[]>('content.why.items') ?? []);
     setStages(val<StageItem[]>('content.stages.items') ?? []);
     setTeaserBullets(val<string[]>('content.b2bTeaser.bullets') ?? []);
+    setTeaserImage(val<string>('content.b2bTeaser.image') ?? '');
   }, [settings]);
 
   const asRows = (arr: string[]) => arr.map((v) => ({ text: v }));
@@ -61,6 +64,7 @@ export default function Content() {
       await put('content.why.items', whyItems.filter((w) => w.title.trim()));
       await put('content.stages.items', stages.filter((s) => s.name.trim()));
       await put('content.b2bTeaser.bullets', teaserBullets);
+      await put('content.b2bTeaser.image', teaserImage);
       await qc.invalidateQueries({ queryKey: ['settings'] });
     });
 
@@ -131,6 +135,11 @@ export default function Content() {
               <RowsEditor rows={asRows(teaserBullets)} columns={[{ key: 'text', label: 'Буллет' }]} onChange={(r) => setTeaserBullets(fromRows(r))} newRow={() => ({ text: '' })} addLabel="+ Буллет" />
             </div>
             {strField('content.b2bTeaser.cta')}
+            <div>
+              <span className="text-sm text-[var(--color-neutral-500)]">Слика</span>
+              <MediaPicker value={teaserImage} onChange={(ids) => setTeaserImage(ids[0] ?? '')} />
+              <Hint>Празно = стандардната слика на диспензерот.</Hint>
+            </div>
           </div>
         </SectionCard>
 

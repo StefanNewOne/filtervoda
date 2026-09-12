@@ -3,7 +3,7 @@ import type { PostCard } from '../types';
 
 /** „За вашата фирма" home B2B teaser — shared, themed via tokens. Copy is editable from admin
  * (Страници и копи → Почетна), with the shipped defaults as fallback. */
-export function B2bTeaser({ title, bullets, cta }: { title?: string; bullets?: string[]; cta?: string } = {}) {
+export function B2bTeaser({ title, bullets, cta, image }: { title?: string; bullets?: string[]; cta?: string; image?: string } = {}) {
   const items = bullets && bullets.length ? bullets : ['Апарат за топла и ладна вода', 'Бесплатна монтажа и сервис', 'Редовна замена на филтри', 'Фиксен месечен износ — без инвестиција'];
   return (
     <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
@@ -23,7 +23,7 @@ export function B2bTeaser({ title, bullets, cta }: { title?: string; bullets?: s
           </Link>
         </div>
         <img
-          src="/img/products/dispenzer.jpg"
+          src={image || '/img/products/dispenzer.jpg'}
           alt="Диспензер за топла и ладна вода за фирми"
           className="w-full rounded-[var(--radius-card)] object-cover"
           style={{ aspectRatio: '4 / 3' }}
