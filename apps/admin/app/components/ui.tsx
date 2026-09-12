@@ -17,6 +17,36 @@ export function Card({ children, className }: { children: ReactNode; className?:
   return <div className={clsx('rounded-lg border border-[var(--color-neutral-200)] bg-white p-5', className)}>{children}</div>;
 }
 
+/** One-line helper text under a field/section — used everywhere to explain what goes where. */
+export function Hint({ children }: { children: ReactNode }) {
+  return <p className="mt-0.5 text-xs text-[var(--color-neutral-500)]">{children}</p>;
+}
+
+/** A titled section block with an optional explanation — the building block of single-page editors. */
+export function SectionCard({ title, hint, children, id }: { title: string; hint?: ReactNode; children: ReactNode; id?: string }) {
+  return (
+    <section id={id} className="scroll-mt-6 rounded-lg border border-[var(--color-neutral-200)] bg-white p-5">
+      <h2 className="text-sm font-semibold">{title}</h2>
+      {hint && <Hint>{hint}</Hint>}
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+/** „Прегледај на сајт" — opens the matching public page in a new tab (same origin). */
+export function PreviewLink({ to }: { to: string }) {
+  return (
+    <a
+      href={to}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex min-h-9 items-center rounded-md border border-[var(--color-neutral-200)] bg-white px-3.5 text-sm hover:bg-[var(--color-neutral-100)]"
+    >
+      Прегледај на сајт ↗
+    </a>
+  );
+}
+
 export function Btn({ variant = 'primary', className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger' }) {
   return (
     <button
