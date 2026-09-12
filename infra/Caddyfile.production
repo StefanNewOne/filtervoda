@@ -40,7 +40,8 @@
 	}
 }
 
-# --- Enable once filtervoda.mk's A record points at this VPS ---
-# www.filtervoda.mk {
-# 	redir https://filtervoda.mk{uri} permanent
-# }
+# www → apex redirect. Active only when SITE_DOMAIN=filtervoda.mk (real DNS); harmless on the
+# sslip.io preview because www.filtervoda.mk simply won't route here until the A record exists.
+www.filtervoda.mk {
+	redir https://filtervoda.mk{uri} permanent
+}
