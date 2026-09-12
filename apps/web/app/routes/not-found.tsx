@@ -14,7 +14,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const map = await api.redirects().catch(() => []);
   const hit = map.find((r) => r.fromPath === url.pathname || r.fromPath === url.pathname + '/');
-  if (hit) throw redirect(hit.toPath, hit.statusCode ?? 301);
+  // Preserve the query string (fbclid, utm_*, gclid) so Meta/GA attribution survives the 301.
+  if (hit) throw redirect(hit.toPath + url.search, hit.statusCode ?? 301);
   return data(null, { status: 404 });
 }
 

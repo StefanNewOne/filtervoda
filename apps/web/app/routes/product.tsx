@@ -22,7 +22,12 @@ export function meta({ data }: Route.MetaArgs) {
     { name: 'description', content: p.seoDescription ?? p.tagline ?? '' },
     { property: 'og:title', content: p.name },
     { property: 'og:description', content: p.tagline ?? '' },
-    ...(p.ogImage ? [{ property: 'og:image', content: p.ogImage.url }] : []),
+    { property: 'og:type', content: 'product' },
+    // OG image for FB/IG shares: dedicated ogImage, else the primary product photo.
+    ...(() => {
+      const og = p.ogImage?.url ?? p.image?.url ?? p.gallery?.[0]?.url;
+      return og ? [{ property: 'og:image', content: og }] : [];
+    })(),
     ...(price ? [{ property: 'product:price:amount', content: String(p.priceSale ?? p.priceRegular) }] : []),
   ];
 }
