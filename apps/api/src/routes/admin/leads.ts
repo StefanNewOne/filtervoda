@@ -53,6 +53,43 @@ adminLeadsRouter.get('/export', async (req, res) => {
   res.send(csv);
 });
 
+/**
+ * Dashboard overview — lead-only data so every role (incl. CLIENT_VIEWER) can load the landing
+ * page and see leads immediately. KPI counts (today / 7d / prev-7d / 30d), type/status/source
+ * breakdown, and the 10 most recent leads. Delivery-problem counts live on the editors-only
+ * outbox route and are fetched separately by EDITOR/ADMIN.
+ * Declared before `/:id` so „overview" is not captured as a lead id.
+ */
+adminLeadsRouter.get('/overview', async (_req, res) => {
+  const now = Date.now();
+  const daysAgo = (n: number) => new Date(now - n * 24 * 60 * 60 * 1000);
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const [today, last7, prev7, last30, byType, byStatus, bySource, recent] = await Promise.all([
+    prisma.lead.count({ where: { createdAt: { gte: startOfToday } } }),
+    prisma.lead.count({ where: { createdAt: { gte: daysAgo(7) } } }),
+    prisma.lead.count({ where: { createdAt: { gte: daysAgo(14), lt: daysAgo(7) } } }),
+    prisma.lead.count({ where: { createdAt: { gte: daysAgo(30) } } }),
+    prisma.lead.groupBy({ by: ['type'], where: { createdAt: { gte: daysAgo(30) } }, _count: true }),
+    prisma.lead.groupBy({ by: ['status'], where: { createdAt: { gte: daysAgo(30) } }, _count: true }),
+    prisma.lead.groupBy({ by: ['section'], where: { createdAt: { gte: daysAgo(30) } }, _count: true }),
+    prisma.lead.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { id: true, type: true, name: true, phone: true, city: true, status: true, createdAt: true, isDuplicate: true },
+    }),
+  ]);
+
+  res.json({
+    counts: { today, last7, prev7, last30 },
+    byType: byType.map((r) => ({ key: r.type, count: r._count })),
+    byStatus: byStatus.map((r) => ({ key: r.status, count: r._count })),
+    bySource: bySource.map((r) => ({ key: r.section ?? 'Директно', count: r._count })),
+    recent,
+  });
+});
+
 adminLeadsRouter.get('/:id', async (req, res) => {
   const lead = await prisma.lead.findUnique({
     where: { id: req.params.id },

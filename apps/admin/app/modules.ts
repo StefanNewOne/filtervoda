@@ -19,7 +19,7 @@ const EDITORS: UserRole[] = ['ADMIN', 'EDITOR'];
 const ADMIN: UserRole[] = ['ADMIN'];
 
 export const MODULES: ModuleDef[] = [
-  { to: '/', label: 'Dashboard', dot: 'var(--color-accent-settings)', group: 'ПРЕГЛЕД', roles: EDITORS, end: true },
+  { to: '/', label: 'Dashboard', dot: 'var(--color-accent-settings)', group: 'ПРЕГЛЕД', roles: ALL, end: true },
   { to: '/leads', label: 'Lead-ови', dot: 'var(--color-accent-leads)', group: 'ПРОДАЖБА', roles: ALL },
   { to: '/products', label: 'Производи', dot: 'var(--color-accent-products)', group: 'СОДРЖИНА', roles: EDITORS },
   { to: '/categories', label: 'Категории', dot: 'var(--color-accent-products)', group: 'СОДРЖИНА', roles: EDITORS },
