@@ -93,7 +93,7 @@ export function ConsentBanner({ text, gtmId, pixelId, ga4Id }: { text?: string; 
   if (!ready || consent) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-14 z-[var(--z-toast)] mx-auto max-w-2xl rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-lg)] md:bottom-4">
+    <div className="fixed inset-x-2 bottom-14 z-[var(--z-toast)] mx-auto max-w-2xl rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-lg)] md:bottom-4">
       <p className="text-sm text-[var(--color-muted)]">
         {text ?? 'Користиме колачиња за да го подобриме сајтот и за мерење на рекламите. Изберете што дозволувате.'}
       </p>

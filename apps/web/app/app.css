@@ -16,6 +16,13 @@
     -webkit-font-smoothing: antialiased;
     font-variant-numeric: tabular-nums;
   }
+  /* Mobile-first safety net (CLAUDE.md: ~80–90% mobile, in-app browsers): never allow an
+   * accidental horizontal scroll. A stray wide element (or a full-bleed fixed bar sized to a
+   * transiently widened layout viewport) must not create a sideways scrollbar. */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-weight: var(--font-weight-semibold);
