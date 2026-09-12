@@ -12,6 +12,9 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
   const { open } = useLeadModal();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
+  const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
+  const stages = content.stages?.length ? content.stages.map((s, i) => ({ n: i + 1, name: s.name, text: s.text })) : STAGES;
+  const heroChips = content.heroChips?.length ? content.heroChips : ['10 години гаранција', 'Бесплатна монтажа', 'Достава низ Македонија'];
 
   return (
     <>
@@ -19,7 +22,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pb-14 pt-[72px] md:grid-cols-2">
         <div>
           <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D9E9FB] py-[7px] pl-2 pr-3.5 text-[13px] font-bold tracking-[0.02em] text-[#3C5375]">
-            <span className="size-2 rounded-full bg-[#16803B]" /> Бесплатна монтажа низ цела Македонија
+            <span className="size-2 rounded-full bg-[#16803B]" /> {content.heroBadge || 'Бесплатна монтажа низ цела Македонија'}
           </span>
           <h1 className="font-[family-name:Unbounded] text-[clamp(40px,5.2vw,74px)] font-medium leading-[1.02] tracking-[-0.03em] text-[#08182F]">
             {h1a}<span className="text-[#1156E0]">{h1b}</span>{h1c}
@@ -32,7 +35,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
             <Link to="/proizvodi" className="rounded-full border border-[#CFE2F7] bg-white px-7 py-[18px] text-[17px] font-bold text-[#08182F] transition hover:border-[#08182F]">Види ги производите</Link>
           </div>
           <div className="mt-7 flex flex-wrap gap-2">
-            {['10 години гаранција', 'Бесплатна монтажа', 'Достава низ Македонија'].map((c) => (
+            {heroChips.map((c) => (
               <span key={c} className="rounded-full border border-[#E4EDF9] bg-[#F2F8FF] px-3.5 py-2.5 text-[13px] font-bold text-[#3C5375]">{c}</span>
             ))}
           </div>
@@ -54,7 +57,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="mx-auto max-w-[1200px] px-5 pb-5 pt-[90px]">
         <h2 className="font-[family-name:Unbounded] text-[clamp(30px,3.4vw,46px)] font-medium tracking-[-0.03em] text-[#08182F]">{content.whyTitle || 'Зошто филтрирана вода?'}</h2>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY_ITEMS.map((w) => (
+          {whyItems.map((w) => (
             <div key={w.n} className="rounded-[20px] border border-[#E4EDF9] bg-white px-[22px] pb-7 pt-[26px] transition hover:-translate-y-[3px] hover:border-[#6FC4F7]">
               <div className="font-[family-name:Unbounded] text-[13px] font-medium tracking-[0.06em] text-[#0E7490]">{w.n}</div>
               <h3 className="mt-[18px] font-[family-name:Unbounded] text-[20px] font-medium text-[#08182F]">{w.title}</h3>
@@ -81,7 +84,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">КАКО ФУНКЦИОНИРА</div>
           <h2 className="mt-4 max-w-[22em] font-[family-name:Unbounded] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 grid gap-px overflow-hidden rounded-[18px] border border-[rgba(111,196,247,0.22)] bg-[rgba(111,196,247,0.22)] sm:grid-cols-2 lg:grid-cols-3">
-            {STAGES.map((s) => (
+            {stages.map((s) => (
               <div key={s.n} className="bg-[#08182F] px-6 pb-[30px] pt-[26px]">
                 <div className="flex items-center gap-3">
                   <span className="grid size-[26px] place-items-center rounded-full bg-[#6FC4F7] font-[family-name:Unbounded] text-[12px] font-medium text-[#08182F]">{s.n}</span>
@@ -94,7 +97,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         </div>
       </section>
 
-      <B2bTeaser />
+      <B2bTeaser title={content.b2bTeaserTitle} bullets={content.b2bTeaserBullets} cta={content.b2bTeaserCta} />
 
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (

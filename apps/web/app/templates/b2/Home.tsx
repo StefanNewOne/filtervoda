@@ -12,6 +12,9 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
   const { open } = useLeadModal();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
+  const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
+  const stages = content.stages?.length ? content.stages.map((s, i) => ({ n: i + 1, name: s.name, text: s.text })) : STAGES;
+  const heroChips = content.heroChips?.length ? content.heroChips : ['10 години гаранција', 'pH 8.5+', '6 степени на филтрација'];
 
   return (
     <>
@@ -22,7 +25,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 pb-[90px] pt-[76px] md:grid-cols-2">
           <div>
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[rgba(123,224,160,0.5)] bg-[rgba(123,224,160,0.14)] py-[7px] pl-2 pr-3.5 text-[13px] font-bold tracking-[0.02em] text-[#CFF3DC]">
-              <span className="size-2 rounded-full bg-[#7BE0A0]" /> Бесплатна монтажа низ цела Македонија
+              <span className="size-2 rounded-full bg-[#7BE0A0]" /> {content.heroBadge || 'Бесплатна монтажа низ цела Македонија'}
             </span>
             <h1 className="font-[family-name:Oswald] text-[clamp(42px,5.8vw,82px)] font-semibold uppercase leading-[1.06] text-white">
               {h1a}<span className="text-[#7BE0A0]">{h1b}</span>{h1c}
@@ -35,7 +38,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
               <Link to="/proizvodi" className="rounded-full border border-[rgba(255,255,255,0.42)] px-7 py-[18px] text-[17px] font-bold text-white transition hover:bg-white/10">Види ги производите</Link>
             </div>
             <div className="mt-7 flex flex-wrap gap-2.5">
-              {['10 години гаранција', 'pH 8.5+', '6 степени на филтрација'].map((c) => (
+              {heroChips.map((c) => (
                 <span key={c} className="rounded-full border border-[rgba(255,255,255,0.22)] bg-[rgba(255,255,255,0.1)] px-3.5 py-2.5 text-[13px] font-bold text-[#DCEEFC]">{c}</span>
               ))}
             </div>
@@ -59,7 +62,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="mx-auto max-w-[1200px] px-5 pb-5 pt-[90px]">
         <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">{content.whyTitle || 'Зошто филтрирана вода?'}</h2>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY_ITEMS.map((w) => (
+          {whyItems.map((w) => (
             <div key={w.n} className="rounded-[26px] px-6 pb-[30px] pt-7 transition hover:-translate-y-1 [background:linear-gradient(180deg,#F2F8FF,#E2F0FC)]">
               <div className="font-[family-name:Oswald] text-[52px] font-light leading-none text-transparent [-webkit-text-stroke:1px_#0B6076]">{w.n}</div>
               <h3 className="mt-[18px] text-[20px] font-medium text-[#08182F]">{w.title}</h3>
@@ -86,7 +89,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">КАКО ФУНКЦИОНИРА</div>
           <h2 className="mt-4 max-w-[22em] font-[family-name:Oswald] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 flex gap-3.5 overflow-x-auto pb-2">
-            {STAGES.map((s) => (
+            {stages.map((s) => (
               <div key={s.n} className="w-[268px] shrink-0 rounded-[26px] border border-[rgba(191,227,250,0.3)] bg-[rgba(255,255,255,0.08)] px-6 pb-[30px] pt-[26px]">
                 <div className="flex items-center gap-3">
                   <span className="grid size-[26px] place-items-center rounded-full bg-[#6FC4F7] font-[family-name:Oswald] text-[12px] font-medium text-[#08182F]">{s.n}</span>
@@ -99,7 +102,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
         </div>
       </section>
 
-      <B2bTeaser />
+      <B2bTeaser title={content.b2bTeaserTitle} bullets={content.b2bTeaserBullets} cta={content.b2bTeaserCta} />
 
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (

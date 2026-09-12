@@ -1,24 +1,25 @@
 import { Link } from 'react-router';
 import type { PostCard } from '../types';
 
-/** „За вашата фирма" home B2B teaser — shared, themed via tokens + global heading font. */
-export function B2bTeaser() {
-  const bullets = ['Апарат за топла и ладна вода', 'Бесплатна монтажа и сервис', 'Редовна замена на филтри', 'Фиксен месечен износ — без инвестиција'];
+/** „За вашата фирма" home B2B teaser — shared, themed via tokens. Copy is editable from admin
+ * (Страници и копи → Почетна), with the shipped defaults as fallback. */
+export function B2bTeaser({ title, bullets, cta }: { title?: string; bullets?: string[]; cta?: string } = {}) {
+  const items = bullets && bullets.length ? bullets : ['Апарат за топла и ладна вода', 'Бесплатна монтажа и сервис', 'Редовна замена на филтри', 'Фиксен месечен износ — без инвестиција'];
   return (
     <section className="mx-auto max-w-[1200px] px-5 pt-[90px]">
       <div className="grid gap-10 rounded-[var(--radius-card)] border border-[var(--color-border)] p-11 md:grid-cols-2 md:items-center [background:linear-gradient(180deg,var(--color-trust-bg),var(--color-chip-bg))]">
         <div>
           <div className="font-[family-name:var(--font-mono)] text-[12px] tracking-[0.14em] text-[var(--color-cta)]">ЗА ВАШАТА ФИРМА</div>
-          <h2 className="mt-3.5 text-[clamp(26px,2.8vw,38px)] font-medium text-[var(--color-foreground)]">Неограничена чиста вода за вашиот тим.</h2>
+          <h2 className="mt-3.5 text-[clamp(26px,2.8vw,38px)] font-medium text-[var(--color-foreground)]">{title || 'Неограничена чиста вода за вашиот тим.'}</h2>
           <ul className="mt-6 space-y-3">
-            {bullets.map((b) => (
+            {items.map((b) => (
               <li key={b} className="flex items-baseline gap-3 text-[16px] text-[var(--color-muted)]">
                 <span className="font-extrabold text-[#16803B]">·</span> {b}
               </li>
             ))}
           </ul>
           <Link to="/za-biznis" className="mt-7 inline-block rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-6 py-4 text-[16px] font-bold text-[var(--color-cta-fg)]">
-            Побарај понуда за фирма
+            {cta || 'Побарај понуда за фирма'}
           </Link>
         </div>
         <img

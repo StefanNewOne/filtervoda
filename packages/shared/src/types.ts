@@ -156,11 +156,18 @@ export interface PublicSettings {
     heroH1?: string;
     heroH2?: string;
     heroCta?: string;
+    heroBadge?: string;
+    heroChips?: string[];
     whyTitle?: string;
+    whyItems?: { title: string; text: string }[];
     featuredTitle?: string;
     stagesTitle?: string;
+    stages?: { name: string; text: string }[];
     testimonialsTitle?: string;
     articlesTitle?: string;
+    b2bTeaserTitle?: string;
+    b2bTeaserBullets?: string[];
+    b2bTeaserCta?: string;
     advisorTitle?: string;
     advisorText?: string;
     thankyouTitle?: string;
