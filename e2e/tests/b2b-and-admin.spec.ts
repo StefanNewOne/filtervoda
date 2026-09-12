@@ -17,10 +17,10 @@ test('admin login and template module', async ({ page }) => {
   await page.getByPlaceholder('Лозинка').fill('admin12345');
   await page.getByRole('button', { name: /Најави се/ }).click();
 
-  await expect(page.getByText('Dashboard')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
   await page.getByRole('link', { name: 'Дизајн и темплејти' }).click();
   await expect(page.getByText('Б-1 Кристално чисто')).toBeVisible();
-  await expect(page.getByText('АКТИВЕН')).toBeVisible();
+  await expect(page.getByText('АКТИВЕН', { exact: true })).toBeVisible();
 });
 
 test('CLIENT_VIEWER sees only leads', async ({ page }) => {
