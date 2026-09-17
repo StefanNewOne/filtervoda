@@ -5,6 +5,7 @@
  */
 import { PrismaClient, ProductAudience, PublishStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { SOVETI_POSTS } from './data/soveti-posts.generated.ts';
 
 const prisma = new PrismaClient();
 const TENANT = 1;
@@ -587,40 +588,55 @@ async function main() {
     }
   }
 
-  // Posts (Совети) — a couple of migrated-style articles.
-  const POSTS = [
-    {
-      slug: 'reverzna-osmoza-kako-funkcionira',
-      title: 'Реверзна осмоза — како функционира и зошто е важна',
-      excerpt: 'Објаснуваме што е реверзна осмоза и како ја прочистува водата во вашиот дом.',
-      html: '<p>Реверзната осмоза (RO) е технологија што ги отстранува 95–99% од растворените соли, бактерии, вируси и тешки метали.</p><h2>Како работи</h2><p>Водата поминува под притисок низ полупропусна мембрана што ги задржува нечистотиите.</p>',
-    },
-    {
-      slug: 'cista-voda-na-rabota-za-firmi',
-      title: 'Чиста вода на работа: решение за компании со 5+ вработени',
-      excerpt: 'Зошто изнајмувањето апарат е поисплатливо од галоните.',
-      html: '<p>Галоните носат трошок што расте со тимот, нарачки, носење и простор за складирање.</p><h2>Решението</h2><p>Апарат со реверзна осмоза, топла и ладна вода, за фиксен месечен износ — сè вклучено.</p>',
-    },
+  // Posts (Совети) — 42 educational/marketing articles migrated from the legacy WordPress
+  // site (/sodrzina/, /NNN/ URLs). Source of truth: _docs/content/sodrzina/*.md → converted to
+  // HTML by generate-soveti.ts into data/soveti-posts.generated.ts. Each post also gets a 301
+  // from its legacy /NNN/ URL to /soveti/<slug> (SEO migration, PRD Прилог Ѓ).
+  const POST_CATEGORIES = [
+    { key: 'educational', slug: 'edukacija', name: 'Едукација', description: 'Едукација за вода, филтрација и здравје', sortOrder: 1 },
+    { key: 'product', slug: 'proizvodi', name: 'Производи', description: 'Совети поврзани со производите на СПАР', sortOrder: 2 },
+    { key: 'b2b', slug: 'za-firmi', name: 'За фирми', description: 'Вода на работно место и изнајмување', sortOrder: 3 },
+    { key: 'news', slug: 'vesti', name: 'Вести', description: 'Вести и настани', sortOrder: 4 },
   ];
-  // Temporary post cover images (served by web at /img/products) until the CMS holds real covers.
-  const POST_COVERS: Record<string, string> = {
-    'reverzna-osmoza-kako-funkcionira': 'digital.png',
-    'cista-voda-na-rabota-za-firmi': 'dispenzer.jpg',
-  };
-  for (const p of POSTS) {
-    // Resolve a Media row for the temporary cover.
-    let coverMediaId: string | null = null;
-    const coverFile = POST_COVERS[p.slug];
-    if (coverFile) {
-      const url = `/img/products/${coverFile}`;
-      let media = await prisma.media.findFirst({ where: { url } });
-      if (!media) media = await prisma.media.create({ data: { tenantId: TENANT, driver: 'static', key: coverFile, url, alt: p.title, variants: [] } });
-      coverMediaId = media.id;
-    }
+  const postCatIdByKey = new Map<string, number>();
+  for (const c of POST_CATEGORIES) {
+    const row = await prisma.postCategory.upsert({
+      where: { tenantId_slug: { tenantId: TENANT, slug: c.slug } },
+      update: { name: c.name },
+      create: { tenantId: TENANT, slug: c.slug, name: c.name },
+    });
+    postCatIdByKey.set(c.key, row.id);
+  }
+
+  // Remove the two legacy demo posts a previous seed created (superseded by the real content).
+  await prisma.post.deleteMany({
+    where: { tenantId: TENANT, slug: { in: ['reverzna-osmoza-kako-funkcionira', 'cista-voda-na-rabota-za-firmi'] } },
+  });
+
+  for (const p of SOVETI_POSTS) {
+    const categoryId = postCatIdByKey.get(p.category) ?? postCatIdByKey.get('educational') ?? null;
+    // Deterministic publishedAt: higher legacy id ≈ newer article (keeps site ordering, no Date.now).
+    const publishedAt = new Date(Date.UTC(2024, 0, 1) + p.legacyId * 86_400_000);
+    const fields = {
+      title: p.title,
+      excerpt: p.excerpt,
+      content: { html: p.html },
+      categoryId,
+      status: 'PUBLISHED' as const,
+      publishedAt,
+      seoTitle: p.title,
+      seoDescription: p.excerpt,
+    };
     await prisma.post.upsert({
       where: { tenantId_slug: { tenantId: TENANT, slug: p.slug } },
-      update: { title: p.title, excerpt: p.excerpt, content: { html: p.html }, coverMediaId, status: 'PUBLISHED', publishedAt: new Date('2026-08-01') },
-      create: { tenantId: TENANT, slug: p.slug, title: p.title, excerpt: p.excerpt, content: { html: p.html }, coverMediaId, status: 'PUBLISHED', publishedAt: new Date('2026-08-01') },
+      update: fields,
+      create: { tenantId: TENANT, slug: p.slug, ...fields },
+    });
+    // 301 legacy /NNN/ → /soveti/<slug>.
+    await prisma.redirect.upsert({
+      where: { tenantId_fromPath: { tenantId: TENANT, fromPath: p.oldUrl } },
+      update: { toPath: `/soveti/${p.slug}` },
+      create: { tenantId: TENANT, fromPath: p.oldUrl, toPath: `/soveti/${p.slug}`, statusCode: 301 },
     });
   }
 
