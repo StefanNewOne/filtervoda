@@ -695,19 +695,30 @@ async function main() {
     else await prisma.faq.create({ data: { tenantId: TENANT, ...fq } });
   }
 
-  // Users (dev credentials — change in real environments).
+  // Users. Passwords come from SEED_*_PASSWORD env when set. In production we REFUSE to create a
+  // user with a built-in default password — set the env var instead (avoids known creds on prod).
+  // Existing users are never silently password-reset (only if an env password is explicitly given).
+  const isProdSeed = process.env.NODE_ENV === 'production';
   const users = [
-    { email: 'admin@filtervoda.mk', name: 'SPAR Admin', role: 'ADMIN' as const, password: 'admin12345' },
-    { email: 'editor@filtervoda.mk', name: 'GoDigital Editor', role: 'EDITOR' as const, password: 'editor12345' },
-    { email: 'client@filtervoda.mk', name: 'SPAR Client', role: 'CLIENT_VIEWER' as const, password: 'client12345' },
+    { email: 'admin@filtervoda.mk', name: 'SPAR Admin', role: 'ADMIN' as const, envKey: 'SEED_ADMIN_PASSWORD', devPassword: 'admin12345' },
+    { email: 'editor@filtervoda.mk', name: 'GoDigital Editor', role: 'EDITOR' as const, envKey: 'SEED_EDITOR_PASSWORD', devPassword: 'editor12345' },
+    { email: 'client@filtervoda.mk', name: 'SPAR Client', role: 'CLIENT_VIEWER' as const, envKey: 'SEED_CLIENT_PASSWORD', devPassword: 'client12345' },
   ];
   for (const u of users) {
-    const passwordHash = await bcrypt.hash(u.password, 12);
-    await prisma.user.upsert({
-      where: { email: u.email },
-      update: { name: u.name, role: u.role },
-      create: { tenantId: TENANT, email: u.email, name: u.name, role: u.role, passwordHash },
-    });
+    const provided = process.env[u.envKey];
+    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+    if (!existing) {
+      const password = provided ?? (isProdSeed ? null : u.devPassword);
+      if (!password) throw new Error(`Refusing to seed ${u.email} with a default password in production — set ${u.envKey}.`);
+      await prisma.user.create({
+        data: { tenantId: TENANT, email: u.email, name: u.name, role: u.role, passwordHash: await bcrypt.hash(password, 12) },
+      });
+    } else {
+      await prisma.user.update({
+        where: { email: u.email },
+        data: { name: u.name, role: u.role, ...(provided ? { passwordHash: await bcrypt.hash(provided, 12) } : {}) },
+      });
+    }
   }
 
   // Settings — active template + per-template token overrides (empty = shipped defaults) + contact + flags.
