@@ -7,6 +7,7 @@
 export const LEAD_RETENTION_MONTHS = 24;
 export const IP_HASH_RETENTION_DAYS = 30;
 export const OUTBOX_MAX_ATTEMPTS = 5;
+export const OUTBOX_DONE_RETENTION_DAYS = 30; // prune succeeded outbox rows; DEAD kept for review
 export const SESSION_DAYS = 30;
 export const REAUTH_WINDOW_MIN = 10;
 export const PREVIEW_TOKEN_TTL_MIN = 60;
