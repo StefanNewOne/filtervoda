@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 
 const NAV = [
+  { to: '/', label: 'Почетна' },
   { to: '/proizvodi', label: 'Производи' },
   { to: '/za-biznis', label: 'За фирми' },
   { to: '/soveti', label: 'Совети' },
@@ -17,6 +18,7 @@ export function Header({ phones }: { phones: string[] }) {
   const [open, setOpen] = useState(false);
   const { open: openLead } = useLeadModal();
   const phone = phones[0] ?? '076/676/819';
+  const phoneList = phones.length ? phones : [phone];
 
   return (
     <header className="sticky top-0 z-[60] border-b border-[rgba(111,196,247,0.24)] [background:linear-gradient(100deg,rgba(7,26,58,0.94),rgba(11,60,140,0.94))] backdrop-blur-[14px]">
@@ -29,7 +31,14 @@ export function Header({ phones }: { phones: string[] }) {
             <Link key={n.to} to={n.to} className="rounded-full px-3.5 py-2.5 text-[15px] font-semibold text-white hover:bg-[rgba(255,255,255,0.14)]">{n.label}</Link>
           ))}
         </nav>
-        <a href={telHref(phone)} className="hidden text-[15px] font-bold text-white sm:block">{phone}</a>
+        <span className="hidden items-center gap-2 text-[15px] font-bold text-white sm:flex">
+          {phoneList.map((p, i) => (
+            <span key={p} className="flex items-center gap-2">
+              {i > 0 && <span className="text-[rgba(255,255,255,0.5)]">·</span>}
+              <a href={telHref(p)} className="hover:text-[#7BE0A0]">{p}</a>
+            </span>
+          ))}
+        </span>
         <button onClick={() => openLead()} className="hidden rounded-full bg-[#16803B] px-5 py-3 text-[15px] font-bold text-white shadow-[0_10px_30px_rgba(22,128,59,0.34)] transition hover:brightness-110 md:inline-block">Побарај понуда</button>
         <div className="ml-auto flex items-center gap-1 md:hidden">
           <a href={telHref(phone)} className="p-2" aria-label="Повикај"><Phone size={22} className="text-white" /></a>

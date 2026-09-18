@@ -11,6 +11,7 @@ export default [
     route('posts', 'routes/posts.tsx'),
     route('posts/:id', 'routes/post-editor.tsx'),
     route('content', 'routes/content.tsx'),
+    route('about', 'routes/about.tsx'),
     route('b2b', 'routes/b2b.tsx'),
     route('testimonials', 'routes/testimonials.tsx'),
     route('nav', 'routes/nav.tsx'),

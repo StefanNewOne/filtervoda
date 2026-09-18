@@ -161,6 +161,7 @@ export const productSchema = z.object({
   audience: z.enum(PRODUCT_AUDIENCES),
   priceRegular: z.number().int().nonnegative().nullish(),
   priceSale: z.number().int().nonnegative().nullish(),
+  filterSetPrice: z.number().int().nonnegative().nullish(),
   showPrice: z.boolean().default(true),
   badges: z.array(z.string()).default([]),
   chips: z.array(z.string().max(60)).default([]),

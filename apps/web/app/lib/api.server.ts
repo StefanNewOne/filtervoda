@@ -36,6 +36,7 @@ export const api = {
   settings: () => get<PublicSettings>('/public/settings'),
   products: (category?: string) =>
     get<ProductCardDto[]>(`/public/products${category ? `?category=${encodeURIComponent(category)}` : ''}`),
+  featuredProducts: () => get<ProductCardDto[]>('/public/products/featured'),
   product: (slug: string) => getOrNull<ProductDetailDto>(`/public/products/${slug}`),
   categories: () => get<{ id: number; slug: string; name: string }[]>('/public/categories'),
   posts: () => get<{ slug: string; title: string; excerpt?: string; coverUrl?: string | null; publishedAt?: string }[]>('/public/posts'),

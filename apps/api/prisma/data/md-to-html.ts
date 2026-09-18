@@ -61,7 +61,7 @@ export function mdToHtml(body: string): string {
   };
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const line = lines[i] ?? '';
     const trimmed = line.trim();
 
     if (trimmed === '') {
@@ -79,24 +79,24 @@ export function mdToHtml(body: string): string {
     const h = /^(#{1,6})\s+(.*)$/.exec(trimmed);
     if (h) {
       flushPara();
-      const level = h[1].length;
+      const level = (h[1] ?? '').length;
       if (level === 1 && !h1Dropped) {
         h1Dropped = true; // drop the article title H1 (rendered separately)
         continue;
       }
       const tag = level <= 2 ? 'h2' : 'h3';
-      out.push(`<${tag}>${inline(h[2].trim())}</${tag}>`);
+      out.push(`<${tag}>${inline((h[2] ?? '').trim())}</${tag}>`);
       continue;
     }
 
     // Table.
-    if (trimmed.startsWith('|') && i + 1 < lines.length && isTableSeparator(lines[i + 1])) {
+    if (trimmed.startsWith('|') && i + 1 < lines.length && isTableSeparator(lines[i + 1] ?? '')) {
       flushPara();
       const header = splitRow(trimmed);
       i += 2; // skip header + separator
       const rows: string[][] = [];
-      while (i < lines.length && lines[i].trim().startsWith('|')) {
-        rows.push(splitRow(lines[i]));
+      while (i < lines.length && (lines[i] ?? '').trim().startsWith('|')) {
+        rows.push(splitRow(lines[i] ?? ''));
         i++;
       }
       i--; // step back; outer loop will advance
@@ -110,8 +110,8 @@ export function mdToHtml(body: string): string {
     if (/^>\s?/.test(trimmed)) {
       flushPara();
       const quote: string[] = [];
-      while (i < lines.length && /^>\s?/.test(lines[i].trim())) {
-        quote.push(lines[i].trim().replace(/^>\s?/, ''));
+      while (i < lines.length && /^>\s?/.test((lines[i] ?? '').trim())) {
+        quote.push((lines[i] ?? '').trim().replace(/^>\s?/, ''));
         i++;
       }
       i--;
@@ -123,8 +123,8 @@ export function mdToHtml(body: string): string {
     if (/^[-*]\s+/.test(trimmed)) {
       flushPara();
       const items: string[] = [];
-      while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) {
-        items.push(lines[i].trim().replace(/^[-*]\s+/, ''));
+      while (i < lines.length && /^[-*]\s+/.test((lines[i] ?? '').trim())) {
+        items.push((lines[i] ?? '').trim().replace(/^[-*]\s+/, ''));
         i++;
       }
       i--;
@@ -136,8 +136,8 @@ export function mdToHtml(body: string): string {
     if (/^\d+\.\s+/.test(trimmed)) {
       flushPara();
       const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
-        items.push(lines[i].trim().replace(/^\d+\.\s+/, ''));
+      while (i < lines.length && /^\d+\.\s+/.test((lines[i] ?? '').trim())) {
+        items.push((lines[i] ?? '').trim().replace(/^\d+\.\s+/, ''));
         i++;
       }
       i--;

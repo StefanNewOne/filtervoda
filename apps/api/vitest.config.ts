@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ['src/**/__tests__/**/*.test.ts'],
+    include: ['src/**/__tests__/**/*.test.ts', 'prisma/**/__tests__/**/*.test.ts'],
     environment: 'node',
     setupFiles: ['./vitest.setup.ts'],
     // Integration tests use a real Docker Postgres (no DB mocks — CLAUDE.md Category 6).

@@ -44,7 +44,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
   const trustLogos = rawLogos.map((x) => logoUrlById.get(x) ?? x);
 
   // Single-image settings are stored as a media id; resolve to a URL (pass through raw paths).
-  const imageIds = [s['b2b.heroImage'], s['content.b2bTeaser.image'], s['content.hero.image']].filter((x): x is string => typeof x === 'string' && x.length > 0);
+  const imageIds = [s['b2b.heroImage'], s['content.b2bTeaser.image'], s['content.hero.image'], s['about.image']].filter((x): x is string => typeof x === 'string' && x.length > 0);
   const imageMedia = imageIds.length ? await prisma.media.findMany({ where: { id: { in: imageIds }, deletedAt: null } }) : [];
   const imageUrlById = new Map(imageMedia.map((m) => [m.id, m.url]));
   const resolveImage = (v: unknown) => (typeof v === 'string' && v ? (imageUrlById.get(v) ?? v) : undefined);
@@ -100,6 +100,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
       whyTitle: s['content.why.title'] as string | undefined,
       whyItems: s['content.why.items'] as { title: string; text: string }[] | undefined,
       featuredTitle: s['content.featured.title'] as string | undefined,
+      featuredProductIds: (s['content.featured.productIds'] as string[]) ?? [],
       stagesTitle: s['content.stages.title'] as string | undefined,
       stages: s['content.stages.items'] as { name: string; text: string }[] | undefined,
       testimonialsTitle: s['content.testimonials.title'] as string | undefined,
@@ -112,6 +113,15 @@ export async function getPublicSettings(): Promise<PublicSettings> {
       advisorText: s['content.advisor.text'] as string | undefined,
       thankyouTitle: s['content.thankyou.title'] as string | undefined,
       thankyouText: s['content.thankyou.text'] as string | undefined,
+    },
+    about: {
+      title: s['about.title'] as string | undefined,
+      intro: s['about.intro'] as string | undefined,
+      stats: s['about.stats'] as { value: string; label: string }[] | undefined,
+      image: resolveImage(s['about.image']),
+      whyTitle: s['about.whyTitle'] as string | undefined,
+      whyText1: s['about.whyText1'] as string | undefined,
+      whyText2: s['about.whyText2'] as string | undefined,
     },
   };
 }

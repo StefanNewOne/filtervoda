@@ -155,7 +155,7 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
           </Section>
         )}
 
-        {(p.includedInPrice.length > 0 || p.maintenanceNote) && (
+        {(p.includedInPrice.length > 0 || p.maintenanceNote || p.filterSetPrice != null) && (
           <Section>
             <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))]">
               {p.includedInPrice.length > 0 && (
@@ -166,11 +166,13 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
                   </div>
                 </div>
               )}
-              {p.maintenanceNote && (
+              {(p.maintenanceNote || p.filterSetPrice != null) && (
                 <div className={`rounded-[20px] border ${s.border} p-[30px]`}>
                   <H2>Одржување и филтри</H2>
-                  <p className="mt-[18px] text-[16px] leading-[1.6] text-[#46597A]">{p.maintenanceNote}</p>
-                  <div className={`mt-5 rounded-[14px] ${s.softBg} px-[18px] py-4 text-[15px] font-bold text-[#21375A]`}>Сет филтри: од 3.500 ден. [потврди]</div>
+                  {p.maintenanceNote && <p className="mt-[18px] text-[16px] leading-[1.6] text-[#46597A]">{p.maintenanceNote}</p>}
+                  {p.filterSetPrice != null && (
+                    <div className={`mt-5 rounded-[14px] ${s.softBg} px-[18px] py-4 text-[15px] font-bold text-[#21375A]`}>Сет филтри: {fmtPrice(p.filterSetPrice)}</div>
+                  )}
                 </div>
               )}
             </div>
