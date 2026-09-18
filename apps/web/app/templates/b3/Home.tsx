@@ -51,7 +51,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
             <span className="absolute inset-[14px] rounded-[8px] border border-[rgba(69,224,255,0.18)]" aria-hidden />
             <span className="absolute left-[18px] top-[18px] font-[family-name:JetBrains_Mono] text-[10px] tracking-[0.16em] text-[#45E0FF]">LIVE · TDS 012 ppm</span>
             <span className="absolute bottom-[18px] right-[18px] font-[family-name:JetBrains_Mono] text-[10px] tracking-[0.16em] text-[#45E0FF]">pH 8.6</span>
-            {heroImg ? <img src={heroImg} alt={heroAlt} className="w-[76%] rounded-[8px] shadow-[0_26px_60px_rgba(0,0,0,0.45)]" /> : <div aria-hidden />}
+            {heroImg ? <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="w-[76%] rounded-[8px] shadow-[0_26px_60px_rgba(0,0,0,0.45)]" /> : <div aria-hidden />}
           </div>
         </div>
       </section>
