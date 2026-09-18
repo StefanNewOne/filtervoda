@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { env } from '../../config/env.js';
 import { logger } from '../../lib/logger.js';
 import { prisma } from '../../lib/prisma.js';
+import { requireFreshReauth } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error.js';
 import { writeAudit } from '../../services/audit.service.js';
 import { CACHE_NS, purge } from '../../services/cache.js';
@@ -84,7 +85,7 @@ adminProductsRouter.post('/:id/unpublish', async (req, res) => {
   res.json(product);
 });
 
-adminProductsRouter.delete('/:id', async (req, res) => {
+adminProductsRouter.delete('/:id', requireFreshReauth, async (req, res) => {
   await prisma.product.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
   await writeAudit({ ...actor(req), action: 'product.delete', entity: 'Product', entityId: req.params.id });
   await purge(CACHE_NS.products);
