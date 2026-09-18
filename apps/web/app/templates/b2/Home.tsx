@@ -48,7 +48,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <div className="relative">
             <span className="absolute -inset-x-6 -bottom-[18px] -top-[26px] [background:radial-gradient(circle_at_50%_40%,rgba(191,227,250,0.35),rgba(191,227,250,0)_70%)] [border-radius:46%_46%_40%_40%/34%_34%_58%_58%]" aria-hidden />
             <div className="relative grid aspect-square place-items-center overflow-hidden rounded-[40px] [background:linear-gradient(180deg,#FFFFFF,#DFEFFC)] shadow-[0_44px_100px_rgba(0,0,0,0.34)]">
-              {heroImg ? <img src={heroImg} alt={heroAlt} className="h-full w-full object-contain p-8" /> : <div aria-hidden />}
+              {heroImg ? <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="h-full w-full object-contain p-8" /> : <div aria-hidden />}
               <div className="absolute bottom-[22px] left-[22px] flex flex-wrap gap-2">
                 <span className="rounded-full bg-[rgba(4,18,43,0.72)] px-3.5 py-[9px] text-[12px] font-extrabold text-white backdrop-blur-[8px]">6 степени</span>
                 <span className="rounded-full bg-[rgba(4,18,43,0.72)] px-3.5 py-[9px] text-[12px] font-extrabold text-[#7BE0A0] backdrop-blur-[8px]">pH 8.5+</span>

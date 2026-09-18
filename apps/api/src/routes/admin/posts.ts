@@ -9,6 +9,7 @@ import { Router } from 'express';
 import { logger } from '../../lib/logger.js';
 import { prisma } from '../../lib/prisma.js';
 import { sanitizeHtml } from '../../lib/sanitize.js';
+import { requireFreshReauth } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error.js';
 import { writeAudit } from '../../services/audit.service.js';
 import { CACHE_NS, purge } from '../../services/cache.js';
@@ -60,9 +61,10 @@ adminPostsRouter.post('/:id/unpublish', async (req, res) => {
   res.json(post);
 });
 
-adminPostsRouter.delete('/:id', async (req, res) => {
-  await prisma.post.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+adminPostsRouter.delete('/:id', requireFreshReauth, async (req, res) => {
+  const id = String(req.params.id);
+  await prisma.post.update({ where: { id }, data: { deletedAt: new Date() } });
   await purge(CACHE_NS.posts);
-  await writeAudit({ ...actor(req), action: 'post.delete', entity: 'Post', entityId: String(req.params.id) });
+  await writeAudit({ ...actor(req), action: 'post.delete', entity: 'Post', entityId: id });
   res.status(204).end();
 });
