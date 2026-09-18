@@ -62,8 +62,9 @@ adminPostsRouter.post('/:id/unpublish', async (req, res) => {
 });
 
 adminPostsRouter.delete('/:id', requireFreshReauth, async (req, res) => {
-  await prisma.post.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+  const id = String(req.params.id);
+  await prisma.post.update({ where: { id }, data: { deletedAt: new Date() } });
   await purge(CACHE_NS.posts);
-  await writeAudit({ ...actor(req), action: 'post.delete', entity: 'Post', entityId: String(req.params.id) });
+  await writeAudit({ ...actor(req), action: 'post.delete', entity: 'Post', entityId: id });
   res.status(204).end();
 });

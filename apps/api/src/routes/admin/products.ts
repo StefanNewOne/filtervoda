@@ -86,8 +86,9 @@ adminProductsRouter.post('/:id/unpublish', async (req, res) => {
 });
 
 adminProductsRouter.delete('/:id', requireFreshReauth, async (req, res) => {
-  await prisma.product.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
-  await writeAudit({ ...actor(req), action: 'product.delete', entity: 'Product', entityId: req.params.id });
+  const id = String(req.params.id);
+  await prisma.product.update({ where: { id }, data: { deletedAt: new Date() } });
+  await writeAudit({ ...actor(req), action: 'product.delete', entity: 'Product', entityId: id });
   await purge(CACHE_NS.products);
   res.status(204).end();
 });
