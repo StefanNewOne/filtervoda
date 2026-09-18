@@ -29,6 +29,7 @@ type SeedProduct = {
   audience?: ProductAudience;
   priceRegular?: number;
   priceSale?: number;
+  filterSetPrice?: number;
   showPrice?: boolean;
   badges?: string[];
   featured?: boolean;
@@ -36,14 +37,14 @@ type SeedProduct = {
 };
 
 const PRODUCTS: SeedProduct[] = [
-  { slug: 'spar-crystal-digital-600hf', name: 'SPAR CRYSTAL DIGITAL 600HF', tagline: 'Најнова генерација систем со директен проток — без резервоар, без чекање.', cat: 'pod-mijalnik', priceRegular: 40000, priceSale: 36000, badges: ['Акција', 'Бесплатна монтажа'], featured: true, oldUrl: '/produkt/spar-crystal-digital/' },
-  { slug: 'spar-crystal-smart', name: 'SPAR CRYSTAL SMART', tagline: '6 степени на прочистување со дигитален дисплеј.', cat: 'pod-mijalnik', priceRegular: 24000, badges: ['Бесплатна монтажа'], featured: true, oldUrl: '/produkt/spar-crystal-smart/' },
-  { slug: 'spar-crystal-pro', name: 'SPAR CRYSTAL PRO', tagline: 'Компактен систем со реверзна осмоза под мијалник.', cat: 'pod-mijalnik', priceRegular: 12000, badges: ['Бесплатна монтажа'], oldUrl: '/produkt/spar-crystal-pro/' },
+  { slug: 'spar-crystal-digital-600hf', name: 'SPAR CRYSTAL DIGITAL 600HF', tagline: 'Најнова генерација систем со директен проток — без резервоар, без чекање.', cat: 'pod-mijalnik', priceRegular: 40000, priceSale: 36000, filterSetPrice: 6000, badges: ['Акција', 'Бесплатна монтажа'], featured: true, oldUrl: '/produkt/spar-crystal-digital/' },
+  { slug: 'spar-crystal-smart', name: 'SPAR CRYSTAL SMART', tagline: '6 степени на прочистување со дигитален дисплеј.', cat: 'pod-mijalnik', priceRegular: 24000, filterSetPrice: 3600, badges: ['Бесплатна монтажа'], featured: true, oldUrl: '/produkt/spar-crystal-smart/' },
+  { slug: 'spar-crystal-pro', name: 'SPAR CRYSTAL PRO', tagline: 'Компактен систем со реверзна осмоза под мијалник.', cat: 'pod-mijalnik', priceRegular: 12000, filterSetPrice: 3600, badges: ['Бесплатна монтажа'], oldUrl: '/produkt/spar-crystal-pro/' },
   { slug: 'spar-aqua-smart', name: 'Spar Aqua SMART', tagline: 'Паметна контрола со вграден дисплеј за квалитет и филтри.', cat: 'pod-mijalnik', priceRegular: 26000, priceSale: 19999, badges: ['Акција', 'Бесплатна монтажа'], featured: true, oldUrl: '/produkt/spar-aqua-smart/' },
-  { slug: 'aqua-glass', name: 'AQUA GLASS', tagline: '7 фази прочистување + 9 фази минерализација.', cat: 'pod-mijalnik', priceRegular: 18000, priceSale: 14990, badges: ['Акција', 'Бесплатна монтажа'], oldUrl: '/produkt/aqua-glass-sistem-za-filtracija-na-voda/' },
-  { slug: 'spar-aqua-pro', name: 'Спар Аква Про', tagline: 'Реверзна осмоза со поволна цена.', cat: 'pod-mijalnik', priceRegular: 11000, priceSale: 7990, badges: ['Акција'], oldUrl: '/produkt/spar-aqua-pro/' },
-  { slug: 'spar-aqua-minerals', name: 'Спар Aqua Minerals', tagline: 'Реверзна осмоза со додаток на минерали.', cat: 'pod-mijalnik', priceRegular: 14000, priceSale: 9900, badges: ['Акција'], oldUrl: '/produkt/spar-aqua-pro-mineral/' },
-  { slug: 'dispenzer-topla-ladna-ro', name: 'Диспензер за топла и ладна вода (RO)', tagline: '5 фази филтрација — ладна до 5°C, топла до 90°C.', cat: 'dispenzeri', audience: 'BOTH', priceRegular: 42000, priceSale: 36000, badges: ['Акција', 'За фирми'], featured: true, oldUrl: '/produkt/dispanzer-za-topla-ladna-voda-so-reverzna-osmoza/' },
+  { slug: 'aqua-glass', name: 'AQUA GLASS', tagline: '7 фази прочистување + 9 фази минерализација.', cat: 'pod-mijalnik', priceRegular: 18000, priceSale: 14990, filterSetPrice: 4200, badges: ['Акција', 'Бесплатна монтажа'], oldUrl: '/produkt/aqua-glass-sistem-za-filtracija-na-voda/' },
+  { slug: 'spar-aqua-pro', name: 'Спар Аква Про', tagline: 'Реверзна осмоза со поволна цена.', cat: 'pod-mijalnik', priceRegular: 11000, priceSale: 7990, filterSetPrice: 3000, badges: ['Акција'], oldUrl: '/produkt/spar-aqua-pro/' },
+  { slug: 'spar-aqua-minerals', name: 'Спар Aqua Minerals', tagline: 'Реверзна осмоза со додаток на минерали.', cat: 'pod-mijalnik', priceRegular: 14000, priceSale: 9900, filterSetPrice: 3600, badges: ['Акција'], oldUrl: '/produkt/spar-aqua-pro-mineral/' },
+  { slug: 'dispenzer-topla-ladna-ro', name: 'Диспензер за топла и ладна вода (RO)', tagline: '5 фази филтрација — ладна до 5°C, топла до 90°C.', cat: 'dispenzeri', audience: 'BOTH', priceRegular: 42000, priceSale: 36000, filterSetPrice: 5000, badges: ['Акција', 'За фирми'], featured: true, oldUrl: '/produkt/dispanzer-za-topla-ladna-voda-so-reverzna-osmoza/' },
   { slug: 'sistem-cel-dom', name: 'Систем за филтрација за цело домаќинство', tagline: 'Филтрирана вода на секоја чешма во домот.', cat: 'cel-dom', priceRegular: 1590, showPrice: true, badges: ['Бесплатна монтажа'], oldUrl: '/produkt/sistem-za-filtracija-na-celo-domakinstvo/' },
   { slug: 'big-blue-2-stepen', name: 'Биг Блу 2-степен систем', tagline: 'Двостепена филтрација за целиот дом.', cat: 'cel-dom', priceRegular: 26000, priceSale: 22000, badges: ['Акција'], oldUrl: '/produkt/2-stepen-sistem-za-filtriranje-na-voda/' },
   { slug: 'big-blue-3-stepen', name: 'Биг Блу 3-степен систем', tagline: 'Тростепена филтрација за целиот дом.', cat: 'cel-dom', priceRegular: 37000, priceSale: 29990, badges: ['Акција'], oldUrl: '/produkt/tri-stepen-sistem-filtriranje-voda/' },
@@ -473,6 +474,7 @@ async function main() {
         categoryId,
         priceRegular: p.priceRegular,
         priceSale: p.priceSale ?? null,
+        filterSetPrice: p.filterSetPrice ?? null,
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
         chips,
@@ -493,6 +495,7 @@ async function main() {
         audience: (p.audience ?? 'B2C') as ProductAudience,
         priceRegular: p.priceRegular,
         priceSale: p.priceSale ?? null,
+        filterSetPrice: p.filterSetPrice ?? null,
         showPrice: p.showPrice ?? true,
         badges: p.badges ?? [],
         chips,
@@ -652,36 +655,44 @@ async function main() {
     if (!existing) await prisma.testimonial.create({ data: { tenantId: TENANT, active: true, ...t } });
   }
 
+  // Client-specified FAQ (filters / installation). Only these 4 exist site-wide; everything
+  // else (legacy GLOBAL, B2B, per-product) is removed per the client's request.
   const FAQS = [
-    { question: 'Дали монтажата е навистина бесплатна?', answer: 'Да, монтажата е бесплатна низ цела Македонија при купување на систем.', scope: 'GLOBAL' as const, sortOrder: 1 },
-    { question: 'Колку често се менуваат филтрите?', answer: 'Зависно од моделот и потрошувачката, обично на 6–12 месеци. Дигиталните модели ве известуваат.', scope: 'GLOBAL' as const, sortOrder: 2 },
-    { question: 'Дали може плаќање на рати?', answer: 'Да, овозможуваме плаќање во готово или на рати.', scope: 'GLOBAL' as const, sortOrder: 3 },
-    { question: 'Дали водата останува здрава за пиење?', answer: 'Да. По реверзната осмоза додаваме минерали (калциум, магнезиум) и pH 8,5+ за баланс на вкус и здравје.', scope: 'GLOBAL' as const, sortOrder: 4 },
-    { question: 'Што вклучува месечниот износ за фирми?', answer: 'Апарат за топла и ладна вода, бесплатна монтажа, редовна замена на филтри, сервис и замена при дефект.', scope: 'B2B' as const, sortOrder: 1 },
-    { question: 'Дали има почетна инвестиција?', answer: 'Не. Кај изнајмувањето нема почетна инвестиција — плаќате фиксен месечен износ.', scope: 'B2B' as const, sortOrder: 2 },
-    { question: 'Колку брзо е монтирањето за фирма?', answer: 'По бесплатната проценка, монтажата е брза и без прекин на работата.', scope: 'B2B' as const, sortOrder: 3 },
-  ];
-  // Remove legacy generic PRODUCT FAQs (an old seed copied the same 4 questions onto every
-  // product → 68 duplicate rows). Generic Q&A now lives once as GLOBAL; genuine product FAQs
-  // are added per product in the admin.
-  await prisma.faq.deleteMany({
-    where: {
-      tenantId: TENANT,
-      scope: 'PRODUCT',
-      question: {
-        in: [
-          'Дали монтажата е навистина бесплатна?',
-          'Колку често се менуваат филтрите?',
-          'Дали може плаќање на рати?',
-          'Можам ли да плаќам на рати?',
-          'Дали водата останува здрава за пиење?',
-        ],
-      },
+    {
+      question: 'Колку често треба да се менуваат филтрите за прочистување на вода?',
+      answer:
+        'Тоа зависи од состојбата и квалитетот на водата од главниот довод. Во сите случаи се препорачува филтрите да се менуваат еднаш годишно за да се задржи идеален квалитет на водата.',
+      scope: 'GLOBAL' as const,
+      sortOrder: 1,
     },
-  });
+    {
+      question: 'Не користам многу вода. Дали тоа го менува работниот век на филтерот?',
+      answer:
+        'Не. Роковите за замена не се разликуваат. Додека водата се филтрира, живите организми (микроорганизми, бактерии) може да зафаќаат простор во филтерот, па периодот за замена започнува веднаш штом филтерот дојде во контакт со вода.',
+      scope: 'GLOBAL' as const,
+      sortOrder: 2,
+    },
+    {
+      question: 'Штотуку ги инсталирав филтрите и водата ми е заматена. Дали е тоа нормално?',
+      answer:
+        'По инсталирањето на новите филтри, потребно е да ја пуштите водата да тече неколку пати. Бидејќи карбонските филтри се направени од природни материјали, можно е од почетокот да се појави црна, заматена вода. Потребно е да протече 20-30 литри вода низ новите филтри пред да се употребува. Почекајте системот да се наполни 1-2 часа, потоа оставете ја славината отворена 10-15 минути додека резервоарот не се испразни (повторете ја постапката од 3 до 5 пати). Почекајте водата од славината да истече додека не стане целосно бистра.',
+      scope: 'GLOBAL' as const,
+      sortOrder: 3,
+    },
+    {
+      question: 'Можам ли сам да го инсталирам производот и да ги менувам филтрите?',
+      answer:
+        'Да. Производот може да се инсталира и филтрите можат да се менуваат самостојно. Сепак, секоја интервенција од неовластен сервис ќе предизвика губење на гаранцијата. Доколку сервисирањето го врши овластен сервис, уредот ќе остане под гаранција и ќе се користи на безбеден начин.',
+      scope: 'GLOBAL' as const,
+      sortOrder: 4,
+    },
+  ];
+  // Remove every FAQ that is not one of the 4 above (legacy GLOBAL, all B2B, all per-product).
+  await prisma.faq.deleteMany({ where: { tenantId: TENANT, question: { notIn: FAQS.map((f) => f.question) } } });
   for (const fq of FAQS) {
     const existing = await prisma.faq.findFirst({ where: { tenantId: TENANT, question: fq.question } });
-    if (!existing) await prisma.faq.create({ data: { tenantId: TENANT, ...fq } });
+    if (existing) await prisma.faq.update({ where: { id: existing.id }, data: fq });
+    else await prisma.faq.create({ data: { tenantId: TENANT, ...fq } });
   }
 
   // Users (dev credentials — change in real environments).

@@ -34,6 +34,7 @@ function toCard(
     chips,
     priceRegular: p.priceRegular ?? undefined,
     priceSale: p.priceSale ?? undefined,
+    filterSetPrice: p.filterSetPrice ?? undefined,
     showPrice: p.showPrice,
     badges: p.badges,
     image: toMediaDto(primary?.media, primary?.alt),
@@ -53,6 +54,24 @@ export async function listPublishedProducts(categorySlug?: string): Promise<Prod
     include: { images: { include: { media: true }, orderBy: { sortOrder: 'asc' } }, category: { select: { slug: true } } },
   });
   return products.map(toCard);
+}
+
+/**
+ * Products for the home „Најбарани системи" block. If the admin curated an ordered list
+ * (Setting `content.featured.productIds`), return exactly those in that order; otherwise fall
+ * back to the `featured` flag / sortOrder ordering, capped at 6.
+ */
+export async function listFeaturedProducts(orderedIds: string[]): Promise<ProductCardDto[]> {
+  if (!orderedIds.length) {
+    const all = await listPublishedProducts();
+    return all.slice(0, 6);
+  }
+  const products = await prisma.product.findMany({
+    where: { id: { in: orderedIds }, status: 'PUBLISHED', deletedAt: null },
+    include: { images: { include: { media: true }, orderBy: { sortOrder: 'asc' } }, category: { select: { slug: true } } },
+  });
+  const byId = new Map(products.map((p) => [p.id, p]));
+  return orderedIds.map((id) => byId.get(id)).filter((p): p is (typeof products)[number] => Boolean(p)).map(toCard);
 }
 
 export async function getPublishedProduct(slug: string): Promise<ProductDetailDto | null> {

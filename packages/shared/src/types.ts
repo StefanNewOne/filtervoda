@@ -63,6 +63,7 @@ export interface ProductCardDto {
   chips: string[];
   priceRegular?: number;
   priceSale?: number;
+  filterSetPrice?: number; // price of the replacement filter set (сет филтри)
   showPrice: boolean;
   badges: string[];
   image?: MediaDto;
@@ -163,6 +164,7 @@ export interface PublicSettings {
     whyTitle?: string;
     whyItems?: { title: string; text: string }[];
     featuredTitle?: string;
+    featuredProductIds?: string[]; // ordered product ids shown in „Најбарани системи" (admin-curated)
     stagesTitle?: string;
     stages?: { name: string; text: string }[];
     testimonialsTitle?: string;
@@ -175,6 +177,15 @@ export interface PublicSettings {
     advisorText?: string;
     thankyouTitle?: string;
     thankyouText?: string;
+  };
+  about?: {
+    title?: string;
+    intro?: string;
+    stats?: { value: string; label: string }[];
+    image?: string; // resolved URL of the About section image
+    whyTitle?: string;
+    whyText1?: string;
+    whyText2?: string;
   };
 }
 

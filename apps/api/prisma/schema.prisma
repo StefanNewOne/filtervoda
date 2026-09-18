@@ -110,6 +110,7 @@ model Product {
   audience         ProductAudience @default(B2C)
   priceRegular     Int? // MKD, integer denari
   priceSale        Int?
+  filterSetPrice   Int? // MKD — price of the replacement filter set (сет филтри); null = not shown
   showPrice        Boolean         @default(true)
   currency         String          @default("MKD")
   badges           String[]        @default([])
