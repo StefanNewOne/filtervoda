@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 
 const NAV = [
+  { to: '/', label: 'Почетна' },
   { to: '/proizvodi', label: 'Производи' },
   { to: '/za-biznis', label: 'За фирми' },
   { to: '/soveti', label: 'Совети' },
@@ -17,6 +18,7 @@ export function Header({ phones }: { phones: string[] }) {
   const [open, setOpen] = useState(false);
   const { open: openLead } = useLeadModal();
   const phone = phones[0] ?? '076/676/819';
+  const phoneList = phones.length ? phones : [phone];
 
   return (
     <header className="sticky top-0 z-[60] border-b border-[#DCE4EE] bg-white/[0.92] backdrop-blur-[14px]">
@@ -29,7 +31,14 @@ export function Header({ phones }: { phones: string[] }) {
             <Link key={n.to} to={n.to} className="rounded-[10px] px-3 py-2.5 text-[15px] font-semibold text-[#071A3A] hover:bg-[#F4F7FB]">{n.label}</Link>
           ))}
         </nav>
-        <a href={telHref(phone)} className="hidden whitespace-nowrap font-[family-name:JetBrains_Mono] text-[14px] font-bold tracking-[0.02em] text-[#071A3A] sm:block">{phone}</a>
+        <span className="hidden items-center gap-2 whitespace-nowrap font-[family-name:JetBrains_Mono] text-[14px] font-bold tracking-[0.02em] text-[#071A3A] sm:flex">
+          {phoneList.map((p, i) => (
+            <span key={p} className="flex items-center gap-2">
+              {i > 0 && <span className="text-[#9FB2CC]">·</span>}
+              <a href={telHref(p)} className="hover:text-[#0E7490]">{p}</a>
+            </span>
+          ))}
+        </span>
         <button onClick={() => openLead()} className="hidden rounded-[10px] bg-[#0E7490] px-5 py-3 text-[15px] font-bold text-white shadow-[0_6px_18px_rgba(14,116,144,0.3)] transition hover:brightness-110 md:inline-block">Побарај понуда</button>
         <div className="ml-auto flex items-center gap-1 md:hidden">
           <a href={telHref(phone)} className="p-2" aria-label="Повикај"><Phone size={22} className="text-[#071A3A]" /></a>

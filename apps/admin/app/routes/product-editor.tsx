@@ -18,7 +18,7 @@ interface Feature { text: string }
 interface Product {
   id: string; name: string; slug: string; tagline?: string; status: string;
   categoryId?: number; audience?: string; showPrice?: boolean; featured?: boolean;
-  priceRegular?: number; priceSale?: number; badges: string[]; chips: string[];
+  priceRegular?: number; priceSale?: number; filterSetPrice?: number; badges: string[]; chips: string[];
   idealFor: string[]; includedInPrice: string[]; maintenanceNote?: string;
   features: Feature[]; seoTitle?: string; seoDescription?: string;
   specs: Spec[]; stages: Stage[]; images: ProductImage[]; related?: RelatedRow[];
@@ -72,7 +72,7 @@ export default function ProductEditor() {
     save.run(async () => {
       await apiClient.patch(`/admin/products/${id}`, {
         name: f.name, tagline: f.tagline, categoryId: f.categoryId, audience: f.audience,
-        showPrice: f.showPrice, featured: f.featured, priceRegular: f.priceRegular, priceSale: f.priceSale,
+        showPrice: f.showPrice, featured: f.featured, priceRegular: f.priceRegular, priceSale: f.priceSale, filterSetPrice: f.filterSetPrice,
         badges: f.badges, chips: f.chips, idealFor: f.idealFor, includedInPrice: f.includedInPrice,
         maintenanceNote: f.maintenanceNote, features: f.features, seoTitle: f.seoTitle, seoDescription: f.seoDescription,
       });
@@ -142,6 +142,7 @@ export default function ProductEditor() {
           <div className="max-w-2xl space-y-3">
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Регуларна цена (ден.)</span><input type="number" className={input} value={f.priceRegular ?? ''} onChange={(e) => setF({ ...f, priceRegular: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Акциска цена (ден.) — по избор</span><input type="number" className={input} value={f.priceSale ?? ''} onChange={(e) => setF({ ...f, priceSale: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
+            <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Сет филтри цена (ден.) — по избор</span><input type="number" className={input} value={f.filterSetPrice ?? ''} onChange={(e) => setF({ ...f, filterSetPrice: e.target.value === '' ? undefined : Number(e.target.value) })} /><Hint>Цена на замена-сет филтри за овој модел (се прикажува во „Одржување и филтри“).</Hint></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Беџови</span><input className={input} value={commaList(f.badges)} onChange={(e) => setF({ ...f, badges: parseList(e.target.value) })} /><Hint>Одделени со запирки.</Hint></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">Чипови (кратки ознаки за споредба)</span><input className={input} value={commaList(f.chips)} onChange={(e) => setF({ ...f, chips: parseList(e.target.value) })} /><Hint>Кратки ознаки што се прикажуваат на картичката и полнат ги табелите „Споредба на модели“ (пр. 6 степени, Резервоар, pH 8.5+, Дигитален дисплеј).</Hint></label>
           </div>

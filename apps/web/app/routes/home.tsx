@@ -14,15 +14,15 @@ export function meta() {
 }
 
 export async function loader() {
-  const [products, settings, testimonials, faq, posts] = await Promise.all([
-    api.products(),
+  const [featured, settings, testimonials, faq, posts] = await Promise.all([
+    api.featuredProducts(),
     api.settings(),
     api.testimonials().catch(() => []),
     api.faq('GLOBAL').catch(() => []),
     api.posts().catch(() => []),
   ]);
   return {
-    featured: products.slice(0, 6),
+    featured,
     content: settings.content ?? {},
     testimonials,
     faq,

@@ -15,7 +15,7 @@ export const links: LinksFunction = () => [
 
 /** Safe fallback so the shell always renders even if the API is briefly unavailable. */
 const DEFAULT_SETTINGS = {
-  phones: ['076/676/819'],
+  phones: ['076/676/819', '070/755/190'],
   emails: [],
   social: {},
   activeTemplate: 'b1' as const,

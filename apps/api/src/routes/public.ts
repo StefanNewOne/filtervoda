@@ -5,8 +5,8 @@
 import { Router } from 'express';
 import { publicReadLimiter } from '../middleware/rateLimit.js';
 import { CACHE_NS, withDefaultTtl } from '../services/cache.js';
-import { getPublishedProduct, listPublishedProducts } from '../services/product.service.js';
-import { getPublicSettings } from '../services/settings.service.js';
+import { getPublishedProduct, listFeaturedProducts, listPublishedProducts } from '../services/product.service.js';
+import { getPublicSettings, getSetting } from '../services/settings.service.js';
 import { prisma } from '../lib/prisma.js';
 
 export const publicRouter = Router();
@@ -17,6 +17,16 @@ publicRouter.get('/public/products', async (req, res) => {
   const data = await withDefaultTtl(`${CACHE_NS.products}list:${category ?? 'all'}`, () =>
     listPublishedProducts(category),
   );
+  res.json(data);
+});
+
+// „Најбарани системи" — admin-curated ordered list (Setting content.featured.productIds).
+// Cached under the settings namespace so it refreshes as soon as the admin re-orders/publishes.
+publicRouter.get('/public/products/featured', async (_req, res) => {
+  const data = await withDefaultTtl(`${CACHE_NS.settings}featuredProducts`, async () => {
+    const ids = (await getSetting<string[]>('content.featured.productIds')) ?? [];
+    return listFeaturedProducts(ids);
+  });
   res.json(data);
 });
 

@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 
 const NAV = [
+  { to: '/', label: 'Почетна' },
   { to: '/proizvodi', label: 'Производи' },
   { to: '/za-biznis', label: 'За фирми' },
   { to: '/soveti', label: 'Совети' },
@@ -17,6 +18,7 @@ export function Header({ phones }: { phones: string[] }) {
   const [open, setOpen] = useState(false);
   const { open: openLead } = useLeadModal();
   const phone = phones[0] ?? '076/676/819';
+  const phoneList = phones.length ? phones : [phone];
 
   return (
     <header className="sticky top-0 z-[60] border-b border-[#E4EDF9] bg-white/[0.88] backdrop-blur-[14px]">
@@ -33,9 +35,14 @@ export function Header({ phones }: { phones: string[] }) {
           ))}
         </nav>
 
-        <a href={telHref(phone)} className="hidden text-[15px] font-bold tracking-[-0.01em] text-[#08182F] sm:block md:ml-0">
-          {phone}
-        </a>
+        <span className="hidden text-[15px] font-bold tracking-[-0.01em] text-[#08182F] sm:flex sm:items-center sm:gap-2 md:ml-0">
+          {phoneList.map((p, i) => (
+            <span key={p} className="flex items-center gap-2">
+              {i > 0 && <span className="text-[#C4D6EC]">·</span>}
+              <a href={telHref(p)} className="hover:text-[#0E7490]">{p}</a>
+            </span>
+          ))}
+        </span>
         <button
           onClick={() => openLead()}
           className="hidden rounded-full bg-[#1156E0] px-5 py-3 text-[15px] font-bold tracking-[-0.01em] text-white shadow-[0_6px_18px_rgba(17,86,224,0.28)] transition hover:bg-[#08182F] md:inline-block"
