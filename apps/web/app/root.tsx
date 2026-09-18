@@ -9,8 +9,10 @@ import { api } from './lib/api.server';
 import { useTemplate } from './templates/registry';
 
 export const links: LinksFunction = () => [
-  { rel: 'preconnect', href: '/fonts' },
-  { rel: 'preload', href: '/fonts/manrope-var.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+  // Preload the critical Cyrillic subsets actually used above the fold (body + headings).
+  // The default/active theme is b1 (Manrope); these files exist in public/fonts.
+  { rel: 'preload', href: '/fonts/manrope-400-cyrillic.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+  { rel: 'preload', href: '/fonts/manrope-700-cyrillic.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
 ];
 
 /** Safe fallback so the shell always renders even if the API is briefly unavailable. */
