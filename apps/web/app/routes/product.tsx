@@ -38,5 +38,5 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function Product({ loaderData }: Route.ComponentProps) {
-  return <ProductPage product={loaderData.product} testimonials={loaderData.testimonials} settings={loaderData.settings} />;
+  return <ProductPage product={loaderData.product} testimonials={loaderData.testimonials} settings={loaderData.settings} siteUrl={loaderData.siteUrl} />;
 }

@@ -14,9 +14,9 @@ const envSchema = z.object({
   REDIS_URL: z.string().min(1),
 
   SESSION_SECRET: z.string().min(16),
-  CRON_SECRET: z.string().min(1),
-  IP_HASH_SECRET: z.string().min(1),
-  PREVIEW_SECRET: z.string().min(1),
+  CRON_SECRET: z.string().min(16),
+  IP_HASH_SECRET: z.string().min(16),
+  PREVIEW_SECRET: z.string().min(16),
   // Shared secret so trusted server-side SSR calls bypass the public read rate limiter
   // (all SSR traffic arrives from one internal container IP, which would otherwise throttle).
   INTERNAL_API_SECRET: z.string().optional(),
