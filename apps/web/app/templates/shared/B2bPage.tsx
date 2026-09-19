@@ -77,7 +77,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
           <img
             src={t?.heroImage || '/img/products/dispenzer.jpg'}
             alt="Диспензер за топла и ладна вода со реверзна осмоза"
-            className="w-full rounded-[24px] object-cover"
+            className="w-full rounded-[24px] bg-white object-contain"
             style={{ aspectRatio: '4 / 5' }}
             loading="eager"
           />
@@ -88,17 +88,17 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
       <div className={`border-b ${s.border} ${s.softBg}`}>
         <div className="mx-auto max-w-[1200px] px-5 py-6">
           <div className={`${s.mono} mb-3 text-center text-[11px] tracking-[0.14em] ${s.muted}`}>{t?.logosTitle ?? 'ИМ ВЕРУВААТ ФИРМИ НИЗ МАКЕДОНИЈА'}</div>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:flex-nowrap">
             {(settings.trustLogos && settings.trustLogos.length > 0
               ? settings.trustLogos
               : Array.from({ length: 6 }, () => '')
             ).map((url, i) =>
               url ? (
-                <div key={i} className={`grid h-8 place-items-center rounded-md border ${s.border} bg-white px-2`}>
-                  <img src={url} alt="Лого на клиент" className="max-h-6 max-w-full object-contain" loading="lazy" />
+                <div key={i} className={`grid h-16 min-w-0 flex-1 place-items-center rounded-md border ${s.border} bg-white px-3`}>
+                  <img src={url} alt="Лого на клиент" className="max-h-12 max-w-full object-contain" loading="lazy" />
                 </div>
               ) : (
-                <div key={i} className={`grid h-8 place-items-center rounded-md border ${s.border} bg-white ${s.mono} text-[10px] ${s.muted}`}>ЛОГО</div>
+                <div key={i} className={`grid h-16 min-w-0 flex-1 place-items-center rounded-md border ${s.border} bg-white ${s.mono} text-[11px] ${s.muted}`}>ЛОГО</div>
               ),
             )}
           </div>
