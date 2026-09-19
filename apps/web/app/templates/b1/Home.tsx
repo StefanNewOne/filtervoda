@@ -42,11 +42,11 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
             ))}
           </div>
         </div>
-        <div className="relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[28px] border border-[#E4EDF9] [background:radial-gradient(120%_100%_at_50%_30%,#FFFFFF_0%,#F2F8FF_55%,#E6F2FE_100%)]">
-          <span className="fv-ripple absolute aspect-square w-[58%] rounded-full border border-[#9FD6F8]" aria-hidden />
-          <span className="fv-ripple-2 absolute aspect-square w-[58%] rounded-full border border-[#9FD6F8]" aria-hidden />
+        <div className="relative grid aspect-[3/4] place-items-center overflow-hidden rounded-[28px] border border-[#E4EDF9] [background:radial-gradient(120%_100%_at_50%_30%,#FFFFFF_0%,#F2F8FF_55%,#E6F2FE_100%)]">
+          <span className="fv-ripple absolute aspect-square w-[64%] rounded-full border border-[#9FD6F8]" aria-hidden />
+          <span className="fv-ripple-2 absolute aspect-square w-[64%] rounded-full border border-[#9FD6F8]" aria-hidden />
           {heroImg ? (
-            <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="relative w-[80%] rounded-[18px] shadow-[0_26px_60px_rgba(8,24,47,0.16)]" />
+            <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="relative max-h-[92%] w-[88%] object-contain rounded-[18px] shadow-[0_26px_60px_rgba(8,24,47,0.16)]" />
           ) : (
             <div className="relative aspect-[4/5] w-[80%] rounded-[18px] bg-white/60" aria-hidden />
           )}
