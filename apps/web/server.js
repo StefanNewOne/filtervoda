@@ -25,6 +25,15 @@ if (redis) redis.on('error', () => {}); // a Redis blip must never crash the web
 const app = express();
 app.disable('x-powered-by');
 
+// Keep non-production hosts (preview *.sslip.io / bare IP / staging) out of search indexes.
+// Only the real domain is indexable; self-adjusts once DNS binds filtervoda.mk.
+app.use((req, res, next) => {
+  const host = String(req.headers.host ?? '').toLowerCase();
+  const indexable = host === 'filtervoda.mk' || host === 'www.filtervoda.mk';
+  if (!indexable) res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+
 // Hashed static assets — far-future immutable cache; other client files shorter.
 app.use('/assets', express.static(join(CLIENT, 'assets'), { immutable: true, maxAge: '1y' }));
 app.use(express.static(CLIENT, { maxAge: '1h' }));
