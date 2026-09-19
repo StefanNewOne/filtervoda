@@ -6,21 +6,75 @@ import type { Route } from './+types/post';
 export async function loader({ params }: Route.LoaderArgs) {
   const post = await api.post(params.slug);
   if (!post) throw new Response('Not found', { status: 404 });
-  return { post };
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  return { post, siteUrl };
 }
 
 export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data?.post ? `${data.post.title} | Совети` : 'Статија' }];
+  const post = data?.post as PostDetail | undefined;
+  if (!post) return [{ title: 'Статија | Совети' }];
+  const site = data?.siteUrl ?? '';
+  const title = post.seoTitle ?? `${post.title} | Совети`;
+  const desc = post.seoDescription ?? post.excerpt ?? '';
+  const canonical = site && post.slug ? `${site}/soveti/${post.slug}` : undefined;
+  const abs = (u?: string | null) => (!u ? undefined : /^https?:\/\//.test(u) ? u : `${site}${u}`);
+  const ogImg = abs(post.coverUrl);
+  return [
+    { title },
+    ...(desc ? [{ name: 'description', content: desc }] : []),
+    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
+    { property: 'og:title', content: post.title },
+    ...(desc ? [{ property: 'og:description', content: desc }] : []),
+    { property: 'og:type', content: 'article' },
+    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
+    ...(ogImg ? [{ property: 'og:image', content: ogImg }] : []),
+  ];
 }
 
 /** Single post as exposed by the public API (loosely typed content HTML). */
-type PostDetail = { title: string; content?: { html?: string } | null; coverUrl?: string | null };
+type PostDetail = {
+  title: string;
+  slug?: string;
+  excerpt?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  publishedAt?: string | null;
+  content?: { html?: string } | null;
+  coverUrl?: string | null;
+};
 
 export default function Post({ loaderData }: Route.ComponentProps) {
   const post = loaderData.post as PostDetail;
   const s = useSkin();
+  const site = (loaderData as { siteUrl?: string }).siteUrl ?? '';
+  const url = site && post.slug ? `${site}/soveti/${post.slug}` : undefined;
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: post.title,
+        ...(post.excerpt ? { description: post.excerpt } : {}),
+        ...(post.coverUrl ? { image: /^https?:\/\//.test(post.coverUrl) ? post.coverUrl : `${site}${post.coverUrl}` } : {}),
+        ...(post.publishedAt ? { datePublished: post.publishedAt } : {}),
+        ...(url ? { mainEntityOfPage: url } : {}),
+        author: { '@type': 'Organization', name: 'SPAR Company' },
+        publisher: { '@type': 'Organization', name: 'SPAR Company' },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Почетна', ...(site ? { item: `${site}/` } : {}) },
+          { '@type': 'ListItem', position: 2, name: 'Совети', ...(site ? { item: `${site}/soveti` } : {}) },
+          { '@type': 'ListItem', position: 3, name: post.title, ...(url ? { item: url } : {}) },
+        ],
+      },
+    ],
+  };
 
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
     <PageWrap>
       <nav className={`flex flex-wrap gap-2 pt-[26px] text-[13px] font-semibold ${s.muted}`} aria-label="Патека">
         <Link to="/" className="text-[var(--color-cta)]">
@@ -90,5 +144,6 @@ export default function Post({ loaderData }: Route.ComponentProps) {
         </aside>
       </div>
     </PageWrap>
+    </>
   );
 }
