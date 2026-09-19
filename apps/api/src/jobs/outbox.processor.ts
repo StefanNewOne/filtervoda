@@ -6,6 +6,7 @@
  */
 import { OUTBOX_BACKOFF_MS } from '@filtervoda/shared';
 import { logger } from '../lib/logger.js';
+import { NonRetriableError } from '../lib/outbox-errors.js';
 import { prisma } from '../lib/prisma.js';
 import {
   handleEmailAutoreply,
@@ -81,7 +82,8 @@ async function runOne(job: ClaimedJob): Promise<void> {
     else await prisma.outboxJob.update({ where: { id: job.id }, data: { status: 'DONE', lockedAt: null } });
   } catch (err) {
     const attempts = job.attempts + 1;
-    const dead = attempts >= job.maxAttempts;
+    // A permanent failure is DEAD immediately (no point retrying); otherwise DEAD after maxAttempts.
+    const dead = err instanceof NonRetriableError || attempts >= job.maxAttempts;
     const backoff = OUTBOX_BACKOFF_MS[Math.min(attempts - 1, OUTBOX_BACKOFF_MS.length - 1)] ?? 60_000;
     // On a terminal failure of a sensitive job, delete it so the live secret isn't retained.
     if (dead && sensitive) {

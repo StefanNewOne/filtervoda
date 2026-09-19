@@ -6,6 +6,7 @@ import axios from 'axios';
 import { env } from '../../config/env.js';
 import { capiHash, capiHashPhone } from '../../lib/hash.js';
 import { logger } from '../../lib/logger.js';
+import { NonRetriableError } from '../../lib/outbox-errors.js';
 import { prisma } from '../../lib/prisma.js';
 
 interface LeadJobPayload {
@@ -67,9 +68,14 @@ export async function handleCapiLead(payload: LeadJobPayload): Promise<void> {
     logger.info({ leadId: lead.id }, 'lead.capi.sent');
   } catch (err) {
     const code = (err as { response?: { data?: { error?: { code?: number } } } })?.response?.data?.error?.code;
-    if (code && META_RETRIABLE.has(code)) {
-      logger.warn({ leadId: lead.id, code }, 'capi retriable error');
+    // A known Meta error code that isn't retriable (e.g. bad token / invalid field) will never
+    // succeed on retry — fail fast to DEAD instead of burning all backoff attempts. Retriable
+    // codes and transport errors (no code) fall through to normal backoff.
+    if (code && !META_RETRIABLE.has(code)) {
+      logger.error({ leadId: lead.id, code }, 'capi non-retriable error');
+      throw new NonRetriableError(`CAPI non-retriable error code ${code}`);
     }
+    if (code) logger.warn({ leadId: lead.id, code }, 'capi retriable error');
     throw err; // let the outbox retry with backoff
   }
 }
