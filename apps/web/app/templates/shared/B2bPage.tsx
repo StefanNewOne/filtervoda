@@ -77,7 +77,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
           <img
             src={t?.heroImage || '/img/products/dispenzer.jpg'}
             alt="Диспензер за топла и ладна вода со реверзна осмоза"
-            className="w-full rounded-[24px] bg-white object-contain"
+            className="w-full rounded-[24px] object-contain"
             style={{ aspectRatio: '4 / 5' }}
             loading="eager"
           />

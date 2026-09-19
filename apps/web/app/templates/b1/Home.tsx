@@ -46,7 +46,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <span className="fv-ripple absolute aspect-square w-[64%] rounded-full border border-[#9FD6F8]" aria-hidden />
           <span className="fv-ripple-2 absolute aspect-square w-[64%] rounded-full border border-[#9FD6F8]" aria-hidden />
           {heroImg ? (
-            <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="relative max-h-[92%] w-[88%] object-contain rounded-[18px] shadow-[0_26px_60px_rgba(8,24,47,0.16)]" />
+            <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="relative z-10 h-full w-full object-contain p-4 drop-shadow-[0_26px_50px_rgba(8,24,47,0.20)]" />
           ) : (
             <div className="relative aspect-[4/5] w-[80%] rounded-[18px] bg-white/60" aria-hidden />
           )}
