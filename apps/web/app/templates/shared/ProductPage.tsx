@@ -12,7 +12,7 @@ import { useTemplateId } from '../context';
 import { skinFor } from '../skin';
 
 /** Shared product page — identical structure across templates, styled per skin. */
-export function ProductPage({ product: p, testimonials = [], settings }: { product: ProductDetailDto; testimonials?: Testimonial[]; settings?: PublicSettings }) {
+export function ProductPage({ product: p, testimonials = [], settings, siteUrl = '' }: { product: ProductDetailDto; testimonials?: Testimonial[]; settings?: PublicSettings; siteUrl?: string }) {
   const tid = useTemplateId();
   const s = skinFor(tid);
   const T = useTemplate();
@@ -20,8 +20,8 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
   const price = p.priceSale ?? p.priceRegular;
   const hasSale = p.priceSale != null && p.priceRegular != null;
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
+  const url = siteUrl ? `${siteUrl}/proizvodi/${p.slug}` : undefined;
+  const productLd = {
     '@type': 'Product',
     name: p.name,
     description: p.tagline,
@@ -29,6 +29,18 @@ export function ProductPage({ product: p, testimonials = [], settings }: { produ
     brand: { '@type': 'Brand', name: 'SPAR Company' },
     ...(p.showPrice && price ? { offers: { '@type': 'Offer', price, priceCurrency: 'MKD', availability: 'https://schema.org/InStock' } } : {}),
   };
+  const breadcrumbLd = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Почетна', ...(siteUrl ? { item: `${siteUrl}/` } : {}) },
+      { '@type': 'ListItem', position: 2, name: 'Производи', ...(siteUrl ? { item: `${siteUrl}/proizvodi` } : {}) },
+      { '@type': 'ListItem', position: 3, name: p.name, ...(url ? { item: url } : {}) },
+    ],
+  };
+  const faqLd = p.faqs.length
+    ? { '@type': 'FAQPage', mainEntity: p.faqs.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) }
+    : null;
+  const jsonLd = { '@context': 'https://schema.org', '@graph': [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])] };
 
   const H2 = ({ children }: { children: React.ReactNode }) => (
     <h2 className={`${s.display} ${s.ink} text-[clamp(24px,2.6vw,34px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>{children}</h2>

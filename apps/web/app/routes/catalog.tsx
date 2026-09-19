@@ -7,16 +7,26 @@ import { compareRow } from '../templates/compare';
 import { useTemplate } from '../templates/registry';
 import type { Route } from './+types/catalog';
 
-export function meta() {
+export function meta({ data }: Route.MetaArgs) {
+  const site = data?.siteUrl ?? '';
+  const title = 'Производи — филтри и системи за вода | filtervoda.mk';
+  const desc = 'Системи за филтрација на вода: реверзна осмоза, диспензери, филтрација за цел дом, заштита од бигор, мерачи.';
+  const canonical = site ? `${site}/proizvodi` : undefined;
   return [
-    { title: 'Производи — филтри и системи за вода | filtervoda.mk' },
-    { name: 'description', content: 'Системи за филтрација на вода: реверзна осмоза, диспензери, филтрација за цел дом, заштита од бигор, мерачи.' },
+    { title },
+    { name: 'description', content: desc },
+    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: desc },
+    { property: 'og:type', content: 'website' },
+    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
   ];
 }
 
 export async function loader() {
   const [products, categories] = await Promise.all([api.products(), api.categories()]);
-  return { products, categories };
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  return { products, categories, siteUrl };
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {

@@ -1,4 +1,4 @@
-import { computeSavings, telHref, type B2bPackageDto, type PublicSettings } from '@filtervoda/shared';
+import { computeSavings, DEFAULT_LITERS_PER_PERSON_DAY, DEFAULT_WORKING_DAYS, telHref, type B2bPackageDto, type PublicSettings } from '@filtervoda/shared';
 import * as Slider from '@radix-ui/react-slider';
 import { useMemo, useState } from 'react';
 import { LeadForm } from '../../components/LeadForm';
@@ -151,7 +151,7 @@ export function B2bPage({ packages, settings, faq = [] }: { packages: B2bPackage
                 onChange={(e) => setUnitPrice(Math.max(1, Number(e.target.value) || 0))}
                 className={`mt-2.5 w-full rounded-xl border ${s.border} ${s.softBg} px-4 py-[15px] font-bold ${s.ink}`}
               />
-              <p className={`mt-3.5 text-[13px] leading-[1.5] ${s.muted}`}>Пресметката претпоставува 1,5 L по човек дневно и 22 работни дена. Пресметката е ориентациона.</p>
+              <p className={`mt-3.5 text-[13px] leading-[1.5] ${s.muted}`}>Пресметката претпоставува {String(DEFAULT_LITERS_PER_PERSON_DAY).replace('.', ',')} L по човек дневно и {DEFAULT_WORKING_DAYS} работни дена. Пресметката е ориентациона.</p>
             </div>
 
             {/* Result panel */}
