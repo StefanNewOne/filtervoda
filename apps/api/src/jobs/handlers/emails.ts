@@ -4,6 +4,7 @@
  */
 import { formatMkPhoneDisplay } from '@filtervoda/shared';
 import { env } from '../../config/env.js';
+import { logger } from '../../lib/logger.js';
 import { notifyEmails, sendMail } from '../../lib/mailer.js';
 import { prisma } from '../../lib/prisma.js';
 
@@ -20,6 +21,10 @@ export async function handleEmailNewLead(payload: LeadJobPayload): Promise<void>
   if (!recipients.length) return; // nothing configured — no-op
   const lead = await prisma.lead.findUnique({ where: { id: payload.leadId } });
   if (!lead) return;
+  // Idempotency: if a prior attempt already recorded the send, don't email the operator twice
+  // (guards the crash-between-send-and-DONE retry window).
+  const already = await prisma.leadEvent.findFirst({ where: { leadId: lead.id, type: 'EMAIL_SENT' } });
+  if (already) return;
 
   const adminLink = `${env.ADMIN_URL ?? env.PUBLIC_SITE_URL}/admin/leads/${lead.id}`;
   const rows = [
@@ -43,6 +48,8 @@ export async function handleEmailNewLead(payload: LeadJobPayload): Promise<void>
       <table>${rows}</table>
       <p><a href="${adminLink}">Отвори во админ</a> · <a href="tel:${lead.phone}">Повикај</a></p></div>`,
   });
+  await prisma.leadEvent.create({ data: { leadId: lead.id, type: 'EMAIL_SENT' } });
+  logger.info({ leadId: lead.id }, 'lead.email.sent');
 }
 
 export async function handleEmailAutoreply(payload: LeadJobPayload): Promise<void> {
