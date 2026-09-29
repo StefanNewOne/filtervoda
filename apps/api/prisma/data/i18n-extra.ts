@@ -52,6 +52,14 @@ const NOTES: Record<string, { en: string; sq: string }> = {
   },
 };
 
+// Maintenance note by SLUG (robust override — avoids fragile MK string matching for prod-edited notes).
+const NOTE_BY_SLUG: Record<string, { en: string; sq: string }> = {
+  'spar-crystal-digital-600hf': {
+    en: 'The filters on this product are replaced every 12 months. We call you when they are nearing the end and should be replaced.',
+    sq: 'Filtrat e këtij produkti ndërrohen çdo 12 muaj. Ju telefonojmë kur janë afër fundit dhe kur duhet t’i ndërrojmë.',
+  },
+};
+
 // Testimonial name/company transliteration.
 const TST: Record<string, { name: string; company?: string }> = {
   'Билјана С.': { name: 'Biljana S.' },
@@ -59,6 +67,10 @@ const TST: Record<string, { name: string; company?: string }> = {
   'Марија П.': { name: 'Marija P.' },
   'Кафе Бар Лума': { name: 'Cafe Bar Luma', company: 'Luma' },
 };
+
+// Match maintenance notes tolerant of whitespace/nbsp differences.
+const norm = (s: string) => s.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+const NOTES_NORM = new Map(Object.entries(NOTES).map(([k, v]) => [norm(k), v]));
 
 type I18n = Record<string, Record<string, unknown>>;
 function merge(existing: unknown, add: { en: Record<string, unknown>; sq: Record<string, unknown> }): I18n {
@@ -77,7 +89,7 @@ async function main() {
     const add = { en: {} as Record<string, unknown>, sq: {} as Record<string, unknown> };
     const nm = NAMES[p.slug];
     if (nm) { add.en.name = nm.en; add.sq.name = nm.sq; }
-    const note = p.maintenanceNote && NOTES[p.maintenanceNote];
+    const note = NOTE_BY_SLUG[p.slug] || (p.maintenanceNote && NOTES_NORM.get(norm(p.maintenanceNote)));
     if (note) { add.en.maintenanceNote = note.en; add.sq.maintenanceNote = note.sq; }
     if (!Object.keys(add.en).length) continue;
     await prisma.product.update({ where: { id: p.id }, data: { i18n: merge(p.i18n, add) } });
