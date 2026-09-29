@@ -275,12 +275,21 @@ instead of many `*I18n` columns — simpler migration + admin editing. Migration
   purge clears all variants). `api.server.ts` + loaders (home/catalog/product/blog/post/b2b) thread
   URL locale. Verified: api+web typecheck, api 25 tests (6 new), web build.
 
+**Admin write path DONE (partial):** shared `i18nOverlaySchema` (null→undefined) added to
+product/post/faq + category/post-category/package/testimonial/spec/stage schemas; handlers spread
+validated data so `i18n` persists; GET returns it. Reusable `apps/admin/app/components/I18nPanel.tsx`
+(EN/SQ sub-tabs; text/textarea/list). Wired: **product editor** (name, tagline, shortDescription,
+idealFor, includedInPrice, maintenanceNote, badges, chips, seoTitle, seoDescription) + **GenericCrud
+`i18nFields` prop** → **FAQ + testimonials** editors. Verified: shared/api/admin typecheck, ESLint,
+api 25 + shared 16 tests, admin build.
+
 **STILL TODO in M2:**
-- **Admin write path** — API admin CRUD must accept/validate/store `i18n`; admin editors get
-  [МК][EN][SQ] tabs per translatable field (products, categories, posts, FAQ, testimonials, B2B).
-- **Setting-based content** — home hero/why/stages defaults, About, B2B copy, cookie banner live
-  in `Setting.value` JSON; need a per-locale mechanism in `settings.service` (separate from the
-  model `i18n` columns). Until then these render MK on /en /sq.
+- **Remaining admin editors** — categories, B2B packages, posts, post-categories use CUSTOM forms
+  (not GenericCrud); each needs an `I18nPanel` wired in (packages incl. `includes` list; posts incl.
+  title/excerpt/seo — per-locale rich body deferred; sanitize any i18n HTML if added later).
+- **Setting-based content** — home hero/why/stages, About, B2B copy, cookie banner live in
+  `Setting.value` JSON; need a per-locale mechanism in `settings.service` (separate from model
+  `i18n` columns). Until then these render MK on /en /sq.
 ### i18n-M3 — NOT STARTED (hreflang/canonical/sitemap alternates, per-locale meta, locale-aware
 autoreply, Albanian ë/ç font glyph check, legal binding note).
 
