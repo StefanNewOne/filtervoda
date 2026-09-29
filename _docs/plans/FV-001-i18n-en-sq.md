@@ -246,23 +246,24 @@ start i18n-M1 on `feature/FV-i18n` off `develop`.**
   only transitive), cookie `fv_locale`, `tone` prop for dark headers.
 - All 3 template headers (b1/b2/b3): nav + CTA via `useT`, `LocaleLink`, switcher added.
 
-**Chrome DONE (commits 2–4):** Footer + StickyBar (b1, shared by b2/b3), `LeadModal.tsx`,
-`LeadForm.tsx` (placeholders/validation/consent/submit + locale-aware thank-you nav & privacy
-link), `ConsentBanner.tsx`, thank-you + 404 (`not-found.tsx` + root ErrorBoundary).
+**i18n-M1 CHROME COMPLETE (commits 2–10) — web typecheck ✅, ESLint ✅, 16 tests ✅, prod build ✅:**
+- Shell: headers b1/b2/b3, Footer + StickyBar, LeadModal + LeadForm, ConsentBanner, switcher, 404/ErrorBoundary.
+- Pages: thank-you, not-found, about, contact, catalog, blog, post, legal (chrome), home (pure
+  chrome), product page + B2B page incl. the full savings calculator UI.
+- Components: PageShell breadcrumbs (locale-aware), all 3 TrustBars + ProductCards, HomeSections.
+- Dictionaries `mk/en/sq` grown to cover every extracted chrome string (nav, cta, lead, consent,
+  footer, thankyou, error, about, contact, catalog, card, pp.*, b2b.*, home.*, trust.*, legal, post…).
 
-**STILL TODO in M1 (page-body chrome strings — mostly static labels/headings; the DB-driven
-CONTENT on catalog/product/post/b2b is M2, not this):**
-- `routes/about.tsx`, `routes/contact.tsx`, `routes/legal.tsx` (static copy),
-- `routes/home.tsx` + per-template `templates/{b1,b2,b3}/Home.tsx` + `templates/shared/HomeSections.tsx`,
-- `templates/{b1,b2,b3}/TrustBar.tsx` + `ProductCard.tsx`,
-- `routes/catalog.tsx` (filter/compare headings), `routes/product.tsx` +
-  `templates/shared/ProductPage.tsx` (section headings/labels/CTAs),
-- `routes/b2b.tsx` + `templates/shared/B2bPage.tsx` (calculator labels — some keys already in dict),
-- `routes/blog.tsx` + `routes/post.tsx` (static labels; article body is content=M2).
-- Grow `mk/en/sq` dictionaries as each is converted.
-- Optional: redirect the bare root to the `fv_locale` cookie's locale (can defer to M3).
-- Deferred to M3: `meta()` SEO titles/descriptions (run server-side, need locale from
-  `location` + `translate()` — not wired yet, pages still emit MK `<title>`).
+**Intentionally left for M2 (admin-managed CONTENT, not chrome):** product/category names,
+descriptions, specs, badges, blog article bodies, testimonials, FAQ, and the shipped default
+CONTENT blocks (home hero H1/H2 + WHY_ITEMS + STAGES in `templates/types.ts`; B2B PROBLEMS/
+INCLUDED/INDUSTRIES/DEFAULT_STEPS/DEFAULT_COMPARISON; About DEFAULTS overrides) — these render
+MK until admin enters per-locale content in M2. Legal BODY text stays MK (binding, §9.7).
+
+**Deferred to M3:** `meta()` SEO titles/descriptions + JSON-LD breadcrumb names (run server-side;
+need locale from `location` + `translate()` — pages still emit MK `<title>`); hreflang/canonical
+alternates; sitemap locale alternates; locale-aware autoreply; Albanian ë/ç font-glyph check;
+optional bare-root redirect from the `fv_locale` cookie.
 
 ### i18n-M2 — NOT STARTED (DB `*I18n` JSON columns + locale-aware API/cache + admin [МК][EN][SQ] tabs).
 ### i18n-M3 — NOT STARTED (hreflang/canonical/sitemap alternates, per-locale meta, locale-aware
