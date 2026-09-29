@@ -283,13 +283,19 @@ idealFor, includedInPrice, maintenanceNote, badges, chips, seoTitle, seoDescript
 `i18nFields` prop** → **FAQ + testimonials** editors. Verified: shared/api/admin typecheck, ESLint,
 api 25 + shared 16 tests, admin build.
 
-**STILL TODO in M2:**
-- **Remaining admin editors** — categories, B2B packages, posts, post-categories use CUSTOM forms
-  (not GenericCrud); each needs an `I18nPanel` wired in (packages incl. `includes` list; posts incl.
-  title/excerpt/seo — per-locale rich body deferred; sanitize any i18n HTML if added later).
-- **Setting-based content** — home hero/why/stages, About, B2B copy, cookie banner live in
-  `Setting.value` JSON; need a per-locale mechanism in `settings.service` (separate from model
-  `i18n` columns). Until then these render MK on /en /sq.
+**Entity editors DONE:** product, category, B2B package, post, FAQ, testimonial all have EN/SQ
+`I18nPanel`s (GenericCrud `i18nFields` for FAQ/testimonials; custom-form wiring for the rest).
+
+**Setting-based content DONE:** `getPublicSettings(locale)` overlays per-locale Setting values
+stored under `<key>.<locale>` (`localeView`, MK fallback); `/public/settings` honors `?lang`
+(per-locale cache key); SSR `api.settings` + root/home/b2b/about/contact/product loaders thread
+the URL locale. Admin EN/SQ panels in За фирми (content.tsx), Почетна (content), За нас editors.
+
+**i18n-M2 COMPLETE for content end-to-end.** Remaining edges (optional, defer to M2.1/M3):
+- List-type Setting content not yet per-locale: home why-items/stages/hero-chips, B2B
+  problems/included/industries/steps/comparison, About stats (render MK on /en /sq).
+- Per-locale post RICH body (title/excerpt/SEO are localized; body still MK — sanitize i18n HTML
+  if added). Post-categories (name) editor not wired (minor).
 ### i18n-M3 — NOT STARTED (hreflang/canonical/sitemap alternates, per-locale meta, locale-aware
 autoreply, Albanian ë/ç font glyph check, legal binding note).
 
