@@ -177,6 +177,8 @@ export const mk = {
   'home.articles.title': 'Совети за чиста вода',
   'home.articles.all': 'Сите совети',
   'home.articles.tag': 'СОВЕТ',
+  'home.stages.eyebrow': 'КАКО ФУНКЦИОНИРА',
+  'home.products.all': 'Сите производи',
 
   // ── Trust bar ──
   'trust.warranty10': '10 години гаранција',

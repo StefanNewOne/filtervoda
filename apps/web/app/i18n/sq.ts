@@ -175,6 +175,8 @@ export const sq: Partial<Dict> = {
   'home.articles.title': 'Këshilla për ujë të pastër',
   'home.articles.all': 'Të gjitha këshillat',
   'home.articles.tag': 'KËSHILLË',
+  'home.stages.eyebrow': 'SI FUNKSIONON',
+  'home.products.all': 'Të gjitha produktet',
 
   // Trust bar
   'trust.warranty10': 'Garanci 10-vjeçare',

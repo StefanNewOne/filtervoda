@@ -175,6 +175,8 @@ export const en: Partial<Dict> = {
   'home.articles.title': 'Tips for clean water',
   'home.articles.all': 'All tips',
   'home.articles.tag': 'TIP',
+  'home.stages.eyebrow': 'HOW IT WORKS',
+  'home.products.all': 'All products',
 
   // Trust bar
   'trust.warranty10': '10-year warranty',
