@@ -24,6 +24,7 @@ export const MODULES: ModuleDef[] = [
   { to: '/products', label: 'Производи', dot: 'var(--color-accent-products)', group: 'СОДРЖИНА', roles: EDITORS },
   { to: '/categories', label: 'Категории', dot: 'var(--color-accent-products)', group: 'СОДРЖИНА', roles: EDITORS },
   { to: '/content', label: 'Страници и копи', dot: 'var(--color-accent-blog)', group: 'СОДРЖИНА', roles: EDITORS },
+  { to: '/about', label: 'За нас', dot: 'var(--color-accent-blog)', group: 'СОДРЖИНА', roles: EDITORS },
   { to: '/posts', label: 'Совети', dot: 'var(--color-accent-blog)', group: 'СОДРЖИНА', roles: EDITORS },
   { to: '/faq', label: 'ЧПП', dot: 'var(--color-accent-blog)', group: 'СОДРЖИНА', roles: EDITORS },
   { to: '/b2b', label: 'За фирми', dot: 'var(--color-accent-b2b)', group: 'B2B', roles: EDITORS },

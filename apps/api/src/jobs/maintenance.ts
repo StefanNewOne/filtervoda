@@ -2,7 +2,7 @@
  * Maintenance crons: anonymize old lead PII (retention), clean expired sessions.
  * Idempotent (CLAUDE.md testing priority #8).
  */
-import { IP_HASH_RETENTION_DAYS, LEAD_RETENTION_MONTHS } from '@filtervoda/shared';
+import { IP_HASH_RETENTION_DAYS, LEAD_RETENTION_MONTHS, OUTBOX_DONE_RETENTION_DAYS } from '@filtervoda/shared';
 import { logger } from '../lib/logger.js';
 import { prisma } from '../lib/prisma.js';
 import { writeAudit } from '../services/audit.service.js';
@@ -53,4 +53,18 @@ export async function dropOldIpHashes(): Promise<{ affected: number }> {
 export async function cleanupSessions(): Promise<{ affected: number }> {
   const deleted = await prisma.$executeRaw`DELETE FROM "session" WHERE expire < now()`;
   return { affected: Number(deleted) };
+}
+
+/**
+ * Prune succeeded outbox rows past the retention window (declared policy: DONE 30 days). DEAD
+ * rows are kept until manually closed. Removes stale payloads (attribution / hashed PII /
+ * transient tokens) so the table doesn't grow unbounded. Idempotent.
+ */
+export async function cleanupOutbox(): Promise<{ affected: number }> {
+  const cutoff = new Date(Date.now() - OUTBOX_DONE_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  const { count } = await prisma.outboxJob.deleteMany({
+    where: { status: 'DONE', updatedAt: { lt: cutoff } },
+  });
+  if (count) logger.info({ affected: count }, 'cron.outbox.cleanup.run');
+  return { affected: count };
 }

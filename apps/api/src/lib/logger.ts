@@ -8,7 +8,7 @@ import { env, isProd } from '../config/env.js';
 export const logger = pino({
   level: isProd ? 'info' : 'debug',
   redact: {
-    paths: ['req.headers.authorization', 'req.headers.cookie', '*.password', '*.phone', '*.email'],
+    paths: ['req.headers.authorization', 'req.headers.cookie', '*.password', '*.phone', '*.email', '*.name', '*.city'],
     remove: true,
   },
   base: { env: env.NODE_ENV },

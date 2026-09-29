@@ -43,7 +43,9 @@ adminLeadsRouter.get('/export', async (req, res) => {
       .map((c) => {
         const v = c === 'phone' ? formatMkPhoneDisplay(l.phone) : (l as Record<string, unknown>)[c];
         const s = v == null ? '' : String(v);
-        return `"${s.replace(/"/g, '""')}"`;
+        // CSV formula-injection guard: neutralize cells Excel/Sheets would execute as a formula.
+        const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+        return `"${safe.replace(/"/g, '""')}"`;
       })
       .join(','),
   );

@@ -1,37 +1,76 @@
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import { useTemplate } from '../templates/registry';
 import type { Route } from './+types/home';
 
-export function meta() {
-  return [
-    { title: 'filtervoda.mk — Чиста, алкална вода директно од вашата чешма' },
-    {
-      name: 'description',
-      content:
-        'Системи за филтрација со бесплатна монтажа и 10 години гаранција — низ цела Македонија. Реверзна осмоза, алкална и минерализирана вода.',
-    },
-  ];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  const site = data?.siteUrl ?? '';
+  const abs = (u?: string) => (!u ? undefined : /^https?:\/\//.test(u) ? u : `${site}${u}`);
+  return localeMeta({
+    locale,
+    siteUrl: site,
+    path: '/',
+    title: tm(locale, 'meta.home.title'),
+    description: tm(locale, 'meta.home.desc'),
+    image: abs(data?.settings?.content?.heroImage),
+  });
 }
 
-export async function loader() {
-  const [products, settings, testimonials, faq, posts] = await Promise.all([
-    api.products(),
-    api.settings(),
-    api.testimonials().catch(() => []),
-    api.faq('GLOBAL').catch(() => []),
-    api.posts().catch(() => []),
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const [featured, settings, testimonials, faq, posts] = await Promise.all([
+    api.featuredProducts(locale),
+    api.settings(locale),
+    api.testimonials(undefined, locale).catch(() => []),
+    api.faq('GLOBAL', locale).catch(() => []),
+    api.posts(locale).catch(() => []),
   ]);
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return {
-    featured: products.slice(0, 6),
+    featured,
     content: settings.content ?? {},
     testimonials,
     faq,
     posts: posts.slice(0, 3),
     settings,
+    siteUrl,
   };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const T = useTemplate();
-  return <T.Home {...loaderData} />;
+  const { settings, siteUrl } = loaderData;
+  const site = siteUrl ?? '';
+  const phones = settings?.phones ?? [];
+  const social = settings?.social ?? {};
+  const sameAs = [social.facebook, social.instagram].filter((x): x is string => Boolean(x));
+  // Organization + LocalBusiness structured data (brand + local SEO for an ad/share-driven site).
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        ...(site ? { '@id': `${site}/#org` } : {}),
+        name: 'SPAR Company',
+        ...(site ? { url: site } : {}),
+        ...(sameAs.length ? { sameAs } : {}),
+      },
+      {
+        '@type': 'LocalBusiness',
+        name: 'SPAR Company — filtervoda.mk',
+        ...(site ? { url: site } : {}),
+        ...(phones[0] ? { telephone: phones[0] } : {}),
+        areaServed: 'MK',
+        ...(settings?.address ? { address: settings.address } : {}),
+      },
+    ],
+  };
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
+      <T.Home {...loaderData} />
+    </>
+  );
 }

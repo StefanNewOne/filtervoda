@@ -6,6 +6,7 @@
  */
 import { OUTBOX_BACKOFF_MS } from '@filtervoda/shared';
 import { logger } from '../lib/logger.js';
+import { NonRetriableError } from '../lib/outbox-errors.js';
 import { prisma } from '../lib/prisma.js';
 import {
   handleEmailAutoreply,
@@ -27,6 +28,9 @@ const HANDLERS: Record<string, Handler> = {
 
 const BATCH = 10;
 const LOCK_TIMEOUT_MS = 5 * 60 * 1000;
+// Job types whose payload holds a live secret (e.g. a password-reset token). On a terminal
+// state we DELETE the row instead of keeping it (as DONE) so the secret isn't persisted.
+const SENSITIVE_TYPES = new Set(['email.passwordReset']);
 let running = false;
 
 interface ClaimedJob {
@@ -71,13 +75,22 @@ async function runOne(job: ClaimedJob): Promise<void> {
     return;
   }
 
+  const sensitive = SENSITIVE_TYPES.has(job.type);
   try {
     await handler(job.payload);
-    await prisma.outboxJob.update({ where: { id: job.id }, data: { status: 'DONE', lockedAt: null } });
+    if (sensitive) await prisma.outboxJob.delete({ where: { id: job.id } });
+    else await prisma.outboxJob.update({ where: { id: job.id }, data: { status: 'DONE', lockedAt: null } });
   } catch (err) {
     const attempts = job.attempts + 1;
-    const dead = attempts >= job.maxAttempts;
+    // A permanent failure is DEAD immediately (no point retrying); otherwise DEAD after maxAttempts.
+    const dead = err instanceof NonRetriableError || attempts >= job.maxAttempts;
     const backoff = OUTBOX_BACKOFF_MS[Math.min(attempts - 1, OUTBOX_BACKOFF_MS.length - 1)] ?? 60_000;
+    // On a terminal failure of a sensitive job, delete it so the live secret isn't retained.
+    if (dead && sensitive) {
+      await prisma.outboxJob.delete({ where: { id: job.id } });
+      logger.error({ jobId: job.id, type: job.type }, 'outbox.job.dead');
+      return;
+    }
     await prisma.outboxJob.update({
       where: { id: job.id },
       data: {

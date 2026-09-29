@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
@@ -34,25 +35,36 @@ const STR_FIELDS: { key: string; label: string; area?: boolean }[] = [
 export default function Content() {
   const qc = useQueryClient();
   const { data: settings = [] } = useQuery({ queryKey: ['settings'], queryFn: () => apiClient.get<{ key: string; value: unknown }[]>('/admin/settings') });
+  const { data: products = [] } = useQuery({ queryKey: ['products'], queryFn: () => apiClient.get<{ id: string; name: string; slug: string; status?: string }[]>('/admin/products') });
   const save = useSaveState();
 
   const [str, setStr] = useState<Record<string, string>>({});
+  const [sI18n, setSI18n] = useState<I18nData>({});
   const [heroChips, setHeroChips] = useState<string[]>([]);
   const [whyItems, setWhyItems] = useState<WhyItem[]>([]);
   const [stages, setStages] = useState<StageItem[]>([]);
   const [teaserBullets, setTeaserBullets] = useState<string[]>([]);
   const [teaserImage, setTeaserImage] = useState<string>('');
   const [heroImage, setHeroImage] = useState<string>('');
+  const [featuredProductIds, setFeaturedProductIds] = useState<string[]>([]);
+  const [addSel, setAddSel] = useState<string>('');
 
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
     setStr(Object.fromEntries(STR_FIELDS.map((f) => [f.key, val<string>(f.key) ?? ''])));
+    const LIST_ROW_KEYS = ['content.hero.chips', 'content.b2bTeaser.bullets', 'content.why.items', 'content.stages.items'];
+    const loadLoc = (lc: 'en' | 'sq') => ({
+      ...Object.fromEntries(STR_FIELDS.map((f) => [f.key, val<string>(`${f.key}.${lc}`) ?? ''])),
+      ...Object.fromEntries(LIST_ROW_KEYS.map((k) => [k, val<unknown>(`${k}.${lc}`) ?? []])),
+    });
+    setSI18n({ en: loadLoc('en'), sq: loadLoc('sq') });
     setHeroChips(val<string[]>('content.hero.chips') ?? []);
     setWhyItems(val<WhyItem[]>('content.why.items') ?? []);
     setStages(val<StageItem[]>('content.stages.items') ?? []);
     setTeaserBullets(val<string[]>('content.b2bTeaser.bullets') ?? []);
     setTeaserImage(val<string>('content.b2bTeaser.image') ?? '');
     setHeroImage(val<string>('content.hero.image') ?? '');
+    setFeaturedProductIds(val<string[]>('content.featured.productIds') ?? []);
   }, [settings]);
 
   const asRows = (arr: string[]) => arr.map((v) => ({ text: v }));
@@ -62,12 +74,18 @@ export default function Content() {
     save.run(async () => {
       const put = (key: string, value: unknown) => apiClient.put(`/admin/settings/${key}`, { value });
       for (const f of STR_FIELDS) await put(f.key, str[f.key]?.trim() ?? '');
+      // Per-locale copy (FV-001 M2) — stored under `<key>.<locale>` (strings + lists/rows).
+      for (const lc of ['en', 'sq'] as const) {
+        for (const f of STR_FIELDS) await put(`${f.key}.${lc}`, String((sI18n[lc]?.[f.key] as string) ?? '').trim());
+        for (const k of ['content.hero.chips', 'content.b2bTeaser.bullets', 'content.why.items', 'content.stages.items']) await put(`${k}.${lc}`, sI18n[lc]?.[k] ?? []);
+      }
       await put('content.hero.image', heroImage);
       await put('content.hero.chips', heroChips);
       await put('content.why.items', whyItems.filter((w) => w.title.trim()));
       await put('content.stages.items', stages.filter((s) => s.name.trim()));
       await put('content.b2bTeaser.bullets', teaserBullets);
       await put('content.b2bTeaser.image', teaserImage);
+      await put('content.featured.productIds', featuredProductIds);
       await qc.invalidateQueries({ queryKey: ['settings'] });
     });
 
@@ -118,8 +136,90 @@ export default function Content() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Најбарани системи" hint="Само наслов — производите доаѓаат од модулот Производи (истакнати).">
-          <div className="max-w-2xl">{strField('content.featured.title')}</div>
+        <SectionCard title="Најбарани системи" hint="Насловот и изборот на производи што се прикажуваат во блокот, по редослед.">
+          <div className="max-w-2xl space-y-3">
+            {strField('content.featured.title')}
+            <div>
+              <span className="text-sm text-[var(--color-neutral-500)]">Избрани производи (по редослед)</span>
+              <div className="mt-2 space-y-2">
+                {featuredProductIds.length === 0 && (
+                  <p className="text-sm text-[var(--color-neutral-400)]">Нема избрани производи.</p>
+                )}
+                {featuredProductIds.map((id, i) => {
+                  const p = products.find((x) => x.id === id);
+                  return (
+                    <div key={id} className="flex items-center gap-2 rounded-md border border-[var(--color-neutral-200)] px-3 py-2">
+                      <span className="flex-1 text-sm">{p ? p.name : `(непознат производ: ${id})`}</span>
+                      <button
+                        type="button"
+                        aria-label="Помести нагоре"
+                        className="min-h-[44px] min-w-[44px] rounded-md border border-[var(--color-neutral-200)] text-lg disabled:opacity-30"
+                        disabled={i === 0}
+                        onClick={() => {
+                          const a = featuredProductIds[i - 1];
+                          const b = featuredProductIds[i];
+                          if (a === undefined || b === undefined) return;
+                          const next = [...featuredProductIds];
+                          next[i - 1] = b;
+                          next[i] = a;
+                          setFeaturedProductIds(next);
+                        }}
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Помести надолу"
+                        className="min-h-[44px] min-w-[44px] rounded-md border border-[var(--color-neutral-200)] text-lg disabled:opacity-30"
+                        disabled={i === featuredProductIds.length - 1}
+                        onClick={() => {
+                          const a = featuredProductIds[i];
+                          const b = featuredProductIds[i + 1];
+                          if (a === undefined || b === undefined) return;
+                          const next = [...featuredProductIds];
+                          next[i] = b;
+                          next[i + 1] = a;
+                          setFeaturedProductIds(next);
+                        }}
+                      >
+                        ▼
+                      </button>
+                      <button
+                        type="button"
+                        className="min-h-[44px] rounded-md border border-[var(--color-neutral-200)] px-3 text-sm text-[var(--color-red-600,#dc2626)]"
+                        onClick={() => setFeaturedProductIds(featuredProductIds.filter((x) => x !== id))}
+                      >
+                        Отстрани
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <select className={input} value={addSel} onChange={(e) => setAddSel(e.target.value)}>
+                  <option value="">— Избери производ за додавање —</option>
+                  {products
+                    .filter((p) => !featuredProductIds.includes(p.id))
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  className="min-h-[44px] whitespace-nowrap rounded-md border border-[var(--color-neutral-200)] px-4 text-sm"
+                  onClick={() => {
+                    if (addSel && !featuredProductIds.includes(addSel)) setFeaturedProductIds([...featuredProductIds, addSel]);
+                    setAddSel('');
+                  }}
+                >
+                  Додај
+                </button>
+              </div>
+              <Hint>Избери и подреди производи за блокот „Најбарани системи". Ако е празно, се прикажуваат истакнатите производи.</Hint>
+            </div>
+          </div>
         </SectionCard>
 
         <SectionCard title="Како функционира (степени)" hint="Насловот и степените на филтрација. Нумерирањето се додава автоматски.">
@@ -170,6 +270,27 @@ export default function Content() {
             {strField('content.thankyou.title')}
             {strField('content.thankyou.text')}
           </div>
+        </SectionCard>
+
+        <SectionCard title="Преводи на текстовите (EN / SQ)" hint="Превод на сите наслови и текстови од почетната. Празно поле = се прикажува македонскиот. (Листите — чипови, картички, степени, буллети — засега се на македонски на сите јазици.)">
+          <I18nPanel
+            value={sI18n}
+            onChange={setSI18n}
+            mk={{
+              ...Object.fromEntries(STR_FIELDS.map((f) => [f.key, str[f.key]])),
+              'content.hero.chips': heroChips,
+              'content.b2bTeaser.bullets': teaserBullets,
+              'content.why.items': whyItems,
+              'content.stages.items': stages,
+            }}
+            fields={[
+              ...STR_FIELDS.map((f) => ({ key: f.key, label: f.label, type: f.area ? ('textarea' as const) : ('text' as const) })),
+              { key: 'content.hero.chips', label: 'Hero чипови', type: 'list' as const },
+              { key: 'content.b2bTeaser.bullets', label: 'B2B тизер — буллети', type: 'list' as const },
+              { key: 'content.why.items', label: 'Зошто — картички', type: 'rows' as const, rowFields: [{ key: 'title', label: 'Наслов' }, { key: 'text', label: 'Опис' }] },
+              { key: 'content.stages.items', label: 'Степени', type: 'rows' as const, rowFields: [{ key: 'name', label: 'Име' }, { key: 'text', label: 'Опис' }] },
+            ]}
+          />
         </SectionCard>
       </div>
 

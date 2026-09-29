@@ -45,6 +45,7 @@ export function createApp() {
   app.use((req, res, next) => {
     const origin = req.header('Origin');
     const allowed = [env.PUBLIC_SITE_URL, env.ADMIN_URL].filter(Boolean);
+    res.setHeader('Vary', 'Origin'); // per-origin ACAO must not be cached across origins
     if (origin && allowed.includes(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');

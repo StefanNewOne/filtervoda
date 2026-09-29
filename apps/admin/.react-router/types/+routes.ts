@@ -44,6 +44,9 @@ type Pages = {
   "/content": {
     params: {};
   };
+  "/about": {
+    params: {};
+  };
   "/b2b": {
     params: {};
   };
@@ -91,7 +94,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/login" | "/leads" | "/leads/:id" | "/products" | "/products/:id" | "/posts" | "/posts/:id" | "/content" | "/b2b" | "/testimonials" | "/nav" | "/templates" | "/media" | "/tracking" | "/seo" | "/settings" | "/users" | "/outbox" | "/audit" | "/categories" | "/faq" | "/redirects";
+    page: "/" | "/login" | "/leads" | "/leads/:id" | "/products" | "/products/:id" | "/posts" | "/posts/:id" | "/content" | "/about" | "/b2b" | "/testimonials" | "/nav" | "/templates" | "/media" | "/tracking" | "/seo" | "/settings" | "/users" | "/outbox" | "/audit" | "/categories" | "/faq" | "/redirects";
   };
   "routes/login.tsx": {
     id: "routes/login";
@@ -99,7 +102,7 @@ type RouteFiles = {
   };
   "routes/shell.tsx": {
     id: "routes/shell";
-    page: "/" | "/leads" | "/leads/:id" | "/products" | "/products/:id" | "/posts" | "/posts/:id" | "/content" | "/b2b" | "/testimonials" | "/nav" | "/templates" | "/media" | "/tracking" | "/seo" | "/settings" | "/users" | "/outbox" | "/audit" | "/categories" | "/faq" | "/redirects";
+    page: "/" | "/leads" | "/leads/:id" | "/products" | "/products/:id" | "/posts" | "/posts/:id" | "/content" | "/about" | "/b2b" | "/testimonials" | "/nav" | "/templates" | "/media" | "/tracking" | "/seo" | "/settings" | "/users" | "/outbox" | "/audit" | "/categories" | "/faq" | "/redirects";
   };
   "routes/dashboard.tsx": {
     id: "routes/dashboard";
@@ -132,6 +135,10 @@ type RouteFiles = {
   "routes/content.tsx": {
     id: "routes/content";
     page: "/content";
+  };
+  "routes/about.tsx": {
+    id: "routes/about";
+    page: "/about";
   };
   "routes/b2b.tsx": {
     id: "routes/b2b";
@@ -203,6 +210,7 @@ type RouteModules = {
   "routes/posts": typeof import("./app/routes/posts.tsx");
   "routes/post-editor": typeof import("./app/routes/post-editor.tsx");
   "routes/content": typeof import("./app/routes/content.tsx");
+  "routes/about": typeof import("./app/routes/about.tsx");
   "routes/b2b": typeof import("./app/routes/b2b.tsx");
   "routes/testimonials": typeof import("./app/routes/testimonials.tsx");
   "routes/nav": typeof import("./app/routes/nav.tsx");

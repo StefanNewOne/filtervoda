@@ -4,7 +4,7 @@ Read this first. It's the single map of **what exists, where it lives, how to ru
 and the gotchas we hit**. Deep detail lives in the linked docs. The binding rules are in
 [`CLAUDE.md`](CLAUDE.md) (project constitution) — this file never overrides it.
 
-Last updated: 2026-09-12.
+Last updated: 2026-09-18.
 
 ---
 
@@ -30,7 +30,7 @@ OG, fast LCP and **no horizontal overflow on mobile** are hard requirements.
 | **VPS** | Hetzner `135.181.156.104` (SSH `root`), code at `/srv/filtervoda` |
 | **Reverse proxy (prod)** | **Caddy** (auto-TLS), `infra/Caddyfile.production` |
 | **Domain** | `filtervoda.mk` **not yet bound** — ready; see `_docs/deployment/go-live-filtervoda-mk.md` |
-| **Git branches** | `main` = `develop` = `feature/FV-admin-friendly-cms` (all synced) |
+| **Git branches** | `main` = `develop` (synced). Last shipped: `feature/FV-admin-cms-improvements` (PR #1→develop, #2→main) |
 | **Seed/dev logins** | `admin@filtervoda.mk / admin12345` · `editor@… / editor12345` · `client@… / client12345` — **must be changed before real launch** |
 
 > ⚠️ The docs `system-overview.md` and `handover-checklist.md` say “Nginx (Certbot)”. That
@@ -61,11 +61,15 @@ apps/
            app/lib/useSaveState.ts    shared save-status hook
   api/     Express 5 + Prisma 6. src/routes/{public,leads.public,admin/*,auth,cron}.
            prisma/schema.prisma       DB source of truth
-           prisma/seed.ts             products + content + images + FAQ + users (idempotent)
+           prisma/seed.ts             products + content + images + FAQ + Совети posts + users (idempotent)
            prisma/set-content-defaults.ts  create-if-absent editable content keys
+           prisma/data/               Совети migration tooling: md-to-html.ts (dep-free MD→HTML),
+                                      generate-soveti.ts (reads _docs/content/sodrzina → writes
+                                      soveti-posts.generated.ts, imported by seed), __tests__/
 packages/shared/src/  schemas.ts (Zod, single source) · types.ts · constants.ts · phone.ts
 e2e/       Playwright: lead-flow, b2b-and-admin, responsive (desktop + mobile projects)
 _docs/     architecture (ADRs, system-overview), deployment, plans, design handoff
+           content/sodrzina/          42 migrated „Совети" articles (MD + README = oldUrl→slug map)
 ```
 
 ---
@@ -91,6 +95,8 @@ mounts + hot reload (edits apply without rebuild). Mail lands in Mailhog (`http:
 # Seed / refresh data (idempotent):
 docker compose exec api npm run seed --workspace apps/api
 docker compose exec api sh -c "cd apps/api && npx tsx prisma/set-content-defaults.ts"
+# Regenerate Совети posts from _docs/content/sodrzina/*.md (after editing an article):
+npm run gen:soveti --workspace apps/api
 # After any content/product/settings change, purge the storefront cache:
 docker compose exec redis redis-cli FLUSHALL
 ```
@@ -103,7 +109,8 @@ Local logins = the seed logins in §2. Admin at `http://localhost/admin/`.
 ```bash
 # Per workspace (from repo root or the workspace dir):
 (cd packages/shared && npx vitest run)       # 16 tests
-(cd apps/api && npx vitest run)              # 12 unit (integration skipped by default)
+(cd apps/api && npx vitest run)              # 19 unit inc. Совети md-to-html (integration skipped by default)
+#   vitest include = src/**/__tests__ + prisma/**/__tests__ (the md-to-html converter test lives there)
 docker compose exec -e INTEGRATION=1 api sh -c "cd apps/api && npx vitest run src/services/__tests__"  # lead txn, auth
 (cd apps/web && npx vitest run)              # 7
 (cd apps/admin && npm run test)              # contrast
@@ -129,8 +136,12 @@ Requires `.env.production` (gitignored, deploy-machine only) with `VPS_IP`, `DEP
 
 Key behaviours to know:
 - **Seed runs ONLY when the DB is empty** (`Product` count = 0) — a redeploy never overwrites
-  admin edits. To apply new seed content to a non-empty DB you must run seed manually
-  (`docker compose … exec api npx tsx apps/api/prisma/seed.ts`) and then FLUSH Redis.
+  admin edits. **Consequence:** a deploy ships only CODE; any **data-only** change (new/edited
+  FAQ, seed prices like `filterSetPrice`, a restored B2B package) will NOT appear on a populated
+  prod DB. Apply those with a **targeted, idempotent SQL/tsx patch** against prod (UPDATE by
+  slug / DELETE+INSERT FAQ / INSERT-missing B2B) — never a full `seed.ts` on prod (it replaces
+  product specs/stages and overwrites admin edits) — then FLUSH Redis. This is exactly what the
+  2026-09-18 CMS release required (prices, FAQ→4, B2B 2→3 were patched via psql after deploy).
 - **Migrations** auto-run (`prisma migrate deploy`). New migrations live in `apps/api/prisma/migrations/`.
 - The older `scripts/deploy.sh {staging|production}` is the git-pull-on-VPS variant referenced in
   CLAUDE.md; the **active** deployer today is `deploy-vps.sh`.
@@ -159,12 +170,19 @@ Custom lightweight CMS at `/admin/`. Roles: **ADMIN** (all) · **EDITOR** (conte
 - **Категории** — name, slug, description, image, order.
 - **Страници и копи** — the entire home page: hero (image, badge, H1/H2, CTA, chips), Зошто
   cards, stages, B2B teaser (image+bullets), testimonials/articles titles, advisor, thank-you.
-  Stored as `content.*` Setting keys → `getPublicSettings().content` → the 3 templates read them
-  with the shipped constants as fallback (nothing breaks when empty).
+  Also **„Најбарани системи" curated products** — pick + order the featured products (▲/▼) →
+  Setting `content.featured.productIds` (ordered) → `GET /public/products/featured` (falls back to
+  the `featured` flag capped at 6 when empty). Stored as `content.*` Setting keys →
+  `getPublicSettings().content` → the 3 templates read them with the shipped constants as fallback.
+- **За нас** (`/admin/about`) — fully editable: title, intro, 3 stats, image (MediaPicker),
+  „Зошто SPAR" copy. `about.*` Setting keys → `getPublicSettings().about`; web `about.tsx` falls
+  back to the shipped defaults when a key is empty.
 - **За фирми** — structured editor (RowsEditor, not `a|b|c` textareas): hero (+image), logos,
   problems, included, calculator params, steps, packages, industries, comparison table, FAQ/form
   copy. All `b2b.*` Setting keys.
-- **Совети** (TipTap posts, + cover image) · **ЧПП** (scope GLOBAL/PRODUCT/B2B) · **Искуства**
+- **Совети** (TipTap posts, + cover image; seeded with 42 articles migrated from the legacy site,
+  each with a `/NNN/`→`/soveti/<slug>` 301) · **ЧПП** (scope GLOBAL/PRODUCT/B2B — per client,
+  prod currently holds exactly 4 GLOBAL questions; B2B FAQs were removed) · **Искуства**
   (B2C shows on home + product; B2B on За фирми) · **Дизајн и темплејти** (single-active theme
   swap + per-template token editing) · Медиуми · Tracking · SEO · Редирекции · Напредни поставки
   · Корисници · Проблеми со испорака (outbox retry) · Audit лог.
@@ -203,8 +221,10 @@ Custom lightweight CMS at `/admin/`. Roles: **ADMIN** (all) · **EDITOR** (conte
   transiently widens the viewport).
 - **B2B lead city is optional** — company is the required identifier; a required `city` made the
   compact modal (no city field) 422 on every submit (`Барањето не помина`).
-- **Generic product FAQ lives once as GLOBAL**, never per-product (an old seed created 68
-  duplicate rows). `seed.ts` defensively deletes those legacy PRODUCT questions.
+- **FAQ is GLOBAL-only now** — per the client, `seed.ts` keeps exactly the 4 filter/installation
+  questions (`scope=GLOBAL`) and `deleteMany({ question: { notIn } })` wipes everything else,
+  including the former B2B FAQs (so the За фирми FAQ section is intentionally empty). GLOBAL FAQs
+  still render on every product page (product-scoped + GLOBAL, concatenated).
 - **E2E flakiness** = the login/lead **rate-limiter** tripping across repeated runs. `FLUSHALL`
   Redis and use `--workers=1`. Don't “fix” it by weakening limits.
 - **Seed = replace-all for product specs/stages** — safe on a fresh DB; on a populated prod it
@@ -212,12 +232,23 @@ Custom lightweight CMS at `/admin/`. Roles: **ADMIN** (all) · **EDITOR** (conte
 
 ---
 
-## 11. Content model note (products)
+## 11. Content model note (products & Совети)
 
 Per-product content was rewritten from the legacy site into `PRODUCT_CONTENT` in `seed.ts`
 (benefits/stages/specs/idealFor/seoDescription). **Only real facts** — specs the old site never
 stated are omitted, to be filled by the client in admin (never shown as `[потврди]` publicly).
 Extraction + open questions: `_docs/plans/product-content-draft.md`.
+
+- **`Product.filterSetPrice`** (Int?, MKD) — replacement filter-set price („Сет филтри"), editable
+  in the product editor („Цена и беџови"); the product page shows it in „Одржување и филтри" only
+  when set. Migration `..._add_product_filter_set_price`. Seed sets it for 7 products.
+- **Совети migration** — 42 legacy articles live as Markdown in `_docs/content/sodrzina/`
+  (`README.md` = oldUrl→slug→category map). `npm run gen:soveti --workspace apps/api` regenerates
+  `apps/api/prisma/data/soveti-posts.generated.ts` from those files (via the dep-free `md-to-html.ts`);
+  `seed.ts` imports it, upserts the posts (PostCategory edukacija/proizvodi/za-firmi/vesti), and
+  writes a `/NNN/`→`/soveti/<slug>` 301 per article. Re-run `gen:soveti` after editing any `.md`.
+  The `.md` files (not the generated file) are the source of truth. Text needs a proofreading pass
+  (occasional Latin fragments / product-name drift from the old site).
 
 ---
 

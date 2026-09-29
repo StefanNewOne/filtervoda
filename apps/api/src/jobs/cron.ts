@@ -6,7 +6,7 @@ import cron from 'node-cron';
 import { isTest } from '../config/env.js';
 import { logger } from '../lib/logger.js';
 import { registerKick } from '../services/outbox.service.js';
-import { anonymizeLeads, cleanupSessions, dropOldIpHashes } from './maintenance.js';
+import { anonymizeLeads, cleanupOutbox, cleanupSessions, dropOldIpHashes } from './maintenance.js';
 import { processOutbox } from './outbox.processor.js';
 
 let kicking = false;
@@ -33,9 +33,10 @@ export function startCron(): void {
     dropOldIpHashes().catch((err) => logger.error({ err }, 'ip hash cleanup failed'));
   });
 
-  // Session cleanup — daily 03:30.
+  // Session + outbox cleanup — daily 03:30.
   cron.schedule('30 3 * * *', () => {
     cleanupSessions().catch((err) => logger.error({ err }, 'session cleanup failed'));
+    cleanupOutbox().catch((err) => logger.error({ err }, 'outbox cleanup failed'));
   });
 
   logger.info('cron scheduler started');

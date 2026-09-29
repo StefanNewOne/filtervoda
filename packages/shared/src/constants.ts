@@ -7,6 +7,7 @@
 export const LEAD_RETENTION_MONTHS = 24;
 export const IP_HASH_RETENTION_DAYS = 30;
 export const OUTBOX_MAX_ATTEMPTS = 5;
+export const OUTBOX_DONE_RETENTION_DAYS = 30; // prune succeeded outbox rows; DEAD kept for review
 export const SESSION_DAYS = 30;
 export const REAUTH_WINDOW_MIN = 10;
 export const PREVIEW_TOKEN_TTL_MIN = 60;
@@ -16,6 +17,30 @@ export const PASSWORD_RESET_TTL_MIN = 30;
 export const CURRENCY = 'MKD' as const;
 export const LOCALE = 'mk-MK' as const;
 export const TIMEZONE = 'Europe/Skopje' as const;
+
+// ── i18n: storefront locales (FV-001) ────────────────────────────────────────
+// `mk` is the default and serves at the root (no URL prefix — preserves existing
+// SEO + the legacy 301 map). `en`/`sq` serve under /en and /sq. Content stored in
+// the DB keeps MK in its base column; EN/SQ live in `*I18n` JSON with MK fallback.
+export const LOCALES = ['mk', 'en', 'sq'] as const;
+export type Locale = (typeof LOCALES)[number];
+export const DEFAULT_LOCALE: Locale = 'mk';
+// Non-default locales that take a URL prefix.
+export const PREFIXED_LOCALES = ['en', 'sq'] as const;
+// Native language names for the switcher.
+export const LOCALE_LABELS: Record<Locale, string> = {
+  mk: 'Македонски',
+  en: 'English',
+  sq: 'Shqip',
+};
+// Short codes shown in the compact switcher.
+export const LOCALE_SHORT: Record<Locale, string> = { mk: 'МК', en: 'EN', sq: 'SQ' };
+// BCP-47 tags for <html lang> / og:locale.
+export const LOCALE_BCP47: Record<Locale, string> = { mk: 'mk', en: 'en', sq: 'sq' };
+
+export function isLocale(value: unknown): value is Locale {
+  return typeof value === 'string' && (LOCALES as readonly string[]).includes(value);
+}
 
 // ── B2B savings calculator defaults ──────────────────────────────────────────
 export const DEFAULT_LITERS_PER_PERSON_DAY = 1.5;

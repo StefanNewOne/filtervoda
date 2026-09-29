@@ -1,7 +1,7 @@
 import { telHref } from '@filtervoda/shared';
-import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 import { LeadForm } from '../../components/LeadForm';
+import { LocaleLink, useT } from '../../i18n/context';
 import { HERO_H1_DEFAULT, HERO_H2_DEFAULT, STAGES, WHY_ITEMS, heroParts, type HomeProps } from '../types';
 import { ArticlesSection, B2bTeaser } from '../shared/HomeSections';
 import { ProductCard } from './ProductCard';
@@ -10,6 +10,7 @@ import { TrustBar } from './TrustBar';
 /** Б-1 „Кристално чисто" home — light, airy, ripple hero, dark navy stages box. */
 export function Home({ featured, content, testimonials, posts, settings }: HomeProps) {
   const { open } = useLeadModal();
+  const t = useT();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
   const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
@@ -34,7 +35,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
             <button onClick={() => open({ type: 'ADVISOR' })} className="rounded-full bg-[#1156E0] px-7 py-[18px] text-[17px] font-bold text-white shadow-[0_10px_30px_rgba(17,86,224,0.3)] transition hover:bg-[#08182F]">
               {content.heroCta || 'Побарај бесплатна консултација'}
             </button>
-            <Link to="/proizvodi" className="rounded-full border border-[#CFE2F7] bg-white px-7 py-[18px] text-[17px] font-bold text-[#08182F] transition hover:border-[#08182F]">Види ги производите</Link>
+            <LocaleLink to="/proizvodi" className="rounded-full border border-[#CFE2F7] bg-white px-7 py-[18px] text-[17px] font-bold text-[#08182F] transition hover:border-[#08182F]">{t('cta.seeProducts')}</LocaleLink>
           </div>
           <div className="mt-7 flex flex-wrap gap-2">
             {heroChips.map((c) => (
@@ -42,11 +43,11 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
             ))}
           </div>
         </div>
-        <div className="relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[28px] border border-[#E4EDF9] [background:radial-gradient(120%_100%_at_50%_30%,#FFFFFF_0%,#F2F8FF_55%,#E6F2FE_100%)]">
-          <span className="fv-ripple absolute aspect-square w-[58%] rounded-full border border-[#9FD6F8]" aria-hidden />
-          <span className="fv-ripple-2 absolute aspect-square w-[58%] rounded-full border border-[#9FD6F8]" aria-hidden />
+        <div className="relative grid aspect-[3/4] place-items-center overflow-hidden rounded-[28px] border border-[#E4EDF9] [background:radial-gradient(120%_100%_at_50%_30%,#FFFFFF_0%,#F2F8FF_55%,#E6F2FE_100%)]">
+          <span className="fv-ripple absolute aspect-square w-[64%] rounded-full border border-[#9FD6F8]" aria-hidden />
+          <span className="fv-ripple-2 absolute aspect-square w-[64%] rounded-full border border-[#9FD6F8]" aria-hidden />
           {heroImg ? (
-            <img src={heroImg} alt={heroAlt} className="relative w-[80%] rounded-[18px] shadow-[0_26px_60px_rgba(8,24,47,0.16)]" />
+            <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="relative z-10 h-full w-full object-contain p-4 drop-shadow-[0_26px_50px_rgba(8,24,47,0.20)]" />
           ) : (
             <div className="relative aspect-[4/5] w-[80%] rounded-[18px] bg-white/60" aria-hidden />
           )}
@@ -73,7 +74,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="mx-auto max-w-[1200px] px-5 pt-[84px]">
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-[family-name:Unbounded] text-[clamp(30px,3.4vw,46px)] font-medium tracking-[-0.03em] text-[#08182F]">{content.featuredTitle || 'Најбарани системи'}</h2>
-          <Link to="/proizvodi" className="text-[16px] font-bold text-[#1156E0]">Сите производи →</Link>
+          <LocaleLink to="/proizvodi" className="text-[16px] font-bold text-[#1156E0]">{t('home.products.all')} →</LocaleLink>
         </div>
         <div className="mt-[34px] grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -83,7 +84,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* 6 STAGES — dark navy box */}
       <section className="px-5 pt-[90px]">
         <div className="mx-auto max-w-[1160px] rounded-[32px] bg-[#08182F] px-5 py-16 text-white">
-          <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">КАКО ФУНКЦИОНИРА</div>
+          <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">{t('home.stages.eyebrow')}</div>
           <h2 className="mt-4 max-w-[22em] font-[family-name:Unbounded] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 grid gap-px overflow-hidden rounded-[18px] border border-[rgba(111,196,247,0.22)] bg-[rgba(111,196,247,0.22)] sm:grid-cols-2 lg:grid-cols-3">
             {stages.map((s) => (

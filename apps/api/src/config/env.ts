@@ -14,9 +14,9 @@ const envSchema = z.object({
   REDIS_URL: z.string().min(1),
 
   SESSION_SECRET: z.string().min(16),
-  CRON_SECRET: z.string().min(1),
-  IP_HASH_SECRET: z.string().min(1),
-  PREVIEW_SECRET: z.string().min(1),
+  CRON_SECRET: z.string().min(16),
+  IP_HASH_SECRET: z.string().min(16),
+  PREVIEW_SECRET: z.string().min(16),
   // Shared secret so trusted server-side SSR calls bypass the public read rate limiter
   // (all SSR traffic arrives from one internal container IP, which would otherwise throttle).
   INTERNAL_API_SECRET: z.string().optional(),
@@ -71,7 +71,15 @@ export const env = parsed.data;
 export const isProd = env.NODE_ENV === 'production';
 export const isTest = env.NODE_ENV === 'test';
 
-// Loud warning: the lead form has NO bot protection while Turnstile is bypassed in production.
-if (isProd && env.TURNSTILE_DEV_BYPASS) {
-  console.warn('⚠️  TURNSTILE_DEV_BYPASS=true in production — the lead form has NO CAPTCHA. Set real Turnstile keys + TURNSTILE_DEV_BYPASS=false before public launch.');
+// The lead form must never serve without a real CAPTCHA on the PUBLIC domain. Fail closed once
+// bound to filtervoda.mk; on the sslip.io preview host (or staging) only warn, so pre-launch
+// deploys aren't blocked before Turnstile keys are issued ([D-2]).
+const turnstileMissing = env.TURNSTILE_DEV_BYPASS || !env.TURNSTILE_SECRET_KEY;
+const isPublicDomain = /(^|\/\/|\.)filtervoda\.mk(\/|$)/.test(env.PUBLIC_SITE_URL) && !env.PUBLIC_SITE_URL.includes('sslip.io');
+if (isProd && isPublicDomain && turnstileMissing) {
+  console.error('❌ Turnstile misconfigured for filtervoda.mk — the lead form would have NO CAPTCHA.');
+  throw new Error('Turnstile must be configured in production (real TURNSTILE_SECRET_KEY, TURNSTILE_DEV_BYPASS=false).');
+}
+if (turnstileMissing && (isProd || env.NODE_ENV === 'staging')) {
+  console.warn('⚠️  Turnstile bypassed/unset — the lead form has NO CAPTCHA. Required before binding filtervoda.mk.');
 }

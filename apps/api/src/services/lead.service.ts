@@ -20,14 +20,14 @@ export interface LeadRequestMeta {
 export async function createLead(input: LeadSubmission, meta: LeadRequestMeta) {
   const ctx = input.context;
 
-  // Duplicate detection: same phone in the last 24h.
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const dupe = await prisma.lead.findFirst({
-    where: { phone: input.phone, createdAt: { gt: since } },
-    select: { id: true },
-  });
 
   const lead = await prisma.$transaction(async (tx) => {
+    // Duplicate detection inside the transaction (consistent snapshot): same phone in the last 24h.
+    const dupe = await tx.lead.findFirst({
+      where: { phone: input.phone, createdAt: { gt: since } },
+      select: { id: true },
+    });
     const created = await tx.lead.create({
       data: {
         type: input.type,
@@ -92,7 +92,7 @@ export async function createLead(input: LeadSubmission, meta: LeadRequestMeta) {
   });
 
   logger.info({ leadId: lead.id, type: lead.type, isDuplicate: lead.isDuplicate }, 'lead.created');
-  if (dupe) logger.info({ leadId: lead.id }, 'lead.duplicateFlagged');
+  if (lead.isDuplicate) logger.info({ leadId: lead.id }, 'lead.duplicateFlagged');
   kickOutbox(); // drain now (<5s) instead of waiting for the 30s cron
   return lead;
 }

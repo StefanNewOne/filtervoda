@@ -3,6 +3,7 @@
  * consent. Choices: Прифати сè / Само неопходни / Поставки. GTM loads only after consent.
  */
 import { useEffect, useState } from 'react';
+import { useT } from '../i18n/context';
 import { Button } from './ui';
 
 type Consent = { analytics: boolean; marketing: boolean } | null;
@@ -70,6 +71,7 @@ function apply(consent: { analytics: boolean; marketing: boolean }, gtmId?: stri
 }
 
 export function ConsentBanner({ text, gtmId, pixelId, ga4Id }: { text?: string; gtmId?: string; pixelId?: string; ga4Id?: string }) {
+  const t = useT();
   const [consent, setConsent] = useState<Consent>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -94,19 +96,17 @@ export function ConsentBanner({ text, gtmId, pixelId, ga4Id }: { text?: string; 
 
   return (
     <div className="fixed inset-x-2 bottom-14 z-[var(--z-toast)] mx-auto max-w-2xl rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-lg)] md:bottom-4">
-      <p className="text-sm text-[var(--color-muted)]">
-        {text ?? 'Користиме колачиња за да го подобриме сајтот и за мерење на рекламите. Изберете што дозволувате.'}
-      </p>
+      <p className="text-sm text-[var(--color-muted)]">{text ?? t('consent.text')}</p>
       {settingsOpen && (
         <div className="mt-3 space-y-2 text-sm">
-          <label className="flex items-center gap-2"><input type="checkbox" defaultChecked disabled /> Неопходни (секогаш активни)</label>
-          <label className="flex items-center gap-2"><input type="checkbox" id="c-analytics" /> Статистика</label>
-          <label className="flex items-center gap-2"><input type="checkbox" id="c-marketing" /> Маркетинг</label>
+          <label className="flex items-center gap-2"><input type="checkbox" defaultChecked disabled /> {t('consent.necessary')}</label>
+          <label className="flex items-center gap-2"><input type="checkbox" id="c-analytics" /> {t('consent.analytics')}</label>
+          <label className="flex items-center gap-2"><input type="checkbox" id="c-marketing" /> {t('consent.marketing')}</label>
         </div>
       )}
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button onClick={() => choose({ analytics: true, marketing: true })}>Прифати сè</Button>
-        <Button variant="secondary" onClick={() => choose({ analytics: false, marketing: false })}>Само неопходни</Button>
+        <Button onClick={() => choose({ analytics: true, marketing: true })}>{t('consent.acceptAll')}</Button>
+        <Button variant="secondary" onClick={() => choose({ analytics: false, marketing: false })}>{t('consent.necessaryOnly')}</Button>
         {settingsOpen ? (
           <Button
             variant="ghost"
@@ -117,10 +117,10 @@ export function ConsentBanner({ text, gtmId, pixelId, ga4Id }: { text?: string; 
               })
             }
           >
-            Зачувај избор
+            {t('consent.save')}
           </Button>
         ) : (
-          <Button variant="ghost" onClick={() => setSettingsOpen(true)}>Поставки</Button>
+          <Button variant="ghost" onClick={() => setSettingsOpen(true)}>{t('consent.settings')}</Button>
         )}
       </div>
     </div>

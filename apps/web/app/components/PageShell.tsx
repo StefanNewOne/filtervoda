@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { LocaleLink, useT } from '../i18n/context';
 import { useTemplateId } from '../templates/context';
 import { skinFor, type Skin } from '../templates/skin';
 
@@ -25,16 +25,17 @@ export function PageHeader({
   intro?: string;
   s: Skin;
 }) {
+  const t = useT();
   return (
     <>
       {crumbs.length > 0 && (
-        <nav className="flex gap-2 pt-[26px] text-[13px] font-semibold text-[var(--color-muted)]" aria-label="Патека">
+        <nav className="flex gap-2 pt-[26px] text-[13px] font-semibold text-[var(--color-muted)]" aria-label={t('nav.breadcrumb')}>
           {crumbs.map((c, i) => (
             <span key={c.label} className="flex gap-2">
               {c.to ? (
-                <Link to={c.to} className="text-[var(--color-cta)]">
+                <LocaleLink to={c.to} className="text-[var(--color-cta)]">
                   {c.label}
-                </Link>
+                </LocaleLink>
               ) : (
                 <span>{c.label}</span>
               )}

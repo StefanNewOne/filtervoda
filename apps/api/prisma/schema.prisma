@@ -93,6 +93,9 @@ model ProductCategory {
   imageId     String?
   sortOrder   Int       @default(0)
   products    Product[]
+  // i18n (FV-001 M2): per-locale field overrides { "en": { name, description }, "sq": {…} }.
+  // Base columns stay MK; the API falls back to the base column when a locale/field is missing.
+  i18n        Json?
 
   @@unique([tenantId, slug])
 }
@@ -110,6 +113,7 @@ model Product {
   audience         ProductAudience @default(B2C)
   priceRegular     Int? // MKD, integer denari
   priceSale        Int?
+  filterSetPrice   Int? // MKD — price of the replacement filter set (сет филтри); null = not shown
   showPrice        Boolean         @default(true)
   currency         String          @default("MKD")
   badges           String[]        @default([])
@@ -126,6 +130,9 @@ model Product {
   seoTitle         String?
   seoDescription   String?
   ogImageId        String?
+  // i18n (FV-001 M2): { "en": { name, tagline, shortDescription, description, maintenanceNote,
+  // seoTitle, seoDescription, badges, chips, idealFor, includedInPrice, features }, "sq": {…} }.
+  i18n             Json?
   deletedAt        DateTime?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
@@ -151,6 +158,7 @@ model ProductSpec {
   value     String
   unit      String?
   sortOrder Int     @default(0)
+  i18n      Json? // { "en": { group, label, value, unit }, "sq": {…} }
 
   @@index([productId])
 }
@@ -164,6 +172,7 @@ model ProductStage {
   removes      String
   whyItMatters String
   icon         String?
+  i18n         Json? // { "en": { name, removes, whyItMatters }, "sq": {…} }
 
   @@index([productId])
 }
@@ -202,6 +211,7 @@ model Faq {
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   sortOrder Int      @default(0)
+  i18n      Json? // { "en": { question, answer }, "sq": {…} }
 
   @@index([tenantId, scope])
 }
@@ -217,6 +227,7 @@ model B2bPackage {
   employeesMax Int?
   sortOrder    Int      @default(0)
   active       Boolean  @default(true)
+  i18n         Json? // { "en": { name, description, includes }, "sq": {…} }
 }
 
 model Testimonial {
@@ -231,6 +242,7 @@ model Testimonial {
   scope     TestimonialScope @default(B2C)
   mediaId   String?
   active    Boolean          @default(true)
+  i18n      Json? // { "en": { text, city }, "sq": {…} } (name kept as-is — proper noun)
 }
 
 model ClientLogo {
@@ -248,6 +260,7 @@ model PostCategory {
   slug     String
   name     String
   posts    Post[]
+  i18n     Json? // { "en": { name }, "sq": {…} }
 
   @@unique([tenantId, slug])
 }
@@ -267,6 +280,8 @@ model Post {
   status           PublishStatus @default(DRAFT)
   seoTitle         String?
   seoDescription   String?
+  // i18n (FV-001 M2): { "en": { title, excerpt, content, seoTitle, seoDescription }, "sq": {…} }
+  i18n             Json?
   deletedAt        DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt

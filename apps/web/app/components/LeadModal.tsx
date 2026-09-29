@@ -6,6 +6,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { useT } from '../i18n/context';
 import { LeadForm } from './LeadForm';
 
 export type CalcInput = { employees: number; solution: 'GALLONS' | 'BOTTLES'; pricePerUnit?: number };
@@ -31,6 +32,7 @@ export function LeadModalProvider({
   phones: string[];
   viber?: string;
 }) {
+  const t = useT();
   const [state, setState] = useState<{ open: boolean; productId?: string; productName?: string; type: 'B2C' | 'B2B' | 'CONTACT' | 'ADVISOR'; calcInput?: CalcInput }>(
     { open: false, type: 'B2C' },
   );
@@ -56,8 +58,8 @@ export function LeadModalProvider({
           <Dialog.Overlay className="fixed inset-0 z-[var(--z-modal)] bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-[var(--z-modal)] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-lg)]">
             <div className="flex items-start justify-between">
-              <Dialog.Title className="text-xl">Побарај понуда</Dialog.Title>
-              <Dialog.Close aria-label="Затвори" className="rounded p-1 hover:bg-[var(--color-neutral-100)]">
+              <Dialog.Title className="text-xl">{t('cta.getOffer')}</Dialog.Title>
+              <Dialog.Close aria-label={t('cta.close')} className="rounded p-1 hover:bg-[var(--color-neutral-100)]">
                 <X size={20} />
               </Dialog.Close>
             </div>

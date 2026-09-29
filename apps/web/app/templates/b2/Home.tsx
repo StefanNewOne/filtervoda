@@ -1,7 +1,7 @@
 import { telHref } from '@filtervoda/shared';
-import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 import { LeadForm } from '../../components/LeadForm';
+import { LocaleLink, useT } from '../../i18n/context';
 import { HERO_H1_DEFAULT, HERO_H2_DEFAULT, STAGES, WHY_ITEMS, heroParts, type HomeProps } from '../types';
 import { ArticlesSection, B2bTeaser } from '../shared/HomeSections';
 import { ProductCard } from './ProductCard';
@@ -10,6 +10,7 @@ import { TrustBar } from './TrustBar';
 /** Б-2 „Жива вода" — gradient hero, organic blobs, wave divider, uppercase Oswald, green CTA. */
 export function Home({ featured, content, testimonials, posts, settings }: HomeProps) {
   const { open } = useLeadModal();
+  const t = useT();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
   const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
@@ -37,7 +38,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
               <button onClick={() => open({ type: 'ADVISOR' })} className="rounded-full bg-[#16803B] px-7 py-[18px] text-[17px] font-bold text-white shadow-[0_10px_30px_rgba(22,128,59,0.34)] transition hover:brightness-110">
                 {content.heroCta || 'Побарај бесплатна консултација'}
               </button>
-              <Link to="/proizvodi" className="rounded-full border border-[rgba(255,255,255,0.42)] px-7 py-[18px] text-[17px] font-bold text-white transition hover:bg-white/10">Види ги производите</Link>
+              <LocaleLink to="/proizvodi" className="rounded-full border border-[rgba(255,255,255,0.42)] px-7 py-[18px] text-[17px] font-bold text-white transition hover:bg-white/10">{t('cta.seeProducts')}</LocaleLink>
             </div>
             <div className="mt-7 flex flex-wrap gap-2.5">
               {heroChips.map((c) => (
@@ -48,7 +49,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
           <div className="relative">
             <span className="absolute -inset-x-6 -bottom-[18px] -top-[26px] [background:radial-gradient(circle_at_50%_40%,rgba(191,227,250,0.35),rgba(191,227,250,0)_70%)] [border-radius:46%_46%_40%_40%/34%_34%_58%_58%]" aria-hidden />
             <div className="relative grid aspect-square place-items-center overflow-hidden rounded-[40px] [background:linear-gradient(180deg,#FFFFFF,#DFEFFC)] shadow-[0_44px_100px_rgba(0,0,0,0.34)]">
-              {heroImg ? <img src={heroImg} alt={heroAlt} className="h-full w-full object-contain p-8" /> : <div aria-hidden />}
+              {heroImg ? <img src={heroImg} alt={heroAlt} fetchPriority="high" loading="eager" decoding="async" className="h-full w-full object-contain p-8" /> : <div aria-hidden />}
               <div className="absolute bottom-[22px] left-[22px] flex flex-wrap gap-2">
                 <span className="rounded-full bg-[rgba(4,18,43,0.72)] px-3.5 py-[9px] text-[12px] font-extrabold text-white backdrop-blur-[8px]">6 степени</span>
                 <span className="rounded-full bg-[rgba(4,18,43,0.72)] px-3.5 py-[9px] text-[12px] font-extrabold text-[#7BE0A0] backdrop-blur-[8px]">pH 8.5+</span>
@@ -78,7 +79,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="mx-auto max-w-[1200px] px-5 pt-[84px]">
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-[family-name:Oswald] text-[clamp(30px,3.4vw,46px)] font-medium text-[#08182F]">{content.featuredTitle || 'Најбарани системи'}</h2>
-          <Link to="/proizvodi" className="text-[16px] font-bold text-[#1156E0]">Сите производи →</Link>
+          <LocaleLink to="/proizvodi" className="text-[16px] font-bold text-[#1156E0]">{t('home.products.all')} →</LocaleLink>
         </div>
         <div className="mt-[34px] grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -88,7 +89,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* STAGES — gradient box, horizontal scroll cards */}
       <section className="px-5 pt-[90px]">
         <div className="mx-auto max-w-[1200px] rounded-[40px] px-5 py-16 text-white [background:linear-gradient(145deg,#071A3A_0%,#0B3C8C_55%,#1E6FE8_100%)]">
-          <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">КАКО ФУНКЦИОНИРА</div>
+          <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#6FC4F7]">{t('home.stages.eyebrow')}</div>
           <h2 className="mt-4 max-w-[22em] font-[family-name:Oswald] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 flex gap-3.5 overflow-x-auto pb-2">
             {stages.map((s) => (

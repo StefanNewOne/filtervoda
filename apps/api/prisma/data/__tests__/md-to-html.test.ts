@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mdToHtml, parseFrontmatter } from '../../prisma/data/md-to-html.ts';
+import { mdToHtml, parseFrontmatter } from '../md-to-html.ts';
 
 describe('parseFrontmatter', () => {
   it('extracts frontmatter map and body', () => {

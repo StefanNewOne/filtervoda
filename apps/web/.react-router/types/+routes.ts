@@ -47,6 +47,78 @@ type Pages = {
       "slug": string;
     };
   };
+  "/en": {
+    params: {};
+  };
+  "/en/proizvodi": {
+    params: {};
+  };
+  "/en/proizvodi/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
+  "/en/za-biznis": {
+    params: {};
+  };
+  "/en/soveti": {
+    params: {};
+  };
+  "/en/soveti/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
+  "/en/za-nas": {
+    params: {};
+  };
+  "/en/kontakt": {
+    params: {};
+  };
+  "/en/blagodarime": {
+    params: {};
+  };
+  "/en/pravni/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
+  "/sq": {
+    params: {};
+  };
+  "/sq/proizvodi": {
+    params: {};
+  };
+  "/sq/proizvodi/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
+  "/sq/za-biznis": {
+    params: {};
+  };
+  "/sq/soveti": {
+    params: {};
+  };
+  "/sq/soveti/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
+  "/sq/za-nas": {
+    params: {};
+  };
+  "/sq/kontakt": {
+    params: {};
+  };
+  "/sq/blagodarime": {
+    params: {};
+  };
+  "/sq/pravni/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
   "/sitemap.xml": {
     params: {};
   };
@@ -60,47 +132,107 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/proizvodi" | "/proizvodi/:slug" | "/za-biznis" | "/soveti" | "/soveti/:slug" | "/za-nas" | "/kontakt" | "/blagodarime" | "/pravni/:slug" | "/sitemap.xml" | "/*";
+    page: "/" | "/proizvodi" | "/proizvodi/:slug" | "/za-biznis" | "/soveti" | "/soveti/:slug" | "/za-nas" | "/kontakt" | "/blagodarime" | "/pravni/:slug" | "/en" | "/en/proizvodi" | "/en/proizvodi/:slug" | "/en/za-biznis" | "/en/soveti" | "/en/soveti/:slug" | "/en/za-nas" | "/en/kontakt" | "/en/blagodarime" | "/en/pravni/:slug" | "/sq" | "/sq/proizvodi" | "/sq/proizvodi/:slug" | "/sq/za-biznis" | "/sq/soveti" | "/sq/soveti/:slug" | "/sq/za-nas" | "/sq/kontakt" | "/sq/blagodarime" | "/sq/pravni/:slug" | "/sitemap.xml" | "/*";
   };
   "routes/home.tsx": {
-    id: "routes/home";
+    id: "mk-home";
     page: "/";
+  } | {
+    id: "en-home";
+    page: "/en";
+  } | {
+    id: "sq-home";
+    page: "/sq";
   };
   "routes/catalog.tsx": {
-    id: "routes/catalog";
+    id: "mk-catalog";
     page: "/proizvodi";
+  } | {
+    id: "en-catalog";
+    page: "/en/proizvodi";
+  } | {
+    id: "sq-catalog";
+    page: "/sq/proizvodi";
   };
   "routes/product.tsx": {
-    id: "routes/product";
+    id: "mk-product";
     page: "/proizvodi/:slug";
+  } | {
+    id: "en-product";
+    page: "/en/proizvodi/:slug";
+  } | {
+    id: "sq-product";
+    page: "/sq/proizvodi/:slug";
   };
   "routes/b2b.tsx": {
-    id: "routes/b2b";
+    id: "mk-b2b";
     page: "/za-biznis";
+  } | {
+    id: "en-b2b";
+    page: "/en/za-biznis";
+  } | {
+    id: "sq-b2b";
+    page: "/sq/za-biznis";
   };
   "routes/blog.tsx": {
-    id: "routes/blog";
+    id: "mk-blog";
     page: "/soveti";
+  } | {
+    id: "en-blog";
+    page: "/en/soveti";
+  } | {
+    id: "sq-blog";
+    page: "/sq/soveti";
   };
   "routes/post.tsx": {
-    id: "routes/post";
+    id: "mk-post";
     page: "/soveti/:slug";
+  } | {
+    id: "en-post";
+    page: "/en/soveti/:slug";
+  } | {
+    id: "sq-post";
+    page: "/sq/soveti/:slug";
   };
   "routes/about.tsx": {
-    id: "routes/about";
+    id: "mk-about";
     page: "/za-nas";
+  } | {
+    id: "en-about";
+    page: "/en/za-nas";
+  } | {
+    id: "sq-about";
+    page: "/sq/za-nas";
   };
   "routes/contact.tsx": {
-    id: "routes/contact";
+    id: "mk-contact";
     page: "/kontakt";
+  } | {
+    id: "en-contact";
+    page: "/en/kontakt";
+  } | {
+    id: "sq-contact";
+    page: "/sq/kontakt";
   };
   "routes/thank-you.tsx": {
-    id: "routes/thank-you";
+    id: "mk-thank-you";
     page: "/blagodarime";
+  } | {
+    id: "en-thank-you";
+    page: "/en/blagodarime";
+  } | {
+    id: "sq-thank-you";
+    page: "/sq/blagodarime";
   };
   "routes/legal.tsx": {
-    id: "routes/legal";
+    id: "mk-legal";
     page: "/pravni/:slug";
+  } | {
+    id: "en-legal";
+    page: "/en/pravni/:slug";
+  } | {
+    id: "sq-legal";
+    page: "/sq/pravni/:slug";
   };
   "routes/sitemap.tsx": {
     id: "routes/sitemap";
@@ -114,16 +246,36 @@ type RouteFiles = {
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
-  "routes/home": typeof import("./app/routes/home.tsx");
-  "routes/catalog": typeof import("./app/routes/catalog.tsx");
-  "routes/product": typeof import("./app/routes/product.tsx");
-  "routes/b2b": typeof import("./app/routes/b2b.tsx");
-  "routes/blog": typeof import("./app/routes/blog.tsx");
-  "routes/post": typeof import("./app/routes/post.tsx");
-  "routes/about": typeof import("./app/routes/about.tsx");
-  "routes/contact": typeof import("./app/routes/contact.tsx");
-  "routes/thank-you": typeof import("./app/routes/thank-you.tsx");
-  "routes/legal": typeof import("./app/routes/legal.tsx");
+  "mk-home": typeof import("./app/routes/home.tsx");
+  "mk-catalog": typeof import("./app/routes/catalog.tsx");
+  "mk-product": typeof import("./app/routes/product.tsx");
+  "mk-b2b": typeof import("./app/routes/b2b.tsx");
+  "mk-blog": typeof import("./app/routes/blog.tsx");
+  "mk-post": typeof import("./app/routes/post.tsx");
+  "mk-about": typeof import("./app/routes/about.tsx");
+  "mk-contact": typeof import("./app/routes/contact.tsx");
+  "mk-thank-you": typeof import("./app/routes/thank-you.tsx");
+  "mk-legal": typeof import("./app/routes/legal.tsx");
+  "en-home": typeof import("./app/routes/home.tsx");
+  "en-catalog": typeof import("./app/routes/catalog.tsx");
+  "en-product": typeof import("./app/routes/product.tsx");
+  "en-b2b": typeof import("./app/routes/b2b.tsx");
+  "en-blog": typeof import("./app/routes/blog.tsx");
+  "en-post": typeof import("./app/routes/post.tsx");
+  "en-about": typeof import("./app/routes/about.tsx");
+  "en-contact": typeof import("./app/routes/contact.tsx");
+  "en-thank-you": typeof import("./app/routes/thank-you.tsx");
+  "en-legal": typeof import("./app/routes/legal.tsx");
+  "sq-home": typeof import("./app/routes/home.tsx");
+  "sq-catalog": typeof import("./app/routes/catalog.tsx");
+  "sq-product": typeof import("./app/routes/product.tsx");
+  "sq-b2b": typeof import("./app/routes/b2b.tsx");
+  "sq-blog": typeof import("./app/routes/blog.tsx");
+  "sq-post": typeof import("./app/routes/post.tsx");
+  "sq-about": typeof import("./app/routes/about.tsx");
+  "sq-contact": typeof import("./app/routes/contact.tsx");
+  "sq-thank-you": typeof import("./app/routes/thank-you.tsx");
+  "sq-legal": typeof import("./app/routes/legal.tsx");
   "routes/sitemap": typeof import("./app/routes/sitemap.tsx");
   "routes/not-found": typeof import("./app/routes/not-found.tsx");
 };

@@ -1,21 +1,34 @@
+import { LOCALE_BCP47 } from '@filtervoda/shared';
 import { useEffect } from 'react';
 import type { LinksFunction } from 'react-router';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+  useLocation,
+} from 'react-router';
 import type { Route } from './+types/root';
 import './app.css';
 import { ConsentBanner } from './components/ConsentBanner';
 import { LeadModalProvider } from './components/LeadModal';
+import { LocaleLink, LocaleProvider, useT } from './i18n/context';
+import { stripLocale } from './i18n/paths';
 import { api } from './lib/api.server';
 import { useTemplate } from './templates/registry';
 
 export const links: LinksFunction = () => [
-  { rel: 'preconnect', href: '/fonts' },
-  { rel: 'preload', href: '/fonts/manrope-var.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+  // Preload the critical Cyrillic subsets actually used above the fold (body + headings).
+  // The default/active theme is b1 (Manrope); these files exist in public/fonts.
+  { rel: 'preload', href: '/fonts/manrope-400-cyrillic.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+  { rel: 'preload', href: '/fonts/manrope-700-cyrillic.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
 ];
 
 /** Safe fallback so the shell always renders even if the API is briefly unavailable. */
 const DEFAULT_SETTINGS = {
-  phones: ['076/676/819'],
+  phones: ['076/676/819', '070/755/190'],
   emails: [],
   social: {},
   activeTemplate: 'b1' as const,
@@ -23,9 +36,10 @@ const DEFAULT_SETTINGS = {
 };
 
 /** Root loader runs on every request — loads the active template + public settings. */
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
   try {
-    const settings = await api.settings();
+    const locale = stripLocale(new URL(request.url).pathname).locale;
+    const settings = await api.settings(locale);
     return { settings };
   } catch {
     // Never let a transient API hiccup turn every page into an error screen.
@@ -56,9 +70,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const settings = data?.settings;
   const template = settings?.activeTemplate ?? 'b1';
   const overrides = tokenOverridesCss(settings?.templateTokens);
+  const locale = stripLocale(useLocation().pathname).locale;
 
   return (
-    <html lang="mk" data-template={template}>
+    <html lang={LOCALE_BCP47[locale]} data-template={template}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -73,7 +88,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
         {overrides ? <style dangerouslySetInnerHTML={{ __html: overrides }} /> : null}
       </head>
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen">
+        <LocaleProvider>{children}</LocaleProvider>
+      </body>
     </html>
   );
 }
@@ -103,17 +120,20 @@ export default function App() {
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const status = (error as { status?: number })?.status;
+  const t = useT();
   return (
     <main className="mx-auto max-w-2xl px-5 py-24 text-center">
       <div className="font-[family-name:var(--font-display)] text-[clamp(80px,14vw,180px)] font-light leading-none tracking-[-0.06em] text-[var(--color-brand-400)]">
         {status ?? '!'}
       </div>
       <h1 className="mt-5 text-[clamp(28px,3.4vw,42px)] font-medium text-[var(--color-foreground)]">
-        {status === 404 ? 'Оваа страница не постои.' : 'Настана грешка.'}
+        {status === 404 ? t('error.notFoundTitle') : t('error.genericTitle')}
       </h1>
-      <p className="mt-4 text-[17px] text-[var(--color-muted)]">Пробајте од производите или почетната страница.</p>
+      <p className="mt-4 text-[17px] text-[var(--color-muted)]">{t('error.help')}</p>
       <div className="mt-8 flex justify-center gap-3">
-        <a href="/" className="rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-7 py-3.5 font-bold text-[var(--color-cta-fg)]">Почетна страница</a>
+        <LocaleLink to="/" className="rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-7 py-3.5 font-bold text-[var(--color-cta-fg)]">
+          {t('error.home')}
+        </LocaleLink>
       </div>
     </main>
   );

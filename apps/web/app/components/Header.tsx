@@ -5,6 +5,7 @@ import { useLeadModal } from './LeadModal';
 import { Button } from './ui';
 
 const NAV = [
+  { to: '/', label: 'Почетна' },
   { to: '/proizvodi', label: 'Производи' },
   { to: '/za-biznis', label: 'За фирми' },
   { to: '/soveti', label: 'Совети' },
@@ -33,10 +34,18 @@ export function Header({ phones }: { phones: string[] }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          {phone && (
-            <a href={`tel:${phone}`} aria-label={`Повикај ${phone}`} className="hidden items-center gap-1 text-sm font-semibold text-[var(--color-ink)] sm:flex">
-              <Phone size={16} /> {phone}
-            </a>
+          {phones.length > 0 && (
+            <span className="hidden items-center gap-1.5 text-sm font-semibold text-[var(--color-ink)] sm:flex">
+              <Phone size={16} />
+              {phones.map((p, i) => (
+                <span key={p} className="flex items-center gap-1.5">
+                  {i > 0 && <span className="text-[var(--color-border)]">·</span>}
+                  <a href={`tel:${p.replace(/[^\d+]/g, '')}`} aria-label={`Повикај ${p}`} className="hover:text-[var(--color-accent)]">
+                    {p}
+                  </a>
+                </span>
+              ))}
+            </span>
           )}
           <Button className="hidden md:inline-flex" onClick={() => openLead()}>
             Побарај понуда
