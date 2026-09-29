@@ -4,15 +4,18 @@ import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { useT } from '../i18n/context';
 import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import type { Route } from './+types/contact';
 
-export function meta() {
-  return [{ title: 'Контакт | filtervoda.mk' }];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  return localeMeta({ locale, siteUrl: data?.siteUrl ?? '', path: '/kontakt', title: tm(locale, 'meta.contact.title') });
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = stripLocale(new URL(request.url).pathname).locale;
-  return { settings: await api.settings(locale) };
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  return { settings: await api.settings(locale), siteUrl };
 }
 
 export default function Contact({ loaderData }: Route.ComponentProps) {

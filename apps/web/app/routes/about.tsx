@@ -2,10 +2,12 @@ import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
 import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import type { Route } from './+types/about';
 
-export function meta() {
-  return [{ title: 'За нас — SPAR Company | filtervoda.mk' }];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  return localeMeta({ locale, siteUrl: data?.siteUrl ?? '', path: '/za-nas', title: tm(locale, 'meta.about.title') });
 }
 
 const DEFAULT_IMAGE = '/img/products/cel-dom.png';
@@ -13,7 +15,8 @@ const DEFAULT_IMAGE = '/img/products/cel-dom.png';
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = stripLocale(new URL(request.url).pathname).locale;
   const settings = await api.settings(locale);
-  return { settings };
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  return { settings, siteUrl };
 }
 
 export default function About({ loaderData }: Route.ComponentProps) {

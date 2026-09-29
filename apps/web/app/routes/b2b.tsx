@@ -1,16 +1,18 @@
 import { B2bPage } from '../templates/shared/B2bPage';
 import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import type { Route } from './+types/b2b';
 
-export function meta() {
-  return [
-    { title: 'За фирми — Неограничена чиста вода за вашиот тим | filtervoda.mk' },
-    {
-      name: 'description',
-      content: 'Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ. Заборавете на галоните.',
-    },
-  ];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  return localeMeta({
+    locale,
+    siteUrl: data?.siteUrl ?? '',
+    path: '/za-biznis',
+    title: tm(locale, 'meta.b2b.title'),
+    description: tm(locale, 'meta.b2b.desc'),
+  });
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -20,7 +22,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     api.settings(locale),
     api.faq('B2B', locale).catch(() => []),
   ]);
-  return { packages, settings, faq };
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  return { packages, settings, faq, siteUrl };
 }
 
 export default function B2b({ loaderData }: Route.ComponentProps) {

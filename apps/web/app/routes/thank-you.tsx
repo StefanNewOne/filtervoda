@@ -3,11 +3,15 @@ import { Check } from 'lucide-react';
 import { useRouteLoaderData } from 'react-router';
 import { useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
+import { tm } from '../lib/meta';
 import type { TKey } from '../i18n/types';
+import type { Route } from './+types/thank-you';
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
   return [
-    { title: 'Благодариме | filtervoda.mk' },
+    { title: tm(locale, 'meta.thankyou.title') },
     { name: 'robots', content: 'noindex' },
   ];
 }

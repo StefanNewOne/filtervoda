@@ -5,24 +5,20 @@ import { useLeadModal } from '../components/LeadModal';
 import { useT } from '../i18n/context';
 import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import { compareRow } from '../templates/compare';
 import { useTemplate } from '../templates/registry';
 import type { Route } from './+types/catalog';
 
-export function meta({ data }: Route.MetaArgs) {
-  const site = data?.siteUrl ?? '';
-  const title = 'Производи — филтри и системи за вода | filtervoda.mk';
-  const desc = 'Системи за филтрација на вода: реверзна осмоза, диспензери, филтрација за цел дом, заштита од бигор, мерачи.';
-  const canonical = site ? `${site}/proizvodi` : undefined;
-  return [
-    { title },
-    { name: 'description', content: desc },
-    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: desc },
-    { property: 'og:type', content: 'website' },
-    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
-  ];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  return localeMeta({
+    locale,
+    siteUrl: data?.siteUrl ?? '',
+    path: '/proizvodi',
+    title: tm(locale, 'meta.catalog.title'),
+    description: tm(locale, 'meta.catalog.desc'),
+  });
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

@@ -2,6 +2,7 @@ import { PageWrap, useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
 import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import type { Route } from './+types/post';
 
 export async function loader({ params, request }: Route.LoaderArgs) {
@@ -12,25 +13,21 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return { post, siteUrl };
 }
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
   const post = data?.post as PostDetail | undefined;
-  if (!post) return [{ title: 'Статија | Совети' }];
+  if (!post) return [{ title: 'filtervoda.mk' }];
   const site = data?.siteUrl ?? '';
-  const title = post.seoTitle ?? `${post.title} | Совети`;
-  const desc = post.seoDescription ?? post.excerpt ?? '';
-  const canonical = site && post.slug ? `${site}/soveti/${post.slug}` : undefined;
   const abs = (u?: string | null) => (!u ? undefined : /^https?:\/\//.test(u) ? u : `${site}${u}`);
-  const ogImg = abs(post.coverUrl);
-  return [
-    { title },
-    ...(desc ? [{ name: 'description', content: desc }] : []),
-    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
-    { property: 'og:title', content: post.title },
-    ...(desc ? [{ property: 'og:description', content: desc }] : []),
-    { property: 'og:type', content: 'article' },
-    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
-    ...(ogImg ? [{ property: 'og:image', content: ogImg }] : []),
-  ];
+  return localeMeta({
+    locale,
+    siteUrl: site,
+    path: `/soveti/${post.slug}`,
+    title: post.seoTitle ?? `${post.title} | ${tm(locale, 'nav.blog')}`,
+    description: post.seoDescription ?? post.excerpt ?? '',
+    ogType: 'article',
+    image: abs(post.coverUrl),
+  });
 }
 
 /** Single post as exposed by the public API (loosely typed content HTML). */

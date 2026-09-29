@@ -297,4 +297,17 @@ export const en: Partial<Dict> = {
   'b2b.calc.exactOffer': 'Get an exact quote',
   'b2b.unit.gallons': 'gallons',
   'b2b.unit.bottles': 'bottles',
+
+  // SEO meta
+  'meta.home.title': 'filtervoda.mk — Clean, alkaline water straight from your tap',
+  'meta.home.desc': 'Water filtration systems with free installation and a 10-year warranty — across all of Macedonia. Reverse osmosis, alkaline and mineralized water.',
+  'meta.catalog.title': 'Products — water filters and systems | filtervoda.mk',
+  'meta.catalog.desc': 'Water filtration systems: reverse osmosis, dispensers, whole-home filtration, anti-limescale, meters.',
+  'meta.b2b.title': 'For Business — Unlimited clean water for your team | filtervoda.mk',
+  'meta.b2b.desc': 'Rent a dispenser from SPAR with everything included — installation, filters, service — for a fixed monthly fee. Forget the gallons.',
+  'meta.about.title': 'About — SPAR Company | filtervoda.mk',
+  'meta.contact.title': 'Contact | filtervoda.mk',
+  'meta.blog.title': 'Tips for clean water | filtervoda.mk',
+  'meta.blog.desc': 'Educational articles on reverse osmosis, alkaline water, limescale and water for businesses.',
+  'meta.thankyou.title': 'Thank you | filtervoda.mk',
 };

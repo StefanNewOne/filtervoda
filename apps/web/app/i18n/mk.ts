@@ -298,4 +298,17 @@ export const mk = {
   'b2b.calc.exactOffer': 'Добиј точна понуда',
   'b2b.unit.gallons': 'галони',
   'b2b.unit.bottles': 'шишиња',
+
+  // ── SEO meta (per-page <title>/description; M3) ──
+  'meta.home.title': 'filtervoda.mk — Чиста, алкална вода директно од вашата чешма',
+  'meta.home.desc': 'Системи за филтрација со бесплатна монтажа и 10 години гаранција — низ цела Македонија. Реверзна осмоза, алкална и минерализирана вода.',
+  'meta.catalog.title': 'Производи — филтри и системи за вода | filtervoda.mk',
+  'meta.catalog.desc': 'Системи за филтрација на вода: реверзна осмоза, диспензери, филтрација за цел дом, заштита од бигор, мерачи.',
+  'meta.b2b.title': 'За фирми — Неограничена чиста вода за вашиот тим | filtervoda.mk',
+  'meta.b2b.desc': 'Изнајмете апарат од SPAR со сè вклучено — монтажа, филтри, сервис — за фиксен месечен износ. Заборавете на галоните.',
+  'meta.about.title': 'За нас — SPAR Company | filtervoda.mk',
+  'meta.contact.title': 'Контакт | filtervoda.mk',
+  'meta.blog.title': 'Совети за чиста вода | filtervoda.mk',
+  'meta.blog.desc': 'Едукативни статии за реверзна осмоза, алкална вода, бигор и вода за фирми.',
+  'meta.thankyou.title': 'Благодариме | filtervoda.mk',
 } as const;

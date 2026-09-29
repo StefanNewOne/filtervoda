@@ -2,18 +2,24 @@ import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
 import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import type { Route } from './+types/blog';
 
-export function meta() {
-  return [
-    { title: 'Совети за чиста вода | filtervoda.mk' },
-    { name: 'description', content: 'Едукативни статии за реверзна осмоза, алкална вода, бигор и вода за фирми.' },
-  ];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  return localeMeta({
+    locale,
+    siteUrl: data?.siteUrl ?? '',
+    path: '/soveti',
+    title: tm(locale, 'meta.blog.title'),
+    description: tm(locale, 'meta.blog.desc'),
+  });
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = stripLocale(new URL(request.url).pathname).locale;
-  return { posts: await api.posts(locale) };
+  const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  return { posts: await api.posts(locale), siteUrl };
 }
 
 /** Post as exposed by the public API (cover image temporary until CMS holds real covers). */

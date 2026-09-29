@@ -297,4 +297,17 @@ export const sq: Partial<Dict> = {
   'b2b.calc.exactOffer': 'Merr ofertë të saktë',
   'b2b.unit.gallons': 'galona',
   'b2b.unit.bottles': 'shishe',
+
+  // SEO meta
+  'meta.home.title': 'filtervoda.mk — Ujë i pastër, alkalik direkt nga rubineti juaj',
+  'meta.home.desc': 'Sisteme filtrimi uji me instalim falas dhe garanci 10-vjeçare — në të gjithë Maqedoninë. Osmozë e kundërt, ujë alkalik dhe i mineralizuar.',
+  'meta.catalog.title': 'Produktet — filtra dhe sisteme uji | filtervoda.mk',
+  'meta.catalog.desc': 'Sisteme filtrimi uji: osmozë e kundërt, dispenserë, filtrim për të gjithë shtëpinë, mbrojtje nga guri i ujit, matës.',
+  'meta.b2b.title': 'Për biznese — Ujë i pastër i pakufizuar për ekipin tuaj | filtervoda.mk',
+  'meta.b2b.desc': 'Merrni me qira një aparat nga SPAR me gjithçka të përfshirë — instalim, filtra, servis — për një tarifë mujore fikse. Harroni galonat.',
+  'meta.about.title': 'Rreth nesh — SPAR Company | filtervoda.mk',
+  'meta.contact.title': 'Kontakt | filtervoda.mk',
+  'meta.blog.title': 'Këshilla për ujë të pastër | filtervoda.mk',
+  'meta.blog.desc': 'Artikuj edukativë për osmozën e kundërt, ujin alkalik, gurin e ujit dhe ujin për biznese.',
+  'meta.thankyou.title': 'Faleminderit | filtervoda.mk',
 };
