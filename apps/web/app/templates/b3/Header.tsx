@@ -25,13 +25,13 @@ export function Header({ phones }: { phones: string[] }) {
 
   return (
     <header className="sticky top-0 z-[60] border-b border-[#DCE4EE] bg-white/[0.92] backdrop-blur-[14px]">
-      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3.5 px-5 py-3.5">
-        <LocaleLink to="/" className="font-[family-name:JetBrains_Mono] text-[15px] font-semibold tracking-[-0.02em] text-[#071A3A]">
+      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3.5 px-5 py-3.5 md:gap-x-3 lg:flex-nowrap lg:gap-x-4">
+        <LocaleLink to="/" className="shrink-0 font-[family-name:JetBrains_Mono] text-[15px] font-semibold tracking-[-0.02em] text-[#071A3A]">
           filtervoda<span className="text-[#0E7490]">.mk</span>
         </LocaleLink>
-        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label={t('nav.primary')}>
+        <nav className="ml-auto hidden items-center gap-0.5 md:flex lg:gap-1" aria-label={t('nav.primary')}>
           {NAV.map((n) => (
-            <LocaleLink key={n.to} to={n.to} className="rounded-[10px] px-3 py-2.5 text-[15px] font-semibold text-[#071A3A] hover:bg-[#F4F7FB]">{t(n.key)}</LocaleLink>
+            <LocaleLink key={n.to} to={n.to} className="whitespace-nowrap rounded-[10px] px-2.5 py-2.5 text-[15px] font-semibold text-[#071A3A] hover:bg-[#F4F7FB] lg:px-3">{t(n.key)}</LocaleLink>
           ))}
         </nav>
         <span className="hidden items-center gap-2 whitespace-nowrap font-[family-name:JetBrains_Mono] text-[14px] font-bold tracking-[0.02em] text-[#071A3A] sm:flex">
@@ -42,10 +42,10 @@ export function Header({ phones }: { phones: string[] }) {
             </span>
           ))}
         </span>
-        <div className="hidden md:block">
+        <div className="hidden shrink-0 md:block">
           <LanguageSwitcher />
         </div>
-        <button onClick={() => openLead()} className="hidden rounded-[10px] bg-[#0E7490] px-5 py-3 text-[15px] font-bold text-white shadow-[0_6px_18px_rgba(14,116,144,0.3)] transition hover:brightness-110 md:inline-block">{t('cta.getOffer')}</button>
+        <button onClick={() => openLead()} className="hidden shrink-0 whitespace-nowrap rounded-[10px] bg-[#0E7490] px-5 py-3 text-[15px] font-bold text-white shadow-[0_6px_18px_rgba(14,116,144,0.3)] transition hover:brightness-110 md:inline-block">{t('cta.getOffer')}</button>
         <div className="ml-auto flex items-center gap-1 md:hidden">
           <LanguageSwitcher />
           <a href={telHref(phone)} className="p-2" aria-label={t('cta.call')}><Phone size={22} className="text-[#071A3A]" /></a>

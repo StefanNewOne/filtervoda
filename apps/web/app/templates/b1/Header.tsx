@@ -25,20 +25,20 @@ export function Header({ phones }: { phones: string[] }) {
 
   return (
     <header className="sticky top-0 z-[60] border-b border-[#E4EDF9] bg-white/[0.88] backdrop-blur-[14px]">
-      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3.5 px-5 py-3.5">
-        <LocaleLink to="/" className="font-[family-name:Unbounded] text-[15px] font-semibold tracking-[-0.02em] text-[#08182F]">
+      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3.5 px-5 py-3.5 md:gap-x-3 lg:flex-nowrap lg:gap-x-4">
+        <LocaleLink to="/" className="shrink-0 font-[family-name:Unbounded] text-[15px] font-semibold tracking-[-0.02em] text-[#08182F]">
           filtervoda<span className="text-[#0E7490]">.mk</span>
         </LocaleLink>
 
-        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label={t('nav.primary')}>
+        <nav className="ml-auto hidden items-center gap-0.5 md:flex lg:gap-1" aria-label={t('nav.primary')}>
           {NAV.map((n) => (
-            <LocaleLink key={n.to} to={n.to} className="rounded-[10px] px-3 py-2.5 text-[15px] font-semibold text-[#08182F] hover:bg-[#F2F8FF]">
+            <LocaleLink key={n.to} to={n.to} className="whitespace-nowrap rounded-[10px] px-2.5 py-2.5 text-[15px] font-semibold text-[#08182F] hover:bg-[#F2F8FF] lg:px-3">
               {t(n.key)}
             </LocaleLink>
           ))}
         </nav>
 
-        <span className="hidden text-[15px] font-bold tracking-[-0.01em] text-[#08182F] sm:flex sm:items-center sm:gap-2 md:ml-0">
+        <span className="hidden whitespace-nowrap text-[15px] font-bold tracking-[-0.01em] text-[#08182F] sm:flex sm:items-center sm:gap-2 md:ml-0">
           {phoneList.map((p, i) => (
             <span key={p} className="flex items-center gap-2">
               {i > 0 && <span className="text-[#C4D6EC]">·</span>}
@@ -47,13 +47,13 @@ export function Header({ phones }: { phones: string[] }) {
           ))}
         </span>
 
-        <div className="hidden md:block">
+        <div className="hidden shrink-0 md:block">
           <LanguageSwitcher />
         </div>
 
         <button
           onClick={() => openLead()}
-          className="hidden rounded-full bg-[#1156E0] px-5 py-3 text-[15px] font-bold tracking-[-0.01em] text-white shadow-[0_6px_18px_rgba(17,86,224,0.28)] transition hover:bg-[#08182F] md:inline-block"
+          className="hidden shrink-0 whitespace-nowrap rounded-full bg-[#1156E0] px-5 py-3 text-[15px] font-bold tracking-[-0.01em] text-white shadow-[0_6px_18px_rgba(17,86,224,0.28)] transition hover:bg-[#08182F] md:inline-block lg:px-5"
         >
           {t('cta.getOffer')}
         </button>
