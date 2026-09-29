@@ -62,6 +62,7 @@ async function main() {
     const chips = Array.isArray(p.chips) ? (p.chips as string[]) : [];
     const feats = Array.isArray(p.features) ? (p.features as { icon?: string; text: string }[]) : [];
     const ideal = Array.isArray(p.idealFor) ? (p.idealFor as string[]) : [];
+    const badges = Array.isArray(p.badges) ? (p.badges as string[]) : [];
     const existing = (p.i18n && typeof p.i18n === 'object' ? (p.i18n as Record<string, Record<string, unknown>>) : {}) ?? {};
     const i18n: Record<string, Record<string, unknown>> = { ...existing };
     for (const lc of LOCALES) {
@@ -70,15 +71,17 @@ async function main() {
         chips: chips.map((c) => tr(c, lc)),
         features: feats.map((f) => ({ ...(f.icon ? { icon: f.icon } : {}), text: tr(f.text, lc) })),
         idealFor: ideal.map((i) => tr(i, lc)),
+        badges: badges.map((b) => tr(b, lc)),
       };
     }
     await prisma.product.update({ where: { id: p.id }, data: { i18n } });
   }
 
-  // 4) Testimonials.
+  // 4) Testimonials (MERGE — keep name/company from i18n-extra).
   const tst = await prisma.testimonial.findMany({ where: { tenantId: TENANT } });
   for (const t of tst) {
-    const i18n = Object.fromEntries(LOCALES.map((lc) => [lc, overlay({ text: t.text, city: t.city }, lc)]));
+    const base = (t.i18n && typeof t.i18n === 'object' ? (t.i18n as Record<string, Record<string, unknown>>) : {}) ?? {};
+    const i18n = Object.fromEntries(LOCALES.map((lc) => [lc, { ...(base[lc] ?? {}), ...overlay({ text: t.text, city: t.city }, lc) }]));
     await prisma.testimonial.update({ where: { id: t.id }, data: { i18n } });
   }
 

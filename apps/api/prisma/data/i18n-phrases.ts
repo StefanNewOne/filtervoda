@@ -326,6 +326,11 @@ export const PHRASES: Record<string, Tr> = {
   '3,2': { en: '3.2', sq: '3.2' },
   '8,5+': { en: '8.5+', sq: '8.5+' },
 
+  // ── Product badges ──
+  'Акција': { en: 'Sale', sq: 'Ofertë' },
+  'Бесплатна монтажа': { en: 'Free installation', sq: 'Instalim falas' },
+  'За фирми': { en: 'For business', sq: 'Për biznese' },
+
   // ── Cities (testimonials) ──
   'Скопје': { en: 'Skopje', sq: 'Shkup' },
   'Битола': { en: 'Bitola', sq: 'Manastir' },

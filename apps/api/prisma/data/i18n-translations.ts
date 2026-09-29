@@ -161,6 +161,10 @@ const SETTINGS: Record<string, { en: unknown; sq: unknown }> = {
     en: 'Service is available across all of Macedonia — you are always covered, wherever you live or work.',
     sq: 'Shërbimi është i disponueshëm në të gjithë Maqedoninë — jeni gjithmonë të mbuluar, kudo që jetoni ose punoni.',
   },
+
+  // Contact
+  'contact.workingHours': { en: 'Mon–Sat · 09:00–18:00', sq: 'Hën–Sht · 09:00–18:00' },
+  'contact.address': { en: 'Skopje, Macedonia', sq: 'Shkup, Maqedoni' },
 };
 
 // ── Product taglines (names are brand — kept as-is). slug → { en, sq } ─────────────────────────
@@ -228,17 +232,19 @@ async function main() {
     }
   }
 
-  // 2) Products: tagline + shared includedInPrice overlay.
+  // 2) Products: tagline + shared includedInPrice overlay (MERGE — keep other i18n fields).
   let p = 0;
   for (const [slug, tl] of Object.entries(PRODUCT_TAGLINES)) {
     const existing = await prisma.product.findFirst({ where: { tenantId: TENANT, slug } });
     if (!existing) continue;
+    const base = (existing.i18n && typeof existing.i18n === 'object' ? (existing.i18n as Record<string, Record<string, unknown>>) : {}) ?? {};
     await prisma.product.update({
       where: { id: existing.id },
       data: {
         i18n: {
-          en: { tagline: tl.en, includedInPrice: INCLUDED_I18N.en },
-          sq: { tagline: tl.sq, includedInPrice: INCLUDED_I18N.sq },
+          ...base,
+          en: { ...(base.en ?? {}), tagline: tl.en, includedInPrice: INCLUDED_I18N.en },
+          sq: { ...(base.sq ?? {}), tagline: tl.sq, includedInPrice: INCLUDED_I18N.sq },
         },
       },
     });
