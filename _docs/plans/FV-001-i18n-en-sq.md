@@ -265,7 +265,22 @@ need locale from `location` + `translate()` — pages still emit MK `<title>`); 
 alternates; sitemap locale alternates; locale-aware autoreply; Albanian ë/ç font-glyph check;
 optional bare-root redirect from the `fv_locale` cookie.
 
-### i18n-M2 — NOT STARTED (DB `*I18n` JSON columns + locale-aware API/cache + admin [МК][EN][SQ] tabs).
+### i18n-M2 — READ PATH DONE (branch `feature/FV-i18n-m2`, off `feature/FV-i18n`)
+**Refinement vs plan:** ONE nullable `i18n Json?` column per model (holds `{ en:{field:val…}, sq:{…} }`)
+instead of many `*I18n` columns — simpler migration + admin editing. Migration
+`20260929173238_add_i18n_columns` (9 ADD COLUMN JSONB, non-breaking) applied.
+- `apps/api/src/lib/i18n.ts`: `applyLocale`/`applyLocaleAll`/`localeFromQuery` (MK fallback, drops `i18n`).
+- Public routes honor `?lang=`; product.service localizes product + nested specs/stages/faqs/related;
+  categories/posts/faq/packages/testimonials localized inline. Cache key includes locale (prefix
+  purge clears all variants). `api.server.ts` + loaders (home/catalog/product/blog/post/b2b) thread
+  URL locale. Verified: api+web typecheck, api 25 tests (6 new), web build.
+
+**STILL TODO in M2:**
+- **Admin write path** — API admin CRUD must accept/validate/store `i18n`; admin editors get
+  [МК][EN][SQ] tabs per translatable field (products, categories, posts, FAQ, testimonials, B2B).
+- **Setting-based content** — home hero/why/stages defaults, About, B2B copy, cookie banner live
+  in `Setting.value` JSON; need a per-locale mechanism in `settings.service` (separate from the
+  model `i18n` columns). Until then these render MK on /en /sq.
 ### i18n-M3 — NOT STARTED (hreflang/canonical/sitemap alternates, per-locale meta, locale-aware
 autoreply, Albanian ë/ç font glyph check, legal binding note).
 
