@@ -24,6 +24,10 @@ export default function Testimonials() {
           ],
         },
       ]}
+      i18nFields={[
+        { key: 'text', label: 'Текст' , type: 'textarea' },
+        { key: 'city', label: 'Град' },
+      ]}
     />
   );
 }

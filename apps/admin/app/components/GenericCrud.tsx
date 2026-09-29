@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { apiClient } from '../lib/api';
+import { I18nPanel, type I18nData, type I18nField } from './I18nPanel';
 import { Btn, Card, PageHeader, Table } from './ui';
 
 interface Field {
@@ -23,17 +24,21 @@ export function GenericCrud({
   endpoint,
   fields,
   queryKey,
+  i18nFields,
 }: {
   title: string;
   subtitle: string;
   endpoint: string;
   fields: Field[];
   queryKey: string;
+  /** Translatable fields (FV-001 M2). When set, an EN/SQ translation panel is shown. */
+  i18nFields?: I18nField[];
 }) {
   const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: [queryKey], queryFn: () => apiClient.get<Record<string, unknown>[]>(endpoint) });
   const initial = () => Object.fromEntries(fields.filter((f) => f.defaultValue != null).map((f) => [f.key, f.defaultValue as string]));
   const [form, setForm] = useState<Record<string, string>>(initial);
+  const [i18n, setI18n] = useState<I18nData>({});
   const [editing, setEditing] = useState<string | number | null>(null);
 
   const buildPayload = () => {
@@ -48,10 +53,11 @@ export function GenericCrud({
         payload[f.key] = raw;
       }
     }
+    if (i18nFields && Object.keys(i18n).length) payload.i18n = i18n;
     return payload;
   };
 
-  const reset = () => { setForm(initial()); setEditing(null); };
+  const reset = () => { setForm(initial()); setI18n({}); setEditing(null); };
 
   const save = useMutation({
     mutationFn: () => (editing == null ? apiClient.post(endpoint, buildPayload()) : apiClient.patch(`${endpoint}/${editing}`, buildPayload())),
@@ -66,6 +72,7 @@ export function GenericCrud({
     const next: Record<string, string> = {};
     for (const f of fields) next[f.key] = row[f.key] == null ? '' : String(row[f.key]);
     setForm(next);
+    setI18n((row.i18n as I18nData) ?? {});
     setEditing(row.id as string | number);
     if (typeof window !== 'undefined') window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
@@ -117,6 +124,12 @@ export function GenericCrud({
             ),
           )}
         </div>
+        {i18nFields && (
+          <div className="mt-4 border-t border-[var(--color-neutral-200)] pt-4">
+            <div className="mb-2 text-sm font-medium">Преводи (EN / SQ)</div>
+            <I18nPanel value={i18n} onChange={setI18n} fields={i18nFields} />
+          </div>
+        )}
         <div className="mt-3 flex gap-2">
           <Btn onClick={() => save.mutate()} disabled={save.isPending}>{editing == null ? 'Додај' : 'Зачувај'}</Btn>
           {editing != null && <Btn variant="ghost" onClick={reset}>Откажи</Btn>}

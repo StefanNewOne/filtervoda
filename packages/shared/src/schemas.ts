@@ -8,12 +8,23 @@ import {
   FAQ_SCOPES,
   LEAD_STATUSES,
   LEAD_TYPES,
+  PREFIXED_LOCALES,
   PRODUCT_AUDIENCES,
   PUBLISH_STATUSES,
   TEMPLATE_IDS,
   USER_ROLES,
 } from './constants.js';
 import { isValidMkPhone, normalizeMkPhone } from './phone.js';
+
+// ── i18n (FV-001 M2): per-locale field overlays for translatable content ──────
+// Shape: { en?: { field: value… }, sq?: { field: value… } }. Base columns stay MK; the API
+// overlays the requested locale with MK fallback. Values are unknown (strings, arrays, rich JSON).
+export const i18nOverlaySchema = z
+  .record(z.enum(PREFIXED_LOCALES), z.record(z.string(), z.unknown()))
+  .nullish()
+  // Normalize null → undefined so Prisma treats a cleared overlay as "leave unset" (setting a
+  // nullable Json column to JS null needs Prisma.JsonNull, which we don't want here).
+  .transform((v) => v ?? undefined);
 
 // ── Reusable fields ──────────────────────────────────────────────────────────
 export const mkPhoneSchema = z
@@ -177,6 +188,7 @@ export const productSchema = z.object({
   seoTitle: z.string().max(70).nullish(),
   seoDescription: z.string().max(160).nullish(),
   ogImageId: z.string().cuid().nullish(),
+  i18n: i18nOverlaySchema,
 });
 export type ProductInput = z.infer<typeof productSchema>;
 
@@ -191,6 +203,7 @@ export const postSchema = z.object({
   status: z.enum(PUBLISH_STATUSES).default('DRAFT'),
   seoTitle: z.string().max(70).optional(),
   seoDescription: z.string().max(160).optional(),
+  i18n: i18nOverlaySchema,
 });
 export type PostInput = z.infer<typeof postSchema>;
 
@@ -200,6 +213,7 @@ export const faqSchema = z.object({
   scope: z.enum(FAQ_SCOPES),
   productId: z.string().cuid().optional(),
   sortOrder: z.number().int().default(0),
+  i18n: i18nOverlaySchema,
 });
 
 export const redirectSchema = z.object({

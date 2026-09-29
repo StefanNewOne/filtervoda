@@ -2,6 +2,7 @@ import { PRODUCT_AUDIENCES } from '@filtervoda/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
@@ -22,6 +23,7 @@ interface Product {
   idealFor: string[]; includedInPrice: string[]; maintenanceNote?: string;
   features: Feature[]; seoTitle?: string; seoDescription?: string;
   specs: Spec[]; stages: Stage[]; images: ProductImage[]; related?: RelatedRow[];
+  i18n?: I18nData;
 }
 interface Category { id: number; name: string }
 interface ProductRow { id: string; name: string }
@@ -75,6 +77,7 @@ export default function ProductEditor() {
         showPrice: f.showPrice, featured: f.featured, priceRegular: f.priceRegular, priceSale: f.priceSale, filterSetPrice: f.filterSetPrice,
         badges: f.badges, chips: f.chips, idealFor: f.idealFor, includedInPrice: f.includedInPrice,
         maintenanceNote: f.maintenanceNote, features: f.features, seoTitle: f.seoTitle, seoDescription: f.seoDescription,
+        i18n: f.i18n,
       });
       await apiClient.put(`/admin/products/${id}/specs`, specs.map((s, i) => ({ ...s, sortOrder: i })));
       await apiClient.put(`/admin/products/${id}/stages`, stages.map((s, i) => ({ ...s, order: i + 1 })));
@@ -247,6 +250,25 @@ export default function ProductEditor() {
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">SEO наслов (≤70)</span><input className={input} maxLength={70} value={f.seoTitle ?? ''} onChange={(e) => setF({ ...f, seoTitle: e.target.value })} /></label>
             <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">SEO опис (≤160)</span><textarea className={input} maxLength={160} rows={2} value={f.seoDescription ?? ''} onChange={(e) => setF({ ...f, seoDescription: e.target.value })} /></label>
           </div>
+        </SectionCard>
+
+        <SectionCard title="Преводи (EN / SQ)" hint="Внесете превод на англиски и албански. Празно поле го задржува македонскиот текст на тој јазик.">
+          <I18nPanel
+            value={f.i18n}
+            onChange={(i18n) => setF({ ...f, i18n })}
+            fields={[
+              { key: 'name', label: 'Име' },
+              { key: 'tagline', label: 'Tagline' },
+              { key: 'shortDescription', label: 'Краток опис', type: 'textarea' },
+              { key: 'idealFor', label: 'Идеален за', type: 'list' },
+              { key: 'includedInPrice', label: 'Што вклучува цената', type: 'list' },
+              { key: 'maintenanceNote', label: 'Одржување и филтри', type: 'textarea' },
+              { key: 'badges', label: 'Беџови', type: 'list' },
+              { key: 'chips', label: 'Чипови', type: 'list' },
+              { key: 'seoTitle', label: 'SEO наслов' },
+              { key: 'seoDescription', label: 'SEO опис', type: 'textarea' },
+            ]}
+          />
         </SectionCard>
       </div>
 

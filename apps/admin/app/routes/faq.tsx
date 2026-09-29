@@ -23,6 +23,10 @@ export default function Faq() {
         },
         { key: 'sortOrder', label: 'Редослед', type: 'number', defaultValue: '0' },
       ]}
+      i18nFields={[
+        { key: 'question', label: 'Прашање' },
+        { key: 'answer', label: 'Одговор', type: 'textarea' },
+      ]}
     />
   );
 }
