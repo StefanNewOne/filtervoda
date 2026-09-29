@@ -2,7 +2,7 @@
  * Settings service. `getPublicSettings` exposes ONLY the storefront-safe keys (no CAPI token,
  * no SMTP). Includes the active template + its token overrides so the web app can theme.
  */
-import type { PublicSettings, TemplateId } from '@filtervoda/shared';
+import { DEFAULT_LOCALE, type Locale, type PublicSettings, type TemplateId } from '@filtervoda/shared';
 import type { Prisma } from '@prisma/client';
 import { env } from '../config/env.js';
 import { prisma } from '../lib/prisma.js';
@@ -11,6 +11,23 @@ import { CACHE_NS, purge } from './cache.js';
 async function readAll(): Promise<Record<string, unknown>> {
   const rows = await prisma.setting.findMany();
   return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+/**
+ * Locale view of the settings map (FV-001 M2): per-locale content is stored under
+ * `<key>.<locale>` (e.g. `b2b.heroH1.en`). For a non-default locale, every base key resolves to
+ * its localized variant when present, else the MK base. Locale rows are hidden from the base view.
+ */
+function localeView(raw: Record<string, unknown>, locale: Locale): Record<string, unknown> {
+  if (locale === DEFAULT_LOCALE) return raw;
+  const suffix = `.${locale}`;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (k.endsWith('.en') || k.endsWith('.sq')) continue; // locale rows are overlays, not base keys
+    const localized = raw[k + suffix];
+    out[k] = localized == null || localized === '' ? v : localized;
+  }
+  return out;
 }
 
 export async function getSetting<T = unknown>(key: string): Promise<T | undefined> {
@@ -28,8 +45,8 @@ export async function setSetting(key: string, value: Prisma.InputJsonValue): Pro
   await purge(CACHE_NS.settings);
 }
 
-export async function getPublicSettings(): Promise<PublicSettings> {
-  const s = await readAll();
+export async function getPublicSettings(locale: Locale = DEFAULT_LOCALE): Promise<PublicSettings> {
+  const s = localeView(await readAll(), locale);
   const activeTemplate = (s['design.activeTemplate'] as TemplateId) ?? 'b1';
   const allTokens = (s['design.templateTokens'] as Record<string, Record<string, string>>) ?? {};
 

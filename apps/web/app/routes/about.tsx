@@ -1,5 +1,6 @@
 import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/about';
 
@@ -9,8 +10,9 @@ export function meta() {
 
 const DEFAULT_IMAGE = '/img/products/cel-dom.png';
 
-export async function loader() {
-  const settings = await api.settings();
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const settings = await api.settings(locale);
   return { settings };
 }
 

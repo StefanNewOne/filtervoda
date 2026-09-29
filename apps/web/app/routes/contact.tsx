@@ -2,6 +2,7 @@ import { telHref, viberHref } from '@filtervoda/shared';
 import { LeadForm } from '../components/LeadForm';
 import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/contact';
 
@@ -9,8 +10,9 @@ export function meta() {
   return [{ title: 'Контакт | filtervoda.mk' }];
 }
 
-export async function loader() {
-  return { settings: await api.settings() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  return { settings: await api.settings(locale) };
 }
 
 export default function Contact({ loaderData }: Route.ComponentProps) {

@@ -44,7 +44,7 @@ async function getOrNull<T>(path: string): Promise<T | null> {
 }
 
 export const api = {
-  settings: () => get<PublicSettings>('/public/settings'),
+  settings: (locale?: Locale) => get<PublicSettings>(withLang('/public/settings', locale)),
   products: (category?: string, locale?: Locale) =>
     get<ProductCardDto[]>(withLang(`/public/products${category ? `?category=${encodeURIComponent(category)}` : ''}`, locale)),
   featuredProducts: (locale?: Locale) => get<ProductCardDto[]>(withLang('/public/products/featured', locale)),

@@ -28,7 +28,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const locale = stripLocale(new URL(request.url).pathname).locale;
   const [featured, settings, testimonials, faq, posts] = await Promise.all([
     api.featuredProducts(locale),
-    api.settings(),
+    api.settings(locale),
     api.testimonials(undefined, locale).catch(() => []),
     api.faq('GLOBAL', locale).catch(() => []),
     api.posts(locale).catch(() => []),

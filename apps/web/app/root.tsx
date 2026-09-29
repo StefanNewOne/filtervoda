@@ -36,9 +36,10 @@ const DEFAULT_SETTINGS = {
 };
 
 /** Root loader runs on every request — loads the active template + public settings. */
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
   try {
-    const settings = await api.settings();
+    const locale = stripLocale(new URL(request.url).pathname).locale;
+    const settings = await api.settings(locale);
     return { settings };
   } catch {
     // Never let a transient API hiccup turn every page into an error screen.

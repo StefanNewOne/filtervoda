@@ -10,7 +10,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!product) throw new Response('Not found', { status: 404 });
   const [testimonials, settings] = await Promise.all([
     api.testimonials('B2C', locale).catch(() => []),
-    api.settings(),
+    api.settings(locale),
   ]);
   // Public origin for absolute OG/canonical URLs (FB/IG require absolute image URLs).
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');

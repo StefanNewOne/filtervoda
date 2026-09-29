@@ -137,8 +137,9 @@ publicRouter.get('/public/testimonials', async (req, res) => {
   res.json(data);
 });
 
-publicRouter.get('/public/settings', async (_req, res) => {
-  const data = await withDefaultTtl(`${CACHE_NS.settings}public`, () => getPublicSettings());
+publicRouter.get('/public/settings', async (req, res) => {
+  const locale = localeFromQuery(req.query.lang);
+  const data = await withDefaultTtl(`${CACHE_NS.settings}public:${locale}`, () => getPublicSettings(locale));
   res.json(data);
 });
 

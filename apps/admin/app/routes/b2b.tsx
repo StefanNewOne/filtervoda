@@ -36,6 +36,7 @@ export default function B2b() {
   const save = useSaveState();
 
   const [str, setStr] = useState<Record<StrKey, string>>(() => Object.fromEntries(STR_KEYS.map((k) => [k, ''])) as Record<StrKey, string>);
+  const [sI18n, setSI18n] = useState<I18nData>({});
   const [calc, setCalc] = useState<CalcParams>({ litersPerPersonDay: 1.5, workingDays: 22, gallonLiters: 19, defaultPricePerGallon: 120 });
   const [logos, setLogos] = useState<string[]>([]);
   const [heroImage, setHeroImage] = useState<string>('');
@@ -54,6 +55,10 @@ export default function B2b() {
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
     setStr(Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}`) ?? ''])) as Record<StrKey, string>);
+    setSI18n({
+      en: Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}.en`) ?? ''])),
+      sq: Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}.sq`) ?? ''])),
+    });
     const c = val<CalcParams>('calculator.params'); if (c) setCalc(c);
     setLogos(val<string[]>('b2b.trustLogos') ?? []);
     setHeroImage(val<string>('b2b.heroImage') ?? '');
@@ -69,6 +74,9 @@ export default function B2b() {
     save.run(async () => {
       const put = (key: string, value: unknown) => apiClient.put(`/admin/settings/${key}`, { value });
       for (const k of STR_KEYS) await put(`b2b.${k}`, str[k].trim());
+      // Per-locale copy (FV-001 M2) — stored under `b2b.<key>.<locale>`.
+      for (const lc of ['en', 'sq'] as const)
+        for (const k of STR_KEYS) await put(`b2b.${k}.${lc}`, String((sI18n[lc]?.[k] as string) ?? '').trim());
       await put('calculator.params', calc);
       await put('b2b.trustLogos', logos);
       await put('b2b.heroImage', heroImage);
@@ -218,6 +226,14 @@ export default function B2b() {
             <label className="text-sm"><span className="text-[var(--color-neutral-500)]">{STR_LABELS.formText}</span><textarea className={input} rows={2} value={str.formText} onChange={(e) => setStr({ ...str, formText: e.target.value })} /></label>
             <Hint>Прашањата на ЧПП се уредуваат во модулот „ЧПП" (опсег: За фирми).</Hint>
           </div>
+        </SectionCard>
+
+        <SectionCard title="Преводи на текстовите (EN / SQ)" hint="Превод на насловите и текстовите од оваа страница. Празно поле = се прикажува македонскиот текст. (Листите: проблеми, вклучено, индустрии, чекори, споредба — засега се на македонски на сите јазици.)">
+          <I18nPanel
+            value={sI18n}
+            onChange={setSI18n}
+            fields={STR_KEYS.map((k) => ({ key: k, label: STR_LABELS[k], type: k === 'heroH1' || k === 'heroSubhead' || k === 'formText' ? ('textarea' as const) : ('text' as const) }))}
+          />
         </SectionCard>
       </div>
 
