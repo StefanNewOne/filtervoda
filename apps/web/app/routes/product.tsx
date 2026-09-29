@@ -1,13 +1,15 @@
 import { fmtPrice } from '../templates/types';
 import { ProductPage } from '../templates/shared/ProductPage';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/product';
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const product = await api.product(params.slug);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const product = await api.product(params.slug, locale);
   if (!product) throw new Response('Not found', { status: 404 });
   const [testimonials, settings] = await Promise.all([
-    api.testimonials('B2C').catch(() => []),
+    api.testimonials('B2C', locale).catch(() => []),
     api.settings(),
   ]);
   // Public origin for absolute OG/canonical URLs (FB/IG require absolute image URLs).

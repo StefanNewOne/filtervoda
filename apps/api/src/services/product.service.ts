@@ -2,9 +2,14 @@
  * Product read shaping — DB rows → public DTOs (@filtervoda/shared types). Only PUBLISHED,
  * non-deleted products are exposed. Media/variants resolved for the gallery and cards.
  */
+import { DEFAULT_LOCALE, type Locale } from '@filtervoda/shared';
 import type { MediaDto, ProductCardDto, ProductDetailDto } from '@filtervoda/shared';
 import type { Media, Product } from '@prisma/client';
+import { applyLocale } from '../lib/i18n.js';
 import { prisma } from '../lib/prisma.js';
+
+/** A product row after localization — same shape minus the raw `i18n` overlay column. */
+type LocalizedProduct = Omit<Product, 'i18n'>;
 
 function toMediaDto(m: Media | null | undefined, alt = ''): MediaDto | undefined {
   if (!m) return undefined;
@@ -19,7 +24,7 @@ function toMediaDto(m: Media | null | undefined, alt = ''): MediaDto | undefined
 }
 
 function toCard(
-  p: Product & { images?: { media: Media; alt: string; isPrimary: boolean }[]; category?: { slug: string } },
+  p: LocalizedProduct & { images?: { media: Media; alt: string; isPrimary: boolean }[]; category?: { slug: string } },
 ): ProductCardDto {
   const primary = p.images?.find((i) => i.isPrimary) ?? p.images?.[0];
   const features = Array.isArray(p.features) ? (p.features as { text: string }[]) : [];
@@ -43,7 +48,10 @@ function toCard(
   };
 }
 
-export async function listPublishedProducts(categorySlug?: string): Promise<ProductCardDto[]> {
+export async function listPublishedProducts(
+  categorySlug?: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ProductCardDto[]> {
   const products = await prisma.product.findMany({
     where: {
       status: 'PUBLISHED',
@@ -53,7 +61,7 @@ export async function listPublishedProducts(categorySlug?: string): Promise<Prod
     orderBy: [{ featured: 'desc' }, { sortOrder: 'asc' }, { name: 'asc' }],
     include: { images: { include: { media: true }, orderBy: { sortOrder: 'asc' } }, category: { select: { slug: true } } },
   });
-  return products.map(toCard);
+  return products.map((p) => toCard(applyLocale(p, locale)));
 }
 
 /**
@@ -61,9 +69,12 @@ export async function listPublishedProducts(categorySlug?: string): Promise<Prod
  * (Setting `content.featured.productIds`), return exactly those in that order; otherwise fall
  * back to the `featured` flag / sortOrder ordering, capped at 6.
  */
-export async function listFeaturedProducts(orderedIds: string[]): Promise<ProductCardDto[]> {
+export async function listFeaturedProducts(
+  orderedIds: string[],
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ProductCardDto[]> {
   if (!orderedIds.length) {
-    const all = await listPublishedProducts();
+    const all = await listPublishedProducts(undefined, locale);
     return all.slice(0, 6);
   }
   const products = await prisma.product.findMany({
@@ -71,10 +82,16 @@ export async function listFeaturedProducts(orderedIds: string[]): Promise<Produc
     include: { images: { include: { media: true }, orderBy: { sortOrder: 'asc' } }, category: { select: { slug: true } } },
   });
   const byId = new Map(products.map((p) => [p.id, p]));
-  return orderedIds.map((id) => byId.get(id)).filter((p): p is (typeof products)[number] => Boolean(p)).map(toCard);
+  return orderedIds
+    .map((id) => byId.get(id))
+    .filter((p): p is (typeof products)[number] => Boolean(p))
+    .map((p) => toCard(applyLocale(p, locale)));
 }
 
-export async function getPublishedProduct(slug: string): Promise<ProductDetailDto | null> {
+export async function getPublishedProduct(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ProductDetailDto | null> {
   const p = await prisma.product.findFirst({
     where: { slug, status: 'PUBLISHED', deletedAt: null },
     include: {
@@ -95,24 +112,26 @@ export async function getPublishedProduct(slug: string): Promise<ProductDetailDt
     orderBy: { sortOrder: 'asc' },
   });
 
-  const card = toCard(p);
-  const features = Array.isArray(p.features) ? (p.features as { icon?: string; text: string }[]) : [];
+  // Localize the product itself + every nested row (each carries its own `i18n`).
+  const lp = applyLocale(p, locale);
+  const card = toCard(lp);
+  const features = Array.isArray(lp.features) ? (lp.features as { icon?: string; text: string }[]) : [];
   return {
     ...card,
-    shortDescription: p.shortDescription ?? undefined,
-    description: p.description ?? undefined,
+    shortDescription: lp.shortDescription ?? undefined,
+    description: lp.description ?? undefined,
     categorySlug: p.category.slug,
-    idealFor: p.idealFor,
+    idealFor: lp.idealFor,
     features,
-    includedInPrice: p.includedInPrice,
-    maintenanceNote: p.maintenanceNote ?? undefined,
-    warrantyYears: p.warrantyYears,
+    includedInPrice: lp.includedInPrice,
+    maintenanceNote: lp.maintenanceNote ?? undefined,
+    warrantyYears: lp.warrantyYears,
     gallery: p.images.map((i) => toMediaDto(i.media, i.alt)).filter((m): m is MediaDto => Boolean(m)),
-    stages: p.stages.map((s) => ({ order: s.order, name: s.name, removes: s.removes, whyItMatters: s.whyItMatters, icon: s.icon ?? undefined })),
-    specs: p.specs.map((s) => ({ group: s.group, label: s.label, value: s.value, unit: s.unit ?? undefined })),
-    related: p.related.map((r) => toCard(r.related)),
-    faqs: [...p.faqs, ...globalFaqs].map((f) => ({ question: f.question, answer: f.answer })),
-    seoTitle: p.seoTitle ?? undefined,
-    seoDescription: p.seoDescription ?? undefined,
+    stages: p.stages.map((s) => applyLocale(s, locale)).map((s) => ({ order: s.order, name: s.name, removes: s.removes, whyItMatters: s.whyItMatters, icon: s.icon ?? undefined })),
+    specs: p.specs.map((s) => applyLocale(s, locale)).map((s) => ({ group: s.group, label: s.label, value: s.value, unit: s.unit ?? undefined })),
+    related: p.related.map((r) => toCard(applyLocale(r.related, locale))),
+    faqs: [...p.faqs, ...globalFaqs].map((f) => applyLocale(f, locale)).map((f) => ({ question: f.question, answer: f.answer })),
+    seoTitle: lp.seoTitle ?? undefined,
+    seoDescription: lp.seoDescription ?? undefined,
   };
 }

@@ -1,4 +1,5 @@
 import { B2bPage } from '../templates/shared/B2bPage';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/b2b';
 
@@ -12,11 +13,12 @@ export function meta() {
   ];
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
   const [packages, settings, faq] = await Promise.all([
-    api.packages(),
+    api.packages(locale),
     api.settings(),
-    api.faq('B2B').catch(() => []),
+    api.faq('B2B', locale).catch(() => []),
   ]);
   return { packages, settings, faq };
 }

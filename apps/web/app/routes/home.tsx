@@ -1,3 +1,4 @@
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import { useTemplate } from '../templates/registry';
 import type { Route } from './+types/home';
@@ -23,13 +24,14 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
   const [featured, settings, testimonials, faq, posts] = await Promise.all([
-    api.featuredProducts(),
+    api.featuredProducts(locale),
     api.settings(),
-    api.testimonials().catch(() => []),
-    api.faq('GLOBAL').catch(() => []),
-    api.posts().catch(() => []),
+    api.testimonials(undefined, locale).catch(() => []),
+    api.faq('GLOBAL', locale).catch(() => []),
+    api.posts(locale).catch(() => []),
   ]);
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return {

@@ -3,6 +3,7 @@ import { formatPrice } from '../components/ui';
 import { PageHeader, useSkin } from '../components/PageShell';
 import { useLeadModal } from '../components/LeadModal';
 import { useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import { compareRow } from '../templates/compare';
 import { useTemplate } from '../templates/registry';
@@ -24,8 +25,9 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
-  const [products, categories] = await Promise.all([api.products(), api.categories()]);
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const [products, categories] = await Promise.all([api.products(undefined, locale), api.categories(locale)]);
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return { products, categories, siteUrl };
 }

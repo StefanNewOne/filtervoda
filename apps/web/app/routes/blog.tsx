@@ -1,5 +1,6 @@
 import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/blog';
 
@@ -10,8 +11,9 @@ export function meta() {
   ];
 }
 
-export async function loader() {
-  return { posts: await api.posts() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  return { posts: await api.posts(locale) };
 }
 
 /** Post as exposed by the public API (cover image temporary until CMS holds real covers). */

@@ -1,10 +1,12 @@
 import { PageWrap, useSkin } from '../components/PageShell';
 import { LocaleLink, useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/post';
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const post = await api.post(params.slug);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const post = await api.post(params.slug, locale);
   if (!post) throw new Response('Not found', { status: 404 });
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return { post, siteUrl };
