@@ -46,6 +46,10 @@ const NOTES: Record<string, { en: string; sq: string }> = {
     en: 'The mineral beads are a consumable — replace the cartridge as needed.',
     sq: 'Rruazat minerale janë pjesë harxhuese — ndërrim i kartuşit sipas nevojës.',
   },
+  'Филтрите на овој производ се менуваат на 12 месеци. Од нас добивате повик кога се при крај и кога би требало да ги промениме.': {
+    en: 'The filters on this product are replaced every 12 months. We call you when they are nearing the end and should be replaced.',
+    sq: 'Filtrat e këtij produkti ndërrohen çdo 12 muaj. Ju telefonojmë kur janë afër fundit dhe kur duhet t’i ndërrojmë.',
+  },
 };
 
 // Testimonial name/company transliteration.
