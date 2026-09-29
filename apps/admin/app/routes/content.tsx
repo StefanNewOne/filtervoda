@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
@@ -38,6 +39,7 @@ export default function Content() {
   const save = useSaveState();
 
   const [str, setStr] = useState<Record<string, string>>({});
+  const [sI18n, setSI18n] = useState<I18nData>({});
   const [heroChips, setHeroChips] = useState<string[]>([]);
   const [whyItems, setWhyItems] = useState<WhyItem[]>([]);
   const [stages, setStages] = useState<StageItem[]>([]);
@@ -50,6 +52,12 @@ export default function Content() {
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
     setStr(Object.fromEntries(STR_FIELDS.map((f) => [f.key, val<string>(f.key) ?? ''])));
+    const LIST_ROW_KEYS = ['content.hero.chips', 'content.b2bTeaser.bullets', 'content.why.items', 'content.stages.items'];
+    const loadLoc = (lc: 'en' | 'sq') => ({
+      ...Object.fromEntries(STR_FIELDS.map((f) => [f.key, val<string>(`${f.key}.${lc}`) ?? ''])),
+      ...Object.fromEntries(LIST_ROW_KEYS.map((k) => [k, val<unknown>(`${k}.${lc}`) ?? []])),
+    });
+    setSI18n({ en: loadLoc('en'), sq: loadLoc('sq') });
     setHeroChips(val<string[]>('content.hero.chips') ?? []);
     setWhyItems(val<WhyItem[]>('content.why.items') ?? []);
     setStages(val<StageItem[]>('content.stages.items') ?? []);
@@ -66,6 +74,11 @@ export default function Content() {
     save.run(async () => {
       const put = (key: string, value: unknown) => apiClient.put(`/admin/settings/${key}`, { value });
       for (const f of STR_FIELDS) await put(f.key, str[f.key]?.trim() ?? '');
+      // Per-locale copy (FV-001 M2) — stored under `<key>.<locale>` (strings + lists/rows).
+      for (const lc of ['en', 'sq'] as const) {
+        for (const f of STR_FIELDS) await put(`${f.key}.${lc}`, String((sI18n[lc]?.[f.key] as string) ?? '').trim());
+        for (const k of ['content.hero.chips', 'content.b2bTeaser.bullets', 'content.why.items', 'content.stages.items']) await put(`${k}.${lc}`, sI18n[lc]?.[k] ?? []);
+      }
       await put('content.hero.image', heroImage);
       await put('content.hero.chips', heroChips);
       await put('content.why.items', whyItems.filter((w) => w.title.trim()));
@@ -257,6 +270,27 @@ export default function Content() {
             {strField('content.thankyou.title')}
             {strField('content.thankyou.text')}
           </div>
+        </SectionCard>
+
+        <SectionCard title="Преводи на текстовите (EN / SQ)" hint="Превод на сите наслови и текстови од почетната. Празно поле = се прикажува македонскиот. (Листите — чипови, картички, степени, буллети — засега се на македонски на сите јазици.)">
+          <I18nPanel
+            value={sI18n}
+            onChange={setSI18n}
+            mk={{
+              ...Object.fromEntries(STR_FIELDS.map((f) => [f.key, str[f.key]])),
+              'content.hero.chips': heroChips,
+              'content.b2bTeaser.bullets': teaserBullets,
+              'content.why.items': whyItems,
+              'content.stages.items': stages,
+            }}
+            fields={[
+              ...STR_FIELDS.map((f) => ({ key: f.key, label: f.label, type: f.area ? ('textarea' as const) : ('text' as const) })),
+              { key: 'content.hero.chips', label: 'Hero чипови', type: 'list' as const },
+              { key: 'content.b2bTeaser.bullets', label: 'B2B тизер — буллети', type: 'list' as const },
+              { key: 'content.why.items', label: 'Зошто — картички', type: 'rows' as const, rowFields: [{ key: 'title', label: 'Наслов' }, { key: 'text', label: 'Опис' }] },
+              { key: 'content.stages.items', label: 'Степени', type: 'rows' as const, rowFields: [{ key: 'name', label: 'Име' }, { key: 'text', label: 'Опис' }] },
+            ]}
+          />
         </SectionCard>
       </div>
 

@@ -2,29 +2,28 @@ import { useSearchParams } from 'react-router';
 import { formatPrice } from '../components/ui';
 import { PageHeader, useSkin } from '../components/PageShell';
 import { useLeadModal } from '../components/LeadModal';
+import { useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import { compareRow } from '../templates/compare';
 import { useTemplate } from '../templates/registry';
 import type { Route } from './+types/catalog';
 
-export function meta({ data }: Route.MetaArgs) {
-  const site = data?.siteUrl ?? '';
-  const title = 'Производи — филтри и системи за вода | filtervoda.mk';
-  const desc = 'Системи за филтрација на вода: реверзна осмоза, диспензери, филтрација за цел дом, заштита од бигор, мерачи.';
-  const canonical = site ? `${site}/proizvodi` : undefined;
-  return [
-    { title },
-    { name: 'description', content: desc },
-    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: desc },
-    { property: 'og:type', content: 'website' },
-    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
-  ];
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
+  return localeMeta({
+    locale,
+    siteUrl: data?.siteUrl ?? '',
+    path: '/proizvodi',
+    title: tm(locale, 'meta.catalog.title'),
+    description: tm(locale, 'meta.catalog.desc'),
+  });
 }
 
-export async function loader() {
-  const [products, categories] = await Promise.all([api.products(), api.categories()]);
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const [products, categories] = await Promise.all([api.products(undefined, locale), api.categories(locale)]);
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return { products, categories, siteUrl };
 }
@@ -34,6 +33,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
   const { ProductCard } = useTemplate();
   const s = useSkin();
   const { open } = useLeadModal();
+  const t = useT();
   // Filter is URL-driven (?cat=slug) so footer/category links deep-link into a filtered view.
   const [params, setParams] = useSearchParams();
   const active = params.get('cat') ?? 'all';
@@ -42,16 +42,16 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
   const shown = active === 'all' ? products : products.filter((p) => p.categorySlug === active);
 
   const chips: { key: string; label: string }[] = [
-    { key: 'all', label: 'Сите' },
+    { key: 'all', label: t('catalog.all') },
     ...categories.map((c) => ({ key: c.slug, label: c.name })),
   ];
 
   return (
     <main className="mx-auto max-w-[1200px] px-5 pb-[120px]">
       <PageHeader
-        crumbs={[{ label: 'Почетна', to: '/' }, { label: 'Производи' }]}
-        title="Производи"
-        intro="Системи под мијалник, диспензери, филтрација за цел дом, заштита од бигор и мерачи — секој со бесплатна монтажа и 10 години гаранција."
+        crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.products') }]}
+        title={t('nav.products')}
+        intro={t('catalog.intro')}
         s={s}
       />
 
@@ -86,14 +86,14 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
         </div>
       ) : (
         <div className={`mt-[30px] rounded-[var(--radius-card)] border border-dashed ${s.border} px-5 py-[60px] text-center`}>
-          <h3 className={`text-[20px] font-medium ${s.ink}`}>Нема производи во оваа категорија.</h3>
-          <p className={`mt-[10px] text-[15px] ${s.muted}`}>Оставете телефон и ќе ве советуваме што одговара за вас.</p>
+          <h3 className={`text-[20px] font-medium ${s.ink}`}>{t('catalog.empty')}</h3>
+          <p className={`mt-[10px] text-[15px] ${s.muted}`}>{t('catalog.emptyText')}</p>
           <button
             type="button"
             onClick={() => open()}
             className={`mt-5 min-h-[44px] ${s.cta}`}
           >
-            Побарај понуда
+            {t('cta.getOffer')}
           </button>
         </div>
       )}
@@ -102,20 +102,20 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
       {shown.length > 1 && (
         <section className="mt-20">
           <h2 className={`${s.display} ${s.ink} text-[clamp(26px,2.8vw,38px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>
-            Споредба на моделите
+            {t('catalog.compareTitle')}
           </h2>
-          <p className={`mt-3 text-[15px] ${s.muted}`}>Лизгајте хоризонтално за да ги видите сите колони.</p>
+          <p className={`mt-3 text-[15px] ${s.muted}`}>{t('catalog.compareHint')}</p>
           <div className={`mt-6 overflow-x-auto rounded-[20px] border ${s.border}`}>
             <table className="w-full min-w-[860px] border-collapse text-[14px]">
               <thead>
                 <tr className={`${s.softBg} text-left`}>
-                  <th className={`sticky left-0 ${s.softBg} px-[18px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>МОДЕЛ</th>
-                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>СТЕПЕНИ</th>
-                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>РЕЗЕРВОАР</th>
-                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>ДИСПЛЕЈ</th>
-                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>pH</th>
-                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>ГАРАНЦИЈА</th>
-                  <th className={`px-[18px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>ЦЕНА</th>
+                  <th className={`sticky left-0 ${s.softBg} px-[18px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.model')}</th>
+                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.stages')}</th>
+                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.tank')}</th>
+                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.display')}</th>
+                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.ph')}</th>
+                  <th className={`px-[14px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.warranty')}</th>
+                  <th className={`px-[18px] py-4 ${s.mono} text-[12px] font-medium tracking-[0.06em] ${s.muted}`}>{t('catalog.col.price')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,9 +130,9 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
                       <td className={`px-[14px] py-4 ${s.muted}`}>{c.tank}</td>
                       <td className={`px-[14px] py-4 ${s.muted}`}>{c.display}</td>
                       <td className={`px-[14px] py-4 ${s.muted}`}>{c.ph}</td>
-                      <td className={`px-[14px] py-4 ${s.muted}`}>10 год.</td>
+                      <td className={`px-[14px] py-4 ${s.muted}`}>{t('catalog.years10')}</td>
                       <td className={`whitespace-nowrap px-[18px] py-4 font-bold ${s.ink}`}>
-                        {p.showPrice ? formatPrice(p.priceSale ?? p.priceRegular) : 'Побарај цена'}
+                        {p.showPrice ? formatPrice(p.priceSale ?? p.priceRegular) : t('card.askPrice')}
                       </td>
                     </tr>
                   );
@@ -147,12 +147,12 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
       <section className={`mt-[70px] flex flex-wrap items-center justify-between gap-6 rounded-[24px] border ${s.border} ${s.softBg} p-10`}>
         <div>
           <h3 className={`${s.display} ${s.ink} text-[24px] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>
-            Не знаете кој систем ви одговара?
+            {t('catalog.advisorTitle')}
           </h3>
-          <p className={`mt-2 text-[16px] ${s.muted}`}>Две прашања — и добивате препорака од нас.</p>
+          <p className={`mt-2 text-[16px] ${s.muted}`}>{t('catalog.advisorText')}</p>
         </div>
         <button type="button" onClick={() => open({ type: 'ADVISOR' })} className={`min-h-[44px] ${s.cta}`}>
-          Добијте препорака
+          {t('catalog.advisorCta')}
         </button>
       </section>
     </main>

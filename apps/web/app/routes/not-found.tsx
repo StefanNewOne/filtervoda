@@ -1,4 +1,5 @@
-import { Link, data, redirect } from 'react-router';
+import { data, redirect } from 'react-router';
+import { LocaleLink, useT } from '../i18n/context';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/not-found';
 
@@ -20,14 +21,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function NotFound() {
+  const t = useT();
   return (
     <main className="mx-auto max-w-2xl px-5 py-24 text-center">
       <div className="font-[family-name:var(--font-display)] text-[clamp(80px,14vw,180px)] font-light leading-none tracking-[-0.06em] text-[var(--color-accent)]">404</div>
-      <h1 className="mt-5 text-[clamp(28px,3.4vw,42px)] font-medium text-[var(--color-foreground)]">Оваа страница не постои.</h1>
-      <p className="mt-4 text-[17px] text-[var(--color-muted)]">Пробајте од производите или почетната страница.</p>
+      <h1 className="mt-5 text-[clamp(28px,3.4vw,42px)] font-medium text-[var(--color-foreground)]">{t('error.notFoundTitle')}</h1>
+      <p className="mt-4 text-[17px] text-[var(--color-muted)]">{t('error.help')}</p>
       <div className="mt-8 flex justify-center gap-3">
-        <Link to="/proizvodi" className="rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-7 py-3.5 font-bold text-[var(--color-cta-fg)]">Производи</Link>
-        <Link to="/" className="rounded-[var(--radius-cta)] border border-[var(--color-border)] px-7 py-3.5 font-bold text-[var(--color-foreground)]">Почетна</Link>
+        <LocaleLink to="/proizvodi" className="rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-7 py-3.5 font-bold text-[var(--color-cta-fg)]">{t('nav.products')}</LocaleLink>
+        <LocaleLink to="/" className="rounded-[var(--radius-cta)] border border-[var(--color-border)] px-7 py-3.5 font-bold text-[var(--color-foreground)]">{t('nav.home')}</LocaleLink>
       </div>
     </main>
   );

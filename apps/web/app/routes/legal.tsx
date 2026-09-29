@@ -1,6 +1,6 @@
-import { Link } from 'react-router';
 import type { Route } from './+types/legal';
 import { useSkin, PageWrap } from '../components/PageShell';
+import { LocaleLink, useT } from '../i18n/context';
 
 type LegalSection = { heading: string; text: string };
 type LegalPage = { title: string; lastModified: string; sections: LegalSection[] };
@@ -68,23 +68,24 @@ export async function loader({ params }: Route.LoaderArgs) {
 export default function Legal({ loaderData }: Route.ComponentProps) {
   const { slug, page } = loaderData;
   const s = useSkin();
+  const t = useT();
 
   const pills: { slug: string; label: string; to: string }[] = [
-    { slug: 'privatnost', label: 'Приватност', to: '/pravni/privatnost' },
-    { slug: 'kolacinja', label: 'Колачиња', to: '/pravni/kolacinja' },
+    { slug: 'privatnost', label: t('legal.privacy'), to: '/pravni/privatnost' },
+    { slug: 'kolacinja', label: t('legal.cookies'), to: '/pravni/kolacinja' },
   ];
 
   return (
     <PageWrap>
       <nav
         className="flex gap-2 pt-[26px] text-[13px] font-semibold text-[var(--color-muted)]"
-        aria-label="Патека"
+        aria-label={t('nav.breadcrumb')}
       >
-        <Link to="/" className="text-[var(--color-cta)]">
-          Почетна
-        </Link>
+        <LocaleLink to="/" className="text-[var(--color-cta)]">
+          {t('nav.home')}
+        </LocaleLink>
         <span>/</span>
-        <span>Правни</span>
+        <span>{t('footer.legal')}</span>
         <span>/</span>
         <span>{page.title}</span>
       </nav>
@@ -93,7 +94,7 @@ export default function Legal({ loaderData }: Route.ComponentProps) {
         {pills.map((p) => {
           const active = p.slug === slug;
           return (
-            <Link
+            <LocaleLink
               key={p.slug}
               to={p.to}
               aria-current={active ? 'page' : undefined}
@@ -104,7 +105,7 @@ export default function Legal({ loaderData }: Route.ComponentProps) {
               }`}
             >
               {p.label}
-            </Link>
+            </LocaleLink>
           );
         })}
       </div>
@@ -117,7 +118,7 @@ export default function Legal({ loaderData }: Route.ComponentProps) {
         {page.title}
       </h1>
       <p className="mt-4 text-[14px] text-[var(--color-muted)]">
-        Последна измена: {page.lastModified}
+        {t('legal.lastModified')}: {page.lastModified}
       </p>
 
       <div className="mt-10 max-w-[44em]">
@@ -127,9 +128,7 @@ export default function Legal({ loaderData }: Route.ComponentProps) {
             <p className={`mt-3.5 text-[17px] leading-[1.75] ${s.muted}`}>{sec.text}</p>
           </div>
         ))}
-        <p className="mt-9 text-[14px] text-[var(--color-muted)]">
-          Текстот е нацрт за дизајн — финалната верзија ја обезбедува GoDigital со правник.
-        </p>
+        <p className="mt-9 text-[14px] text-[var(--color-muted)]">{t('legal.draftNote')}</p>
       </div>
     </PageWrap>
   );

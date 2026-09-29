@@ -1,7 +1,7 @@
 import { telHref } from '@filtervoda/shared';
-import { Link } from 'react-router';
 import { useLeadModal } from '../../components/LeadModal';
 import { LeadForm } from '../../components/LeadForm';
+import { LocaleLink, useT } from '../../i18n/context';
 import { HERO_H1_DEFAULT, HERO_H2_DEFAULT, STAGES, WHY_ITEMS, heroParts, type HomeProps } from '../types';
 import { ArticlesSection, B2bTeaser } from '../shared/HomeSections';
 import { ProductCard } from './ProductCard';
@@ -13,6 +13,7 @@ const GRID_BG =
 /** Б-3 „Паметна вода" — dark navy data theme, grid overlay, mono numbers, teal accents. */
 export function Home({ featured, content, testimonials, posts, settings }: HomeProps) {
   const { open } = useLeadModal();
+  const t = useT();
   const [h1a, h1b, h1c] = heroParts(content.heroH1 || HERO_H1_DEFAULT);
   const phone = settings.phones[0] ?? '076/676/819';
   const whyItems = content.whyItems?.length ? content.whyItems.map((w, i) => ({ n: String(i + 1).padStart(2, '0'), title: w.title, text: w.text })) : WHY_ITEMS;
@@ -37,7 +38,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
               <button onClick={() => open({ type: 'ADVISOR' })} className="rounded-[10px] bg-[#0E7490] px-7 py-[18px] text-[17px] font-bold text-white shadow-[0_10px_30px_rgba(14,116,144,0.32)] transition hover:brightness-110">
                 {content.heroCta || 'Побарај бесплатна консултација'}
               </button>
-              <Link to="/proizvodi" className="rounded-[10px] border border-[rgba(159,233,250,0.45)] px-7 py-[18px] text-[17px] font-bold text-white transition hover:bg-white/5">Види ги производите</Link>
+              <LocaleLink to="/proizvodi" className="rounded-[10px] border border-[rgba(159,233,250,0.45)] px-7 py-[18px] text-[17px] font-bold text-white transition hover:bg-white/5">{t('cta.seeProducts')}</LocaleLink>
             </div>
             <div className="mt-7 flex items-center gap-4 font-[family-name:JetBrains_Mono] text-[13px] tracking-[0.1em] text-[#9FE9FA]">
               <span><span className="text-[22px] font-bold text-[#45E0FF]">8.5+</span> pH</span>
@@ -76,7 +77,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       <section className="mx-auto max-w-[1200px] px-5 pt-[84px]">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-[clamp(30px,3.4vw,46px)] font-medium text-[#071A3A]">{content.featuredTitle || 'Најбарани системи'}</h2>
-          <Link to="/proizvodi" className="text-[16px] font-bold text-[#0E7490]">Сите производи →</Link>
+          <LocaleLink to="/proizvodi" className="text-[16px] font-bold text-[#0E7490]">{t('home.products.all')} →</LocaleLink>
         </div>
         <div className="mt-[34px] grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -86,7 +87,7 @@ export function Home({ featured, content, testimonials, posts, settings }: HomeP
       {/* STAGES — seamless grid on navy */}
       <section className="px-5 pt-[90px]">
         <div className="mx-auto max-w-[1200px] rounded-[32px] bg-[#071A3A] px-5 py-16 text-white">
-          <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#45E0FF]">КАКО ФУНКЦИОНИРА</div>
+          <div className="font-[family-name:JetBrains_Mono] text-[12px] tracking-[0.14em] text-[#45E0FF]">{t('home.stages.eyebrow')}</div>
           <h2 className="mt-4 max-w-[22em] text-[clamp(28px,3.2vw,44px)] font-medium">{content.stagesTitle || 'Како функционира — 6 степени на филтрација'}</h2>
           <div className="mt-11 grid gap-px overflow-hidden rounded-[10px] border border-[rgba(111,196,247,0.22)] bg-[rgba(111,196,247,0.22)] sm:grid-cols-2 lg:grid-cols-3">
             {stages.map((s) => (

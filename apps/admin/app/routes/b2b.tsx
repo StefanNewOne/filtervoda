@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
@@ -7,7 +8,7 @@ import { Btn, Card, Hint, PageHeader, SectionCard, Table } from '../components/u
 import { apiClient } from '../lib/api';
 import { useSaveState } from '../lib/useSaveState';
 
-interface Pkg { id: string; name: string; priceFrom: number; description?: string; includes: string[]; active: boolean }
+interface Pkg { id: string; name: string; priceFrom: number; description?: string; includes: string[]; active: boolean; i18n?: I18nData }
 interface CalcParams { litersPerPersonDay: number; workingDays: number; gallonLiters: number; defaultPricePerGallon: number }
 interface Step { title: string; desc: string }
 interface CmpRow { label: string; gallons: string; buy: string; rent: string }
@@ -35,6 +36,7 @@ export default function B2b() {
   const save = useSaveState();
 
   const [str, setStr] = useState<Record<StrKey, string>>(() => Object.fromEntries(STR_KEYS.map((k) => [k, ''])) as Record<StrKey, string>);
+  const [sI18n, setSI18n] = useState<I18nData>({});
   const [calc, setCalc] = useState<CalcParams>({ litersPerPersonDay: 1.5, workingDays: 22, gallonLiters: 19, defaultPricePerGallon: 120 });
   const [logos, setLogos] = useState<string[]>([]);
   const [heroImage, setHeroImage] = useState<string>('');
@@ -47,11 +49,17 @@ export default function B2b() {
 
   // Package add/edit form (entities — saved individually).
   const [np, setNp] = useState({ name: '', priceFrom: 0, description: '', includes: '' });
+  const [npI18n, setNpI18n] = useState<I18nData>({});
   const [editingPkg, setEditingPkg] = useState<string | null>(null);
 
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
     setStr(Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}`) ?? ''])) as Record<StrKey, string>);
+    const loadLoc = (lc: 'en' | 'sq') => ({
+      ...Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}.${lc}`) ?? ''])),
+      ...Object.fromEntries(['problems', 'included', 'industries', 'steps', 'comparison'].map((k) => [k, val<unknown>(`b2b.${k}.${lc}`) ?? []])),
+    });
+    setSI18n({ en: loadLoc('en'), sq: loadLoc('sq') });
     const c = val<CalcParams>('calculator.params'); if (c) setCalc(c);
     setLogos(val<string[]>('b2b.trustLogos') ?? []);
     setHeroImage(val<string>('b2b.heroImage') ?? '');
@@ -67,6 +75,11 @@ export default function B2b() {
     save.run(async () => {
       const put = (key: string, value: unknown) => apiClient.put(`/admin/settings/${key}`, { value });
       for (const k of STR_KEYS) await put(`b2b.${k}`, str[k].trim());
+      // Per-locale copy (FV-001 M2) — stored under `b2b.<key>.<locale>` (strings + lists/rows).
+      for (const lc of ['en', 'sq'] as const) {
+        for (const k of STR_KEYS) await put(`b2b.${k}.${lc}`, String((sI18n[lc]?.[k] as string) ?? '').trim());
+        for (const k of ['problems', 'included', 'industries', 'steps', 'comparison']) await put(`b2b.${k}.${lc}`, sI18n[lc]?.[k] ?? []);
+      }
       await put('calculator.params', calc);
       await put('b2b.trustLogos', logos);
       await put('b2b.heroImage', heroImage);
@@ -79,15 +92,15 @@ export default function B2b() {
       await qc.invalidateQueries({ queryKey: ['settings'] });
     });
 
-  const resetPkg = () => { setNp({ name: '', priceFrom: 0, description: '', includes: '' }); setEditingPkg(null); };
+  const resetPkg = () => { setNp({ name: '', priceFrom: 0, description: '', includes: '' }); setNpI18n({}); setEditingPkg(null); };
   const savePkg = useMutation({
     mutationFn: () => {
-      const body = { name: np.name, priceFrom: Number(np.priceFrom), description: np.description, includes: np.includes.split(',').map((x) => x.trim()).filter(Boolean), active: true };
+      const body = { name: np.name, priceFrom: Number(np.priceFrom), description: np.description, includes: np.includes.split(',').map((x) => x.trim()).filter(Boolean), active: true, i18n: Object.keys(npI18n).length ? npI18n : undefined };
       return editingPkg ? apiClient.patch(`/admin/packages/${editingPkg}`, body) : apiClient.post('/admin/packages', body);
     },
     onSuccess: () => { resetPkg(); qc.invalidateQueries({ queryKey: ['packages'] }); },
   });
-  const editPkg = (p: Pkg) => { setNp({ name: p.name, priceFrom: p.priceFrom, description: p.description ?? '', includes: p.includes.join(', ') }); setEditingPkg(p.id); };
+  const editPkg = (p: Pkg) => { setNp({ name: p.name, priceFrom: p.priceFrom, description: p.description ?? '', includes: p.includes.join(', ') }); setNpI18n(p.i18n ?? {}); setEditingPkg(p.id); };
   const delPkg = useMutation({ mutationFn: (id: string) => apiClient.del(`/admin/packages/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['packages'] }) });
 
   // Helpers to bridge string[] state ↔ RowsEditor's row shape.
@@ -178,6 +191,10 @@ export default function B2b() {
               <input className={input} placeholder="Опис" value={np.description} onChange={(e) => setNp({ ...np, description: e.target.value })} />
               <input className={input} placeholder="Вклучува (запирки)" value={np.includes} onChange={(e) => setNp({ ...np, includes: e.target.value })} />
             </div>
+            <div className="mt-3 border-t border-[var(--color-neutral-200)] pt-3">
+              <div className="mb-2 text-sm font-medium">Преводи на пакетот (EN / SQ)</div>
+              <I18nPanel value={npI18n} onChange={setNpI18n} fields={[{ key: 'name', label: 'Име' }, { key: 'description', label: 'Опис', type: 'textarea' }, { key: 'includes', label: 'Вклучува', type: 'list' }]} />
+            </div>
             <div className="mt-3 flex gap-2">
               <Btn onClick={() => savePkg.mutate()} disabled={!np.name || savePkg.isPending}>{editingPkg ? 'Зачувај пакет' : 'Додај пакет'}</Btn>
               {editingPkg && <Btn variant="ghost" onClick={resetPkg}>Откажи</Btn>}
@@ -212,6 +229,22 @@ export default function B2b() {
             <label className="text-sm"><span className="text-[var(--color-neutral-500)]">{STR_LABELS.formText}</span><textarea className={input} rows={2} value={str.formText} onChange={(e) => setStr({ ...str, formText: e.target.value })} /></label>
             <Hint>Прашањата на ЧПП се уредуваат во модулот „ЧПП" (опсег: За фирми).</Hint>
           </div>
+        </SectionCard>
+
+        <SectionCard title="Преводи на текстовите (EN / SQ)" hint="Превод на насловите и текстовите од оваа страница. Празно поле = се прикажува македонскиот текст. (Листите: проблеми, вклучено, индустрии, чекори, споредба — засега се на македонски на сите јазици.)">
+          <I18nPanel
+            value={sI18n}
+            onChange={setSI18n}
+            mk={{ ...str, problems, included, industries, steps, comparison }}
+            fields={[
+              ...STR_KEYS.map((k) => ({ key: k, label: STR_LABELS[k], type: k === 'heroH1' || k === 'heroSubhead' || k === 'formText' ? ('textarea' as const) : ('text' as const) })),
+              { key: 'problems', label: 'Проблеми', type: 'list' as const },
+              { key: 'included', label: 'Што е вклучено', type: 'list' as const },
+              { key: 'industries', label: 'За кои бизниси', type: 'list' as const },
+              { key: 'steps', label: 'Чекори', type: 'rows' as const, rowFields: [{ key: 'title', label: 'Наслов' }, { key: 'desc', label: 'Опис' }] },
+              { key: 'comparison', label: 'Споредбена табела', type: 'rows' as const, rowFields: [{ key: 'label', label: 'Ознака' }, { key: 'gallons', label: 'Галони' }, { key: 'buy', label: 'Купување' }, { key: 'rent', label: 'Изнајмување' }] },
+            ]}
+          />
         </SectionCard>
       </div>
 

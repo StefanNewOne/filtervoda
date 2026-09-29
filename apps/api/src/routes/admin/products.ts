@@ -2,7 +2,7 @@
  * Admin products: CRUD + publish/unpublish (cache purge) + signed preview token.
  * Sub-resources (specs, stages, images, faqs) are edited via their own endpoints.
  */
-import { PREVIEW_TOKEN_TTL_MIN, productSchema } from '@filtervoda/shared';
+import { PREVIEW_TOKEN_TTL_MIN, i18nOverlaySchema, productSchema } from '@filtervoda/shared';
 import type { Prisma } from '@prisma/client';
 import { createHmac } from 'node:crypto';
 import { Router } from 'express';
@@ -96,8 +96,8 @@ adminProductsRouter.delete('/:id', requireFreshReauth, async (req, res) => {
 // ── Sub-resources (replace-all: the editor tab sends the full array) ──────────
 // .nullish() (not .optional()) on nullable columns: rows loaded from the DB carry `unit: null`
 // / `icon: null`, which .optional() rejects → the admin editor's save 422'd (nothing saved).
-const specsSchema = z.array(z.object({ group: z.string().max(80), label: z.string().max(120), value: z.string().max(300), unit: z.string().max(40).nullish(), sortOrder: z.number().int().default(0) }));
-const stagesSchema = z.array(z.object({ order: z.coerce.number().int(), name: z.string().max(160), removes: z.string().max(300), whyItMatters: z.string().max(300), icon: z.string().max(60).nullish() }));
+const specsSchema = z.array(z.object({ group: z.string().max(80), label: z.string().max(120), value: z.string().max(300), unit: z.string().max(40).nullish(), sortOrder: z.number().int().default(0), i18n: i18nOverlaySchema }));
+const stagesSchema = z.array(z.object({ order: z.coerce.number().int(), name: z.string().max(160), removes: z.string().max(300), whyItMatters: z.string().max(300), icon: z.string().max(60).nullish(), i18n: i18nOverlaySchema }));
 const imagesSchema = z.array(z.object({ mediaId: z.string().cuid(), alt: z.string().max(300).nullish().transform((v) => v ?? ''), sortOrder: z.number().int().default(0), isPrimary: z.boolean().default(false) }));
 const relatedSchema = z.array(z.object({ relatedId: z.string().cuid(), sortOrder: z.number().int().default(0) }));
 
@@ -105,7 +105,9 @@ adminProductsRouter.put('/:id/specs', async (req, res) => {
   const specs = specsSchema.parse(req.body);
   await prisma.$transaction([
     prisma.productSpec.deleteMany({ where: { productId: req.params.id } }),
-    prisma.productSpec.createMany({ data: specs.map((s) => ({ ...s, productId: req.params.id })) }),
+    prisma.productSpec.createMany({
+      data: specs.map((s) => ({ ...s, productId: req.params.id })) as Prisma.ProductSpecCreateManyInput[],
+    }),
   ]);
   await purge(CACHE_NS.products);
   res.json({ ok: true, count: specs.length });
@@ -115,7 +117,9 @@ adminProductsRouter.put('/:id/stages', async (req, res) => {
   const stages = stagesSchema.parse(req.body);
   await prisma.$transaction([
     prisma.productStage.deleteMany({ where: { productId: req.params.id } }),
-    prisma.productStage.createMany({ data: stages.map((s) => ({ ...s, productId: req.params.id })) }),
+    prisma.productStage.createMany({
+      data: stages.map((s) => ({ ...s, productId: req.params.id })) as Prisma.ProductStageCreateManyInput[],
+    }),
   ]);
   await purge(CACHE_NS.products);
   res.json({ ok: true, count: stages.length });

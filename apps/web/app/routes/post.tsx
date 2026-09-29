@@ -1,34 +1,33 @@
-import { Link } from 'react-router';
 import { PageWrap, useSkin } from '../components/PageShell';
+import { LocaleLink, useT } from '../i18n/context';
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import type { Route } from './+types/post';
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const post = await api.post(params.slug);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
+  const post = await api.post(params.slug, locale);
   if (!post) throw new Response('Not found', { status: 404 });
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return { post, siteUrl };
 }
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
   const post = data?.post as PostDetail | undefined;
-  if (!post) return [{ title: 'Статија | Совети' }];
+  if (!post) return [{ title: 'filtervoda.mk' }];
   const site = data?.siteUrl ?? '';
-  const title = post.seoTitle ?? `${post.title} | Совети`;
-  const desc = post.seoDescription ?? post.excerpt ?? '';
-  const canonical = site && post.slug ? `${site}/soveti/${post.slug}` : undefined;
   const abs = (u?: string | null) => (!u ? undefined : /^https?:\/\//.test(u) ? u : `${site}${u}`);
-  const ogImg = abs(post.coverUrl);
-  return [
-    { title },
-    ...(desc ? [{ name: 'description', content: desc }] : []),
-    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
-    { property: 'og:title', content: post.title },
-    ...(desc ? [{ property: 'og:description', content: desc }] : []),
-    { property: 'og:type', content: 'article' },
-    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
-    ...(ogImg ? [{ property: 'og:image', content: ogImg }] : []),
-  ];
+  return localeMeta({
+    locale,
+    siteUrl: site,
+    path: `/soveti/${post.slug}`,
+    title: post.seoTitle ?? `${post.title} | ${tm(locale, 'nav.blog')}`,
+    description: post.seoDescription ?? post.excerpt ?? '',
+    ogType: 'article',
+    image: abs(post.coverUrl),
+  });
 }
 
 /** Single post as exposed by the public API (loosely typed content HTML). */
@@ -46,6 +45,7 @@ type PostDetail = {
 export default function Post({ loaderData }: Route.ComponentProps) {
   const post = loaderData.post as PostDetail;
   const s = useSkin();
+  const t = useT();
   const site = (loaderData as { siteUrl?: string }).siteUrl ?? '';
   const url = site && post.slug ? `${site}/soveti/${post.slug}` : undefined;
   const ld = {
@@ -76,21 +76,21 @@ export default function Post({ loaderData }: Route.ComponentProps) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
     <PageWrap>
-      <nav className={`flex flex-wrap gap-2 pt-[26px] text-[13px] font-semibold ${s.muted}`} aria-label="Патека">
-        <Link to="/" className="text-[var(--color-cta)]">
-          Почетна
-        </Link>
+      <nav className={`flex flex-wrap gap-2 pt-[26px] text-[13px] font-semibold ${s.muted}`} aria-label={t('nav.breadcrumb')}>
+        <LocaleLink to="/" className="text-[var(--color-cta)]">
+          {t('nav.home')}
+        </LocaleLink>
         <span>/</span>
-        <Link to="/soveti" className="text-[var(--color-cta)]">
-          Совети
-        </Link>
+        <LocaleLink to="/soveti" className="text-[var(--color-cta)]">
+          {t('nav.blog')}
+        </LocaleLink>
         <span>/</span>
         <span>{post.title}</span>
       </nav>
 
       <div className="mt-[6px] grid items-start gap-[60px] lg:grid-cols-[1fr_300px]">
         <article>
-          <span className={`text-[13px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>ЕДУКАТИВНО</span>
+          <span className={`text-[13px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>{t('post.eyebrow')}</span>
           <h1
             className={`${s.display} ${s.ink} mt-4 max-w-[24em] text-[clamp(32px,4vw,54px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}
           >
@@ -110,20 +110,18 @@ export default function Post({ loaderData }: Route.ComponentProps) {
         {/* Sticky sidebar */}
         <aside className="lg:sticky lg:top-[100px]">
           <div className={`border ${s.border} rounded-[18px] p-6`}>
-            <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>СОДРЖИНА</span>
-            <p className={`mt-4 text-[15px] leading-[1.55] ${s.muted}`}>
-              Не сте сигурни кој систем ви одговара? Оставете телефон — ќе ве советуваме бесплатно.
-            </p>
-            <Link
+            <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>{t('post.sidebarTitle')}</span>
+            <p className={`mt-4 text-[15px] leading-[1.55] ${s.muted}`}>{t('post.sidebarText')}</p>
+            <LocaleLink
               to="/kontakt"
               className={`mt-4 inline-flex min-h-[44px] items-center rounded-[var(--radius-cta)] bg-[var(--color-cta)] px-5 py-3 text-[15px] font-bold text-[var(--color-cta-fg)]`}
             >
-              Побарај консултација
-            </Link>
+              {t('post.consultCta')}
+            </LocaleLink>
           </div>
 
           <div className={`mt-4 border ${s.border} rounded-[18px] p-6`}>
-            <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>СПОДЕЛИ</span>
+            <span className={`text-[12px] font-extrabold tracking-[0.06em] ${s.muted} ${s.mono}`}>{t('post.share')}</span>
             <div className="mt-[14px] flex flex-wrap gap-2">
               <a
                 href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof document !== 'undefined' ? window.location.href : '')}`}

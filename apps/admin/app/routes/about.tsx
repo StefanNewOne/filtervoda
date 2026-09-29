@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { SaveBar } from '../components/SaveBar';
 import { PageHeader, SectionCard } from '../components/ui';
@@ -14,6 +15,7 @@ const EMPTY_STATS: Stat[] = [
   { value: '', label: '' },
   { value: '', label: '' },
 ];
+const I18N_KEYS = ['about.title', 'about.intro', 'about.whyTitle', 'about.whyText1', 'about.whyText2'];
 
 export default function About() {
   const qc = useQueryClient();
@@ -27,6 +29,7 @@ export default function About() {
   const [whyTitle, setWhyTitle] = useState('');
   const [whyText1, setWhyText1] = useState('');
   const [whyText2, setWhyText2] = useState('');
+  const [sI18n, setSI18n] = useState<I18nData>({});
 
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
@@ -36,6 +39,11 @@ export default function About() {
     setWhyTitle(val<string>('about.whyTitle') ?? '');
     setWhyText1(val<string>('about.whyText1') ?? '');
     setWhyText2(val<string>('about.whyText2') ?? '');
+    const loadLoc = (lc: 'en' | 'sq') => ({
+      ...Object.fromEntries(I18N_KEYS.map((k) => [k, val<string>(`${k}.${lc}`) ?? ''])),
+      'about.stats': val<unknown>(`about.stats.${lc}`) ?? [],
+    });
+    setSI18n({ en: loadLoc('en'), sq: loadLoc('sq') });
     const s = val<Stat[]>('about.stats') ?? [];
     setStats([0, 1, 2].map((i) => ({ value: s[i]?.value ?? '', label: s[i]?.label ?? '' })));
   }, [settings]);
@@ -55,6 +63,11 @@ export default function About() {
         'about.stats',
         stats.map((st) => ({ value: st.value.trim(), label: st.label.trim() })).filter((st) => st.value || st.label),
       );
+      // Per-locale copy (FV-001 M2) — stored under `<key>.<locale>` (strings + stats rows).
+      for (const lc of ['en', 'sq'] as const) {
+        for (const k of I18N_KEYS) await put(`${k}.${lc}`, String((sI18n[lc]?.[k] as string) ?? '').trim());
+        await put(`about.stats.${lc}`, sI18n[lc]?.['about.stats'] ?? []);
+      }
       await qc.invalidateQueries({ queryKey: ['settings'] });
     });
 
@@ -106,6 +119,22 @@ export default function About() {
               <textarea className={input} rows={3} value={whyText2} onChange={(e) => setWhyText2(e.target.value)} />
             </label>
           </div>
+        </SectionCard>
+
+        <SectionCard title="Преводи (EN / SQ)" hint="Превод на насловите и текстовите од За нас. Празно = се прикажува македонскиот. (Трите статистики засега се на македонски на сите јазици.)">
+          <I18nPanel
+            value={sI18n}
+            onChange={setSI18n}
+            mk={{ 'about.title': title, 'about.intro': intro, 'about.whyTitle': whyTitle, 'about.whyText1': whyText1, 'about.whyText2': whyText2, 'about.stats': stats }}
+            fields={[
+              { key: 'about.title', label: 'Наслов (H1)' },
+              { key: 'about.intro', label: 'Вводен текст', type: 'textarea' },
+              { key: 'about.whyTitle', label: 'Зошто SPAR — наслов' },
+              { key: 'about.whyText1', label: 'Прв пасус', type: 'textarea' },
+              { key: 'about.whyText2', label: 'Втор пасус', type: 'textarea' },
+              { key: 'about.stats', label: 'Статистики', type: 'rows', rowFields: [{ key: 'value', label: 'Вредност' }, { key: 'label', label: 'Опис' }] },
+            ]}
+          />
         </SectionCard>
       </div>
 

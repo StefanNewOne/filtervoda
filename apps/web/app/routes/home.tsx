@@ -1,35 +1,31 @@
+import { stripLocale } from '../i18n/paths';
 import { api } from '../lib/api.server';
+import { localeMeta, tm } from '../lib/meta';
 import { useTemplate } from '../templates/registry';
 import type { Route } from './+types/home';
 
-const TITLE = 'filtervoda.mk — Чиста, алкална вода директно од вашата чешма';
-const DESC =
-  'Системи за филтрација со бесплатна монтажа и 10 години гаранција — низ цела Македонија. Реверзна осмоза, алкална и минерализирана вода.';
-
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, location }: Route.MetaArgs) {
+  const locale = stripLocale(location.pathname).locale;
   const site = data?.siteUrl ?? '';
-  const canonical = site ? `${site}/` : undefined;
   const abs = (u?: string) => (!u ? undefined : /^https?:\/\//.test(u) ? u : `${site}${u}`);
-  const ogImg = abs(data?.settings?.content?.heroImage);
-  return [
-    { title: TITLE },
-    { name: 'description', content: DESC },
-    ...(canonical ? [{ tagName: 'link', rel: 'canonical', href: canonical }] : []),
-    { property: 'og:title', content: TITLE },
-    { property: 'og:description', content: DESC },
-    { property: 'og:type', content: 'website' },
-    ...(canonical ? [{ property: 'og:url', content: canonical }] : []),
-    ...(ogImg ? [{ property: 'og:image', content: ogImg }] : []),
-  ];
+  return localeMeta({
+    locale,
+    siteUrl: site,
+    path: '/',
+    title: tm(locale, 'meta.home.title'),
+    description: tm(locale, 'meta.home.desc'),
+    image: abs(data?.settings?.content?.heroImage),
+  });
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const locale = stripLocale(new URL(request.url).pathname).locale;
   const [featured, settings, testimonials, faq, posts] = await Promise.all([
-    api.featuredProducts(),
-    api.settings(),
-    api.testimonials().catch(() => []),
-    api.faq('GLOBAL').catch(() => []),
-    api.posts().catch(() => []),
+    api.featuredProducts(locale),
+    api.settings(locale),
+    api.testimonials(undefined, locale).catch(() => []),
+    api.faq('GLOBAL', locale).catch(() => []),
+    api.posts(locale).catch(() => []),
   ]);
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   return {

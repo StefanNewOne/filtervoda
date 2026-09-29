@@ -1,14 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { RichText } from '../components/RichText';
-import { Btn, Card, Hint, PageHeader } from '../components/ui';
+import { Btn, Card, Hint, PageHeader, SectionCard } from '../components/ui';
 import { apiClient } from '../lib/api';
 
 interface Post {
   id: string; title: string; slug: string; excerpt?: string; status: string;
   content?: { html?: string } | null; coverMediaId?: string | null; seoTitle?: string; seoDescription?: string;
+  i18n?: I18nData;
 }
 const input = 'w-full rounded-md border border-[var(--color-neutral-200)] px-3 py-2 text-sm';
 
@@ -19,13 +21,14 @@ export default function PostEditor() {
   const [f, setF] = useState<Partial<Post>>({});
   const [html, setHtml] = useState('');
   const [cover, setCover] = useState('');
+  const [i18n, setI18n] = useState<I18nData>({});
   const [msg, setMsg] = useState<string | null>(null);
 
-  useEffect(() => { if (data) { setF(data); setHtml(data.content?.html ?? ''); setCover(data.coverMediaId ?? ''); } }, [data]);
+  useEffect(() => { if (data) { setF(data); setHtml(data.content?.html ?? ''); setCover(data.coverMediaId ?? ''); setI18n(data.i18n ?? {}); } }, [data]);
   const say = (m: string) => { setMsg(m); setTimeout(() => setMsg(null), 2500); };
 
   const save = useMutation({
-    mutationFn: () => apiClient.patch(`/admin/posts/${id}`, { title: f.title, slug: f.slug, excerpt: f.excerpt, contentHtml: html, coverMediaId: cover || undefined, seoTitle: f.seoTitle, seoDescription: f.seoDescription, status: f.status }),
+    mutationFn: () => apiClient.patch(`/admin/posts/${id}`, { title: f.title, slug: f.slug, excerpt: f.excerpt, contentHtml: html, coverMediaId: cover || undefined, seoTitle: f.seoTitle, seoDescription: f.seoDescription, status: f.status, i18n }),
     onSuccess: () => { say('Зачувано'); qc.invalidateQueries({ queryKey: ['post', id] }); },
   });
   const publish = useMutation({ mutationFn: (a: 'publish' | 'unpublish') => apiClient.post(`/admin/posts/${id}/${a}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['post', id] }) });
@@ -62,6 +65,34 @@ export default function PostEditor() {
           <label className="block text-sm"><span className="text-[var(--color-neutral-500)]">SEO опис</span><input className={input} maxLength={160} value={f.seoDescription ?? ''} onChange={(e) => setF({ ...f, seoDescription: e.target.value })} /></label>
         </div>
       </Card>
+
+      <SectionCard title="Преводи (EN / SQ)" hint="Наслов, извадок, SEO и цело тело на статијата по јазик. Празно = се прикажува македонскиот.">
+        <I18nPanel
+          value={i18n}
+          onChange={setI18n}
+          mk={{ title: f.title, excerpt: f.excerpt, seoTitle: f.seoTitle, seoDescription: f.seoDescription }}
+          fields={[
+            { key: 'title', label: 'Наслов' },
+            { key: 'excerpt', label: 'Извадок', type: 'textarea' },
+            { key: 'seoTitle', label: 'SEO наслов' },
+            { key: 'seoDescription', label: 'SEO опис', type: 'textarea' },
+          ]}
+        />
+        <div className="mt-4 max-w-2xl border-t border-[var(--color-neutral-200)] pt-3">
+          <div className="mb-2 text-sm font-medium">Тело на статијата (HTML) по јазик</div>
+          {(['en', 'sq'] as const).map((lc) => (
+            <label key={lc} className="mb-3 block text-sm">
+              <span className="text-[var(--color-neutral-500)]">{lc === 'en' ? 'English' : 'Shqip'} — HTML</span>
+              <textarea
+                className={`${input} font-mono text-xs`}
+                rows={8}
+                value={typeof (i18n[lc]?.content as { html?: string } | undefined)?.html === 'string' ? ((i18n[lc]!.content as { html: string }).html) : ''}
+                onChange={(e) => setI18n({ ...i18n, [lc]: { ...(i18n[lc] ?? {}), content: { html: e.target.value } } })}
+              />
+            </label>
+          ))}
+        </div>
+      </SectionCard>
     </>
   );
 }
