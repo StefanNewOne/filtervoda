@@ -55,6 +55,18 @@ export const sq: Partial<Dict> = {
   'legal.privacy': 'Privatësia',
   'legal.cookies': 'Cookie',
   'legal.terms': 'Kushtet',
+  'legal.lastModified': 'Ndryshimi i fundit',
+  'legal.draftNote':
+    'Ky tekst është draft për dizajn — versionin përfundimtar e siguron GoDigital së bashku me një jurist.',
+
+  // Blog / post
+  'blog.intro': 'Artikuj edukativë për osmozën e kundërt, gurin e ujit, ujin alkalik dhe ujin në vendin e punës.',
+  'blog.empty': 'Së shpejti shtojmë artikuj.',
+  'post.eyebrow': 'EDUKATIVE',
+  'post.sidebarTitle': 'PËRMBAJTJA',
+  'post.sidebarText': 'Nuk jeni i sigurt cili sistem ju përshtatet? Lini telefonin — ju këshillojmë falas.',
+  'post.consultCta': 'Kërko një konsultë',
+  'post.share': 'SHPËRNDAJE',
 
   // Lead form / modal
   'lead.title': 'Kërko një ofertë falas',

@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
 import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
+import { LocaleLink, useT } from '../i18n/context';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/blog';
 
@@ -20,13 +20,14 @@ type PostListItem = { slug: string; title: string; excerpt?: string; coverUrl?: 
 export default function Blog({ loaderData }: Route.ComponentProps) {
   const posts = loaderData.posts as PostListItem[];
   const s = useSkin();
+  const t = useT();
 
   return (
     <PageWrap>
       <PageHeader
-        crumbs={[{ label: 'Почетна', to: '/' }, { label: 'Совети' }]}
-        title="Совети за чиста вода"
-        intro="Едукативни текстови за реверзна осмоза, бигор, алкална вода и вода на работно место."
+        crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.blog') }]}
+        title={t('home.articles.title')}
+        intro={t('blog.intro')}
         s={s}
       />
 
@@ -37,19 +38,19 @@ export default function Blog({ loaderData }: Route.ComponentProps) {
           className={`min-h-[44px] rounded-full border border-[var(--color-cta)] bg-[var(--color-neutral-100)] px-[18px] py-[11px] text-[14px] font-bold ${s.ink}`}
           aria-pressed="true"
         >
-          Сите
+          {t('catalog.all')}
         </button>
       </div>
 
       {posts.length === 0 ? (
-        <p className={`mt-[30px] ${s.muted}`}>Наскоро додаваме статии.</p>
+        <p className={`mt-[30px] ${s.muted}`}>{t('blog.empty')}</p>
       ) : (
         <div
           className="mt-[30px] grid gap-[18px]"
           style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))' }}
         >
           {posts.map((p) => (
-            <Link
+            <LocaleLink
               key={p.slug}
               to={`/soveti/${p.slug}`}
               className={`group block overflow-hidden border bg-[var(--color-background)] text-left ${s.border} ${s.cardR} transition hover:border-[var(--color-cta)]`}
@@ -60,13 +61,13 @@ export default function Blog({ loaderData }: Route.ComponentProps) {
                 <div className={`aspect-[16/10] border-b ${s.border} bg-[var(--color-neutral-100)]`} aria-hidden="true" />
               )}
               <div className="p-[22px]">
-                <span className={`text-[12px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>СОВЕТ</span>
+                <span className={`text-[12px] font-extrabold tracking-[0.04em] ${s.accent} ${s.mono}`}>{t('home.articles.tag')}</span>
                 <h3 className={`${s.display} ${s.ink} mt-[10px] text-[18px] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>
                   {p.title}
                 </h3>
                 {p.excerpt && <p className={`mt-[10px] text-[14px] leading-[1.55] ${s.muted}`}>{p.excerpt}</p>}
               </div>
-            </Link>
+            </LocaleLink>
           ))}
         </div>
       )}

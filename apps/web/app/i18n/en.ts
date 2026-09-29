@@ -55,6 +55,18 @@ export const en: Partial<Dict> = {
   'legal.privacy': 'Privacy',
   'legal.cookies': 'Cookies',
   'legal.terms': 'Terms',
+  'legal.lastModified': 'Last modified',
+  'legal.draftNote':
+    'This text is a design draft — the final version is provided by GoDigital together with a lawyer.',
+
+  // Blog / post
+  'blog.intro': 'Educational articles on reverse osmosis, limescale, alkaline water and water at the workplace.',
+  'blog.empty': 'Articles coming soon.',
+  'post.eyebrow': 'EDUCATIONAL',
+  'post.sidebarTitle': 'CONTENTS',
+  'post.sidebarText': 'Not sure which system suits you? Leave your phone — we’ll advise you for free.',
+  'post.consultCta': 'Request a consultation',
+  'post.share': 'SHARE',
 
   // Lead form / modal
   'lead.title': 'Request a free quote',

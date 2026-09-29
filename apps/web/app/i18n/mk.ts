@@ -57,6 +57,17 @@ export const mk = {
   'legal.privacy': 'Приватност',
   'legal.cookies': 'Колачиња',
   'legal.terms': 'Услови',
+  'legal.lastModified': 'Последна измена',
+  'legal.draftNote': 'Текстот е нацрт за дизајн — финалната верзија ја обезбедува GoDigital со правник.',
+
+  // ── Blog / post ──
+  'blog.intro': 'Едукативни текстови за реверзна осмоза, бигор, алкална вода и вода на работно место.',
+  'blog.empty': 'Наскоро додаваме статии.',
+  'post.eyebrow': 'ЕДУКАТИВНО',
+  'post.sidebarTitle': 'СОДРЖИНА',
+  'post.sidebarText': 'Не сте сигурни кој систем ви одговара? Оставете телефон — ќе ве советуваме бесплатно.',
+  'post.consultCta': 'Побарај консултација',
+  'post.share': 'СПОДЕЛИ',
 
   // ── Lead form / modal ──
   'lead.title': 'Побарајте бесплатна понуда',
