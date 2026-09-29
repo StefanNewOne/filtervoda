@@ -186,6 +186,26 @@ export const en: Partial<Dict> = {
   'trust.deliveryShort': 'Delivery in Macedonia',
   'trust.paymentShort': 'Cash or installments',
 
+  // Catalog page
+  'catalog.intro':
+    'Under-sink systems, dispensers, whole-home filtration, anti-limescale protection and meters — each with free installation and a 10-year warranty.',
+  'catalog.all': 'All',
+  'catalog.empty': 'No products in this category.',
+  'catalog.emptyText': 'Leave your phone and we’ll advise what suits you.',
+  'catalog.compareTitle': 'Compare the models',
+  'catalog.compareHint': 'Scroll horizontally to see all columns.',
+  'catalog.col.model': 'MODEL',
+  'catalog.col.stages': 'STAGES',
+  'catalog.col.tank': 'TANK',
+  'catalog.col.display': 'DISPLAY',
+  'catalog.col.ph': 'pH',
+  'catalog.col.warranty': 'WARRANTY',
+  'catalog.col.price': 'PRICE',
+  'catalog.years10': '10 yrs',
+  'catalog.advisorTitle': 'Not sure which system suits you?',
+  'catalog.advisorText': 'Two questions — and you get a recommendation from us.',
+  'catalog.advisorCta': 'Get a recommendation',
+
   // Product card
   'card.sale': 'Sale',
   'card.image': 'Image',

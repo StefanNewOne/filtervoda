@@ -186,6 +186,26 @@ export const sq: Partial<Dict> = {
   'trust.deliveryShort': 'Dërgesë në Maqedoni',
   'trust.paymentShort': 'Para në dorë ose këste',
 
+  // Catalog page
+  'catalog.intro':
+    'Sisteme nën lavaman, dispenserë, filtrim për të gjithë shtëpinë, mbrojtje nga guri i ujit dhe matës — secili me instalim falas dhe garanci 10-vjeçare.',
+  'catalog.all': 'Të gjitha',
+  'catalog.empty': 'Nuk ka produkte në këtë kategori.',
+  'catalog.emptyText': 'Lini telefonin dhe do t’ju këshillojmë çfarë ju përshtatet.',
+  'catalog.compareTitle': 'Krahaso modelet',
+  'catalog.compareHint': 'Rrëshqitni horizontalisht për të parë të gjitha kolonat.',
+  'catalog.col.model': 'MODELI',
+  'catalog.col.stages': 'FAZAT',
+  'catalog.col.tank': 'REZERVUARI',
+  'catalog.col.display': 'EKRANI',
+  'catalog.col.ph': 'pH',
+  'catalog.col.warranty': 'GARANCIA',
+  'catalog.col.price': 'ÇMIMI',
+  'catalog.years10': '10 vjet',
+  'catalog.advisorTitle': 'Nuk jeni i sigurt cili sistem ju përshtatet?',
+  'catalog.advisorText': 'Dy pyetje — dhe merrni një rekomandim nga ne.',
+  'catalog.advisorCta': 'Merr një rekomandim',
+
   // Product card
   'card.sale': 'Ofertë',
   'card.image': 'Foto',

@@ -188,6 +188,26 @@ export const mk = {
   'trust.deliveryShort': 'Достава низ Македонија',
   'trust.paymentShort': 'Готово или на рати',
 
+  // ── Catalog page ──
+  'catalog.intro':
+    'Системи под мијалник, диспензери, филтрација за цел дом, заштита од бигор и мерачи — секој со бесплатна монтажа и 10 години гаранција.',
+  'catalog.all': 'Сите',
+  'catalog.empty': 'Нема производи во оваа категорија.',
+  'catalog.emptyText': 'Оставете телефон и ќе ве советуваме што одговара за вас.',
+  'catalog.compareTitle': 'Споредба на моделите',
+  'catalog.compareHint': 'Лизгајте хоризонтално за да ги видите сите колони.',
+  'catalog.col.model': 'МОДЕЛ',
+  'catalog.col.stages': 'СТЕПЕНИ',
+  'catalog.col.tank': 'РЕЗЕРВОАР',
+  'catalog.col.display': 'ДИСПЛЕЈ',
+  'catalog.col.ph': 'pH',
+  'catalog.col.warranty': 'ГАРАНЦИЈА',
+  'catalog.col.price': 'ЦЕНА',
+  'catalog.years10': '10 год.',
+  'catalog.advisorTitle': 'Не знаете кој систем ви одговара?',
+  'catalog.advisorText': 'Две прашања — и добивате препорака од нас.',
+  'catalog.advisorCta': 'Добијте препорака',
+
   // ── Product card ──
   'card.sale': 'Акција',
   'card.image': 'Слика',
