@@ -111,6 +111,11 @@ export const sq: Partial<Dict> = {
   // Thank-you
   'thankyou.title': 'Faleminderit!',
   'thankyou.subtitle': 'E morëm kërkesën tuaj dhe do t’ju kontaktojmë së shpejti.',
+  'thankyou.step1': 'Ju telefonojmë — brenda një dite pune.',
+  'thankyou.step2': 'Merrni një ofertë dhe një takim — vlerësim falas.',
+  'thankyou.step3': 'Instalojmë falas — dhe shijoni ujë të pastër.',
+  'thankyou.urgent': 'Urgjente? Telefononi',
+  'cta.readTips': 'Lexo këshillat',
 
   // B2B calculator
   'calc.title': 'Llogaritësi i kursimeve',

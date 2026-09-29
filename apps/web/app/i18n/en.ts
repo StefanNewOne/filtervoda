@@ -111,6 +111,11 @@ export const en: Partial<Dict> = {
   // Thank-you
   'thankyou.title': 'Thank you!',
   'thankyou.subtitle': 'We received your request and will contact you shortly.',
+  'thankyou.step1': 'We call you — within one business day.',
+  'thankyou.step2': 'You get a quote and an appointment — free assessment.',
+  'thankyou.step3': 'We install for free — and you enjoy clean water.',
+  'thankyou.urgent': 'Urgent? Call',
+  'cta.readTips': 'Read tips',
 
   // B2B calculator
   'calc.title': 'Savings calculator',
