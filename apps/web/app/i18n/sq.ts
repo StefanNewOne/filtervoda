@@ -27,6 +27,7 @@ export const sq: Partial<Dict> = {
   'cta.exactOffer': 'Merr ofertë të saktë',
   'cta.allProducts': 'Të gjitha produktet',
   'cta.readMore': 'Lexo më shumë',
+  'cta.request': 'Kërkesë',
 
   // Language switcher
   'lang.label': 'Gjuha',
@@ -39,6 +40,21 @@ export const sq: Partial<Dict> = {
   'footer.contact': 'Kontakt',
   'footer.legal': 'Ligjore',
   'footer.followUs': 'Na ndiqni',
+  'footer.tagline':
+    'Sisteme filtrimi uji me instalim falas dhe garanci 10-vjeçare — në të gjithë Maqedoninë.',
+  'footer.products': 'PRODUKTET',
+  'footer.site': 'FAQJA',
+  'footer.cat.underSink': 'Sisteme nën lavaman',
+  'footer.cat.dispensers': 'Dispenserë',
+  'footer.cat.wholeHome': 'Filtrim për të gjithë shtëpinë',
+  'footer.cat.antiLimescale': 'Mbrojtje nga guri i ujit',
+  'footer.cat.meters': 'Matës',
+  'footer.cat.accessories': 'Aksesorë',
+
+  // Legal page links
+  'legal.privacy': 'Privatësia',
+  'legal.cookies': 'Cookie',
+  'legal.terms': 'Kushtet',
 
   // Lead form / modal
   'lead.title': 'Kërko një ofertë falas',
@@ -57,12 +73,32 @@ export const sq: Partial<Dict> = {
   'lead.error': 'Ndodhi një gabim. Provoni përsëri ose na telefononi.',
   'lead.nameRequired': 'Ju lutemi shkruani emrin tuaj.',
   'lead.phoneInvalid': 'Ju lutemi shkruani një numër telefoni të vlefshëm.',
+  // Lead form (LeadForm.tsx)
+  'lead.ph.name': 'Emri dhe mbiemri',
+  'lead.ph.phone': 'Telefoni (07X XXX XXX)',
+  'lead.ph.company': 'Emri i firmës',
+  'lead.ph.email': 'Email (opsionale)',
+  'lead.ph.city': 'Qyteti',
+  'lead.ph.message': 'Mesazhi (opsionale)',
+  'lead.err.name': 'Ju lutemi shkruani emrin dhe mbiemrin',
+  'lead.err.phoneRequired': 'Kjo fushë është e detyrueshme',
+  'lead.err.phoneFormat': 'Shkruani telefonin në formatin 07X XXX XXX',
+  'lead.err.company': 'Ju lutemi shkruani emrin e firmës',
+  'lead.err.consent': 'Duhet të pranoni Politikën e Privatësisë',
+  'lead.err.server': 'Kërkesa nuk u krye. Kontrolloni fushat dhe provoni përsëri.',
+  'lead.consentPre':
+    'Pajtohem që SPAR Company të më kontaktojë lidhur me kërkesën time dhe të përpunojë të dhënat e mia në përputhje me',
+  'lead.consentLink': 'Politikën e Privatësisë',
+  'lead.submit': 'Dërgo kërkesën',
 
   // Consent / cookie banner
   'consent.acceptAll': 'Prano të gjitha',
   'consent.necessaryOnly': 'Vetëm të nevojshmet',
   'consent.settings': 'Cilësimet',
   'consent.save': 'Ruaj zgjedhjen',
+  'consent.necessary': 'Të nevojshme (gjithmonë aktive)',
+  'consent.analytics': 'Statistika',
+  'consent.marketing': 'Marketing',
   'consent.text':
     'Përdorim cookie për të përmirësuar përvojën dhe për matje. Zgjidhni çfarë lejoni.',
 

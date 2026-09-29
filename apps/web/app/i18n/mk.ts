@@ -29,6 +29,7 @@ export const mk = {
   'cta.exactOffer': 'Добиј точна понуда',
   'cta.allProducts': 'Сите производи',
   'cta.readMore': 'Прочитај повеќе',
+  'cta.request': 'Барање',
 
   // ── Language switcher ──
   'lang.label': 'Јазик',
@@ -41,6 +42,21 @@ export const mk = {
   'footer.contact': 'Контакт',
   'footer.legal': 'Правни',
   'footer.followUs': 'Следете нè',
+  'footer.tagline':
+    'Системи за филтрација на вода со бесплатна монтажа и 10 години гаранција — низ цела Македонија.',
+  'footer.products': 'ПРОИЗВОДИ',
+  'footer.site': 'САЈТ',
+  'footer.cat.underSink': 'Системи под мијалник',
+  'footer.cat.dispensers': 'Диспензери',
+  'footer.cat.wholeHome': 'Филтрација за цел дом',
+  'footer.cat.antiLimescale': 'Заштита од бигор',
+  'footer.cat.meters': 'Мерачи',
+  'footer.cat.accessories': 'Додатоци',
+
+  // ── Legal page links ──
+  'legal.privacy': 'Приватност',
+  'legal.cookies': 'Колачиња',
+  'legal.terms': 'Услови',
 
   // ── Lead form / modal ──
   'lead.title': 'Побарајте бесплатна понуда',
@@ -59,12 +75,32 @@ export const mk = {
   'lead.error': 'Настана грешка. Обидете се повторно или јавете се.',
   'lead.nameRequired': 'Внесете име.',
   'lead.phoneInvalid': 'Внесете валиден телефонски број.',
+  // Lead form (LeadForm.tsx)
+  'lead.ph.name': 'Име и презиме',
+  'lead.ph.phone': 'Телефон (07X XXX XXX)',
+  'lead.ph.company': 'Име на фирма',
+  'lead.ph.email': 'Email (опционално)',
+  'lead.ph.city': 'Град',
+  'lead.ph.message': 'Порака (опционално)',
+  'lead.err.name': 'Внесете име и презиме',
+  'lead.err.phoneRequired': 'Ова поле е задолжително',
+  'lead.err.phoneFormat': 'Внесете телефон во формат 07X XXX XXX',
+  'lead.err.company': 'Внесете име на фирма',
+  'lead.err.consent': 'Мора да ја прифатите Политиката за приватност',
+  'lead.err.server': 'Барањето не помина. Проверете ги полињата и обидете се повторно.',
+  'lead.consentPre':
+    'Се согласувам SPAR Company да ме контактира во врска со моето барање и да ги обработува моите податоци согласно',
+  'lead.consentLink': 'Политиката за приватност',
+  'lead.submit': 'Испрати барање',
 
   // ── Consent / cookie banner ──
   'consent.acceptAll': 'Прифати сè',
   'consent.necessaryOnly': 'Само неопходни',
   'consent.settings': 'Поставки',
   'consent.save': 'Зачувај избор',
+  'consent.necessary': 'Неопходни (секогаш активни)',
+  'consent.analytics': 'Статистика',
+  'consent.marketing': 'Маркетинг',
   'consent.text':
     'Користиме колачиња за да го подобриме искуството и за мерење. Изберете што дозволувате.',
 

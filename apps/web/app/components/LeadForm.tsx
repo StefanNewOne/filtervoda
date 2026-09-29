@@ -7,6 +7,7 @@ import { isValidMkPhone } from '@filtervoda/shared';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import { LocaleLink, useLocalizedPath, useT } from '../i18n/context';
 import type { CalcInput } from './LeadModal';
 import { Turnstile } from './Turnstile';
 import { Button } from './ui';
@@ -40,6 +41,8 @@ export function LeadForm({
   compact?: boolean;
 }) {
   const navigate = useNavigate();
+  const t = useT();
+  const loc = useLocalizedPath();
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
@@ -71,7 +74,7 @@ export function LeadForm({
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      setServerError('Барањето не помина. Проверете ги полињата и обидете се повторно.');
+      setServerError(t('lead.err.server'));
       return;
     }
     // Reset the single-use Turnstile token so a second form/submit can't reuse it.
@@ -82,7 +85,7 @@ export function LeadForm({
     // Browser Pixel Lead uses the lead id as event_id — matches the server CAPI event → deduped.
     if (typeof w.fbq === 'function' && leadId) w.fbq('track', 'Lead', { content_category: type }, { eventID: leadId });
     if (onSuccess) onSuccess();
-    navigate('/blagodarime');
+    navigate(loc('/blagodarime'));
   }
 
   const inputCls =
@@ -91,31 +94,31 @@ export function LeadForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-3" noValidate>
       <div>
-        <label htmlFor="lf-name" className="sr-only">Име и презиме</label>
-        <input id="lf-name" className={inputCls} placeholder="Име и презиме" aria-invalid={!!errors.name}
-          {...register('name', { required: 'Внесете име и презиме', minLength: { value: 2, message: 'Внесете име и презиме' } })} />
+        <label htmlFor="lf-name" className="sr-only">{t('lead.ph.name')}</label>
+        <input id="lf-name" className={inputCls} placeholder={t('lead.ph.name')} aria-invalid={!!errors.name}
+          {...register('name', { required: t('lead.err.name'), minLength: { value: 2, message: t('lead.err.name') } })} />
         {errors.name && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.name.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="lf-phone" className="sr-only">Телефон</label>
-        <input id="lf-phone" type="tel" inputMode="tel" className={inputCls} placeholder="Телефон (07X XXX XXX)" aria-invalid={!!errors.phone}
-          {...register('phone', { required: 'Ова поле е задолжително', validate: (v) => isValidMkPhone(v) || 'Внесете телефон во формат 07X XXX XXX' })} />
+        <label htmlFor="lf-phone" className="sr-only">{t('lead.phone')}</label>
+        <input id="lf-phone" type="tel" inputMode="tel" className={inputCls} placeholder={t('lead.ph.phone')} aria-invalid={!!errors.phone}
+          {...register('phone', { required: t('lead.err.phoneRequired'), validate: (v) => isValidMkPhone(v) || t('lead.err.phoneFormat') })} />
         {errors.phone && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.phone.message}</p>}
       </div>
 
       {/* Company is required for B2B even in the compact modal (was being dropped). */}
       {type === 'B2B' && (
         <div>
-          <input className={inputCls} placeholder="Име на фирма" aria-invalid={!!errors.company} {...register('company', { required: 'Внесете име на фирма' })} />
+          <input className={inputCls} placeholder={t('lead.ph.company')} aria-invalid={!!errors.company} {...register('company', { required: t('lead.err.company') })} />
           {errors.company && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.company.message}</p>}
         </div>
       )}
       {!compact && (
         <>
-          <input className={inputCls} type="email" placeholder="Email (опционално)" {...register('email')} />
-          <input className={inputCls} placeholder="Град" {...register('city')} />
-          <textarea className={inputCls} rows={3} placeholder="Порака (опционално)" {...register('message')} />
+          <input className={inputCls} type="email" placeholder={t('lead.ph.email')} {...register('email')} />
+          <input className={inputCls} placeholder={t('lead.ph.city')} {...register('city')} />
+          <textarea className={inputCls} rows={3} placeholder={t('lead.ph.message')} {...register('message')} />
         </>
       )}
 
@@ -125,18 +128,18 @@ export function LeadForm({
       <label className="flex items-start gap-2 text-sm text-[var(--color-muted)]">
         <input type="checkbox" className="mt-1" {...register('consent', { required: true })} />
         <span>
-          Се согласувам SPAR Company да ме контактира во врска со моето барање и да ги обработува моите податоци согласно{' '}
-          <a href="/pravni/privatnost" className="underline">Политиката за приватност</a>.
+          {t('lead.consentPre')}{' '}
+          <LocaleLink to="/pravni/privatnost" className="underline">{t('lead.consentLink')}</LocaleLink>.
         </span>
       </label>
-      {errors.consent && <p className="text-sm text-[var(--color-danger-600)]">Мора да ја прифатите Политиката за приватност</p>}
+      {errors.consent && <p className="text-sm text-[var(--color-danger-600)]">{t('lead.err.consent')}</p>}
 
       <Turnstile />
 
       {serverError && <p className="text-sm text-[var(--color-danger-600)]">{serverError}</p>}
 
       <Button type="submit" className="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
-        {isSubmitting ? 'Се испраќа…' : 'Испрати барање'}
+        {isSubmitting ? t('cta.sending') : t('lead.submit')}
       </Button>
     </form>
   );

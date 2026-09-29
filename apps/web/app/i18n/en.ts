@@ -27,6 +27,7 @@ export const en: Partial<Dict> = {
   'cta.exactOffer': 'Get an exact quote',
   'cta.allProducts': 'All products',
   'cta.readMore': 'Read more',
+  'cta.request': 'Request',
 
   // Language switcher
   'lang.label': 'Language',
@@ -39,6 +40,21 @@ export const en: Partial<Dict> = {
   'footer.contact': 'Contact',
   'footer.legal': 'Legal',
   'footer.followUs': 'Follow us',
+  'footer.tagline':
+    'Water filtration systems with free installation and a 10-year warranty — across all of Macedonia.',
+  'footer.products': 'PRODUCTS',
+  'footer.site': 'SITE',
+  'footer.cat.underSink': 'Under-sink systems',
+  'footer.cat.dispensers': 'Dispensers',
+  'footer.cat.wholeHome': 'Whole-home filtration',
+  'footer.cat.antiLimescale': 'Anti-limescale protection',
+  'footer.cat.meters': 'Meters',
+  'footer.cat.accessories': 'Accessories',
+
+  // Legal page links
+  'legal.privacy': 'Privacy',
+  'legal.cookies': 'Cookies',
+  'legal.terms': 'Terms',
 
   // Lead form / modal
   'lead.title': 'Request a free quote',
@@ -57,12 +73,32 @@ export const en: Partial<Dict> = {
   'lead.error': 'Something went wrong. Please try again or call us.',
   'lead.nameRequired': 'Please enter your name.',
   'lead.phoneInvalid': 'Please enter a valid phone number.',
+  // Lead form (LeadForm.tsx)
+  'lead.ph.name': 'Full name',
+  'lead.ph.phone': 'Phone (07X XXX XXX)',
+  'lead.ph.company': 'Company name',
+  'lead.ph.email': 'Email (optional)',
+  'lead.ph.city': 'City',
+  'lead.ph.message': 'Message (optional)',
+  'lead.err.name': 'Please enter your full name',
+  'lead.err.phoneRequired': 'This field is required',
+  'lead.err.phoneFormat': 'Enter a phone in the format 07X XXX XXX',
+  'lead.err.company': 'Please enter the company name',
+  'lead.err.consent': 'You must accept the Privacy Policy',
+  'lead.err.server': 'The request did not go through. Check the fields and try again.',
+  'lead.consentPre':
+    'I agree that SPAR Company may contact me regarding my request and process my data in accordance with the',
+  'lead.consentLink': 'Privacy Policy',
+  'lead.submit': 'Send request',
 
   // Consent / cookie banner
   'consent.acceptAll': 'Accept all',
   'consent.necessaryOnly': 'Necessary only',
   'consent.settings': 'Settings',
   'consent.save': 'Save choice',
+  'consent.necessary': 'Necessary (always active)',
+  'consent.analytics': 'Analytics',
+  'consent.marketing': 'Marketing',
   'consent.text':
     'We use cookies to improve your experience and for measurement. Choose what you allow.',
 
