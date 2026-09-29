@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { I18nPanel, type I18nData } from '../components/I18nPanel';
+import { I18nRows, type I18nRow } from '../components/I18nRows';
 import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
@@ -10,8 +11,8 @@ import { Btn, Hint, PageHeader, SectionCard } from '../components/ui';
 import { apiClient } from '../lib/api';
 import { useSaveState } from '../lib/useSaveState';
 
-interface Spec { group: string; label: string; value: string; unit?: string | null }
-interface Stage { order: number; name: string; removes: string; whyItMatters: string }
+interface Spec { group: string; label: string; value: string; unit?: string | null; i18n?: I18nData }
+interface Stage { order: number; name: string; removes: string; whyItMatters: string; i18n?: I18nData }
 interface ProductImage { mediaId: string; alt?: string; sortOrder?: number; isPrimary?: boolean; media?: { id: string; url: string; alt: string } }
 interface RelatedRow { relatedId: string; sortOrder?: number }
 interface ProductFaq { id: number; question: string; answer: string; scope: string; productId?: string; sortOrder: number }
@@ -178,10 +179,14 @@ export default function ProductEditor() {
               { key: 'removes', label: 'Што отстранува' },
               { key: 'whyItMatters', label: 'Зошто е важно' },
             ]}
-            onChange={(rows) => setStages(rows.map((r, i) => ({ order: i + 1, name: String(r.name ?? ''), removes: String(r.removes ?? ''), whyItMatters: String(r.whyItMatters ?? '') })))}
+            onChange={(rows) => setStages(rows.map((r, i) => ({ order: i + 1, name: String(r.name ?? ''), removes: String(r.removes ?? ''), whyItMatters: String(r.whyItMatters ?? ''), i18n: stages[i]?.i18n })))}
             newRow={() => ({ order: stages.length + 1, name: '', removes: '', whyItMatters: '' })}
             addLabel="+ Степен"
           />
+          <div className="mt-4 border-t border-[var(--color-neutral-200)] pt-3">
+            <div className="mb-2 text-sm font-medium">Преводи на степените (EN / SQ)</div>
+            <I18nRows rows={stages as unknown as I18nRow[]} onChange={(r) => setStages(r as unknown as Stage[])} fields={[{ key: 'name', label: 'Име' }, { key: 'removes', label: 'Отстранува' }, { key: 'whyItMatters', label: 'Зошто е важно' }]} />
+          </div>
         </SectionCard>
 
         <SectionCard title="Спецификација" hint="Техничка табела. Полето Група ги групира редовите (пр. Општо, Филтрација, Димензии).">
@@ -193,10 +198,14 @@ export default function ProductEditor() {
               { key: 'value', label: 'Вредност' },
               { key: 'unit', label: 'Единица', width: '90px' },
             ]}
-            onChange={(rows) => setSpecs(rows.map((r) => ({ group: String(r.group ?? ''), label: String(r.label ?? ''), value: String(r.value ?? ''), unit: r.unit ? String(r.unit) : '' })))}
+            onChange={(rows) => setSpecs(rows.map((r, i) => ({ group: String(r.group ?? ''), label: String(r.label ?? ''), value: String(r.value ?? ''), unit: r.unit ? String(r.unit) : '', i18n: specs[i]?.i18n })))}
             newRow={() => ({ group: '', label: '', value: '', unit: '' })}
             addLabel="+ Ред"
           />
+          <div className="mt-4 border-t border-[var(--color-neutral-200)] pt-3">
+            <div className="mb-2 text-sm font-medium">Преводи на спецификацијата (EN / SQ)</div>
+            <I18nRows rows={specs as unknown as I18nRow[]} onChange={(r) => setSpecs(r as unknown as Spec[])} fields={[{ key: 'group', label: 'Група' }, { key: 'label', label: 'Ознака' }, { key: 'value', label: 'Вредност' }, { key: 'unit', label: 'Единица' }]} />
+          </div>
         </SectionCard>
 
         <SectionCard title="Галерија" hint="Слики на производот. Првата е главна (се прикажува на картичката и најгоре).">
@@ -256,15 +265,20 @@ export default function ProductEditor() {
           <I18nPanel
             value={f.i18n}
             onChange={(i18n) => setF({ ...f, i18n })}
+            mk={{
+              name: f.name, tagline: f.tagline,
+              idealFor: f.idealFor, includedInPrice: f.includedInPrice, maintenanceNote: f.maintenanceNote,
+              badges: f.badges, chips: f.chips, features: f.features, seoTitle: f.seoTitle, seoDescription: f.seoDescription,
+            }}
             fields={[
               { key: 'name', label: 'Име' },
               { key: 'tagline', label: 'Tagline' },
-              { key: 'shortDescription', label: 'Краток опис', type: 'textarea' },
               { key: 'idealFor', label: 'Идеален за', type: 'list' },
               { key: 'includedInPrice', label: 'Што вклучува цената', type: 'list' },
               { key: 'maintenanceNote', label: 'Одржување и филтри', type: 'textarea' },
               { key: 'badges', label: 'Беџови', type: 'list' },
               { key: 'chips', label: 'Чипови', type: 'list' },
+              { key: 'features', label: 'Клучни придобивки', type: 'rows', rowFields: [{ key: 'text', label: 'Придобивка' }] },
               { key: 'seoTitle', label: 'SEO наслов' },
               { key: 'seoDescription', label: 'SEO опис', type: 'textarea' },
             ]}

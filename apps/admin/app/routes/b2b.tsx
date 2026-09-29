@@ -55,10 +55,11 @@ export default function B2b() {
   useEffect(() => {
     const val = <T,>(key: string) => settings.find((s) => s.key === key)?.value as T | undefined;
     setStr(Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}`) ?? ''])) as Record<StrKey, string>);
-    setSI18n({
-      en: Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}.en`) ?? ''])),
-      sq: Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}.sq`) ?? ''])),
+    const loadLoc = (lc: 'en' | 'sq') => ({
+      ...Object.fromEntries(STR_KEYS.map((k) => [k, val<string>(`b2b.${k}.${lc}`) ?? ''])),
+      ...Object.fromEntries(['problems', 'included', 'industries', 'steps', 'comparison'].map((k) => [k, val<unknown>(`b2b.${k}.${lc}`) ?? []])),
     });
+    setSI18n({ en: loadLoc('en'), sq: loadLoc('sq') });
     const c = val<CalcParams>('calculator.params'); if (c) setCalc(c);
     setLogos(val<string[]>('b2b.trustLogos') ?? []);
     setHeroImage(val<string>('b2b.heroImage') ?? '');
@@ -74,9 +75,11 @@ export default function B2b() {
     save.run(async () => {
       const put = (key: string, value: unknown) => apiClient.put(`/admin/settings/${key}`, { value });
       for (const k of STR_KEYS) await put(`b2b.${k}`, str[k].trim());
-      // Per-locale copy (FV-001 M2) — stored under `b2b.<key>.<locale>`.
-      for (const lc of ['en', 'sq'] as const)
+      // Per-locale copy (FV-001 M2) — stored under `b2b.<key>.<locale>` (strings + lists/rows).
+      for (const lc of ['en', 'sq'] as const) {
         for (const k of STR_KEYS) await put(`b2b.${k}.${lc}`, String((sI18n[lc]?.[k] as string) ?? '').trim());
+        for (const k of ['problems', 'included', 'industries', 'steps', 'comparison']) await put(`b2b.${k}.${lc}`, sI18n[lc]?.[k] ?? []);
+      }
       await put('calculator.params', calc);
       await put('b2b.trustLogos', logos);
       await put('b2b.heroImage', heroImage);
@@ -232,7 +235,15 @@ export default function B2b() {
           <I18nPanel
             value={sI18n}
             onChange={setSI18n}
-            fields={STR_KEYS.map((k) => ({ key: k, label: STR_LABELS[k], type: k === 'heroH1' || k === 'heroSubhead' || k === 'formText' ? ('textarea' as const) : ('text' as const) }))}
+            mk={{ ...str, problems, included, industries, steps, comparison }}
+            fields={[
+              ...STR_KEYS.map((k) => ({ key: k, label: STR_LABELS[k], type: k === 'heroH1' || k === 'heroSubhead' || k === 'formText' ? ('textarea' as const) : ('text' as const) })),
+              { key: 'problems', label: 'Проблеми', type: 'list' as const },
+              { key: 'included', label: 'Што е вклучено', type: 'list' as const },
+              { key: 'industries', label: 'За кои бизниси', type: 'list' as const },
+              { key: 'steps', label: 'Чекори', type: 'rows' as const, rowFields: [{ key: 'title', label: 'Наслов' }, { key: 'desc', label: 'Опис' }] },
+              { key: 'comparison', label: 'Споредбена табела', type: 'rows' as const, rowFields: [{ key: 'label', label: 'Ознака' }, { key: 'gallons', label: 'Галони' }, { key: 'buy', label: 'Купување' }, { key: 'rent', label: 'Изнајмување' }] },
+            ]}
           />
         </SectionCard>
       </div>

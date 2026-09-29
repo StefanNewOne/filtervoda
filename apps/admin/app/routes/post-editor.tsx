@@ -66,10 +66,11 @@ export default function PostEditor() {
         </div>
       </Card>
 
-      <SectionCard title="Преводи (EN / SQ)" hint="Наслов, извадок и SEO по јазик. Телото на статијата засега се прикажува на македонски на сите јазици.">
+      <SectionCard title="Преводи (EN / SQ)" hint="Наслов, извадок, SEO и цело тело на статијата по јазик. Празно = се прикажува македонскиот.">
         <I18nPanel
           value={i18n}
           onChange={setI18n}
+          mk={{ title: f.title, excerpt: f.excerpt, seoTitle: f.seoTitle, seoDescription: f.seoDescription }}
           fields={[
             { key: 'title', label: 'Наслов' },
             { key: 'excerpt', label: 'Извадок', type: 'textarea' },
@@ -77,6 +78,20 @@ export default function PostEditor() {
             { key: 'seoDescription', label: 'SEO опис', type: 'textarea' },
           ]}
         />
+        <div className="mt-4 max-w-2xl border-t border-[var(--color-neutral-200)] pt-3">
+          <div className="mb-2 text-sm font-medium">Тело на статијата (HTML) по јазик</div>
+          {(['en', 'sq'] as const).map((lc) => (
+            <label key={lc} className="mb-3 block text-sm">
+              <span className="text-[var(--color-neutral-500)]">{lc === 'en' ? 'English' : 'Shqip'} — HTML</span>
+              <textarea
+                className={`${input} font-mono text-xs`}
+                rows={8}
+                value={typeof (i18n[lc]?.content as { html?: string } | undefined)?.html === 'string' ? ((i18n[lc]!.content as { html: string }).html) : ''}
+                onChange={(e) => setI18n({ ...i18n, [lc]: { ...(i18n[lc] ?? {}), content: { html: e.target.value } } })}
+              />
+            </label>
+          ))}
+        </div>
       </SectionCard>
     </>
   );
