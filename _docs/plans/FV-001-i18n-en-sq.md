@@ -246,12 +246,23 @@ start i18n-M1 on `feature/FV-i18n` off `develop`.**
   only transitive), cookie `fv_locale`, `tone` prop for dark headers.
 - All 3 template headers (b1/b2/b3): nav + CTA via `useT`, `LocaleLink`, switcher added.
 
-**STILL TODO in M1 (chrome strings not yet extracted):**
-- Footers + StickyBar (check `registry.ts` for which template supplies them), `LeadModal.tsx`,
-  `ConsentBanner.tsx`, route bodies (home/catalog/product/b2b/blog/post/about/contact/thank-you/
-  legal/not-found), TrustBar, ProductCard, `templates/shared/{ProductPage,B2bPage,HomeSections}`,
-  B2B calculator. Grow `mk/en/sq` dictionaries as each component is converted.
+**Chrome DONE (commits 2–4):** Footer + StickyBar (b1, shared by b2/b3), `LeadModal.tsx`,
+`LeadForm.tsx` (placeholders/validation/consent/submit + locale-aware thank-you nav & privacy
+link), `ConsentBanner.tsx`, thank-you + 404 (`not-found.tsx` + root ErrorBoundary).
+
+**STILL TODO in M1 (page-body chrome strings — mostly static labels/headings; the DB-driven
+CONTENT on catalog/product/post/b2b is M2, not this):**
+- `routes/about.tsx`, `routes/contact.tsx`, `routes/legal.tsx` (static copy),
+- `routes/home.tsx` + per-template `templates/{b1,b2,b3}/Home.tsx` + `templates/shared/HomeSections.tsx`,
+- `templates/{b1,b2,b3}/TrustBar.tsx` + `ProductCard.tsx`,
+- `routes/catalog.tsx` (filter/compare headings), `routes/product.tsx` +
+  `templates/shared/ProductPage.tsx` (section headings/labels/CTAs),
+- `routes/b2b.tsx` + `templates/shared/B2bPage.tsx` (calculator labels — some keys already in dict),
+- `routes/blog.tsx` + `routes/post.tsx` (static labels; article body is content=M2).
+- Grow `mk/en/sq` dictionaries as each is converted.
 - Optional: redirect the bare root to the `fv_locale` cookie's locale (can defer to M3).
+- Deferred to M3: `meta()` SEO titles/descriptions (run server-side, need locale from
+  `location` + `translate()` — not wired yet, pages still emit MK `<title>`).
 
 ### i18n-M2 — NOT STARTED (DB `*I18n` JSON columns + locale-aware API/cache + admin [МК][EN][SQ] tabs).
 ### i18n-M3 — NOT STARTED (hreflang/canonical/sitemap alternates, per-locale meta, locale-aware
