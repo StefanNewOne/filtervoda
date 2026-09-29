@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { RowsEditor } from '../components/RowsEditor';
 import { SaveBar } from '../components/SaveBar';
@@ -7,7 +8,7 @@ import { Btn, Card, Hint, PageHeader, SectionCard, Table } from '../components/u
 import { apiClient } from '../lib/api';
 import { useSaveState } from '../lib/useSaveState';
 
-interface Pkg { id: string; name: string; priceFrom: number; description?: string; includes: string[]; active: boolean }
+interface Pkg { id: string; name: string; priceFrom: number; description?: string; includes: string[]; active: boolean; i18n?: I18nData }
 interface CalcParams { litersPerPersonDay: number; workingDays: number; gallonLiters: number; defaultPricePerGallon: number }
 interface Step { title: string; desc: string }
 interface CmpRow { label: string; gallons: string; buy: string; rent: string }
@@ -47,6 +48,7 @@ export default function B2b() {
 
   // Package add/edit form (entities — saved individually).
   const [np, setNp] = useState({ name: '', priceFrom: 0, description: '', includes: '' });
+  const [npI18n, setNpI18n] = useState<I18nData>({});
   const [editingPkg, setEditingPkg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,15 +81,15 @@ export default function B2b() {
       await qc.invalidateQueries({ queryKey: ['settings'] });
     });
 
-  const resetPkg = () => { setNp({ name: '', priceFrom: 0, description: '', includes: '' }); setEditingPkg(null); };
+  const resetPkg = () => { setNp({ name: '', priceFrom: 0, description: '', includes: '' }); setNpI18n({}); setEditingPkg(null); };
   const savePkg = useMutation({
     mutationFn: () => {
-      const body = { name: np.name, priceFrom: Number(np.priceFrom), description: np.description, includes: np.includes.split(',').map((x) => x.trim()).filter(Boolean), active: true };
+      const body = { name: np.name, priceFrom: Number(np.priceFrom), description: np.description, includes: np.includes.split(',').map((x) => x.trim()).filter(Boolean), active: true, i18n: Object.keys(npI18n).length ? npI18n : undefined };
       return editingPkg ? apiClient.patch(`/admin/packages/${editingPkg}`, body) : apiClient.post('/admin/packages', body);
     },
     onSuccess: () => { resetPkg(); qc.invalidateQueries({ queryKey: ['packages'] }); },
   });
-  const editPkg = (p: Pkg) => { setNp({ name: p.name, priceFrom: p.priceFrom, description: p.description ?? '', includes: p.includes.join(', ') }); setEditingPkg(p.id); };
+  const editPkg = (p: Pkg) => { setNp({ name: p.name, priceFrom: p.priceFrom, description: p.description ?? '', includes: p.includes.join(', ') }); setNpI18n(p.i18n ?? {}); setEditingPkg(p.id); };
   const delPkg = useMutation({ mutationFn: (id: string) => apiClient.del(`/admin/packages/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['packages'] }) });
 
   // Helpers to bridge string[] state ↔ RowsEditor's row shape.
@@ -177,6 +179,10 @@ export default function B2b() {
               <input className={input} type="number" placeholder="Од (ден./мес.)" value={np.priceFrom || ''} onChange={(e) => setNp({ ...np, priceFrom: Number(e.target.value) })} />
               <input className={input} placeholder="Опис" value={np.description} onChange={(e) => setNp({ ...np, description: e.target.value })} />
               <input className={input} placeholder="Вклучува (запирки)" value={np.includes} onChange={(e) => setNp({ ...np, includes: e.target.value })} />
+            </div>
+            <div className="mt-3 border-t border-[var(--color-neutral-200)] pt-3">
+              <div className="mb-2 text-sm font-medium">Преводи на пакетот (EN / SQ)</div>
+              <I18nPanel value={npI18n} onChange={setNpI18n} fields={[{ key: 'name', label: 'Име' }, { key: 'description', label: 'Опис', type: 'textarea' }, { key: 'includes', label: 'Вклучува', type: 'list' }]} />
             </div>
             <div className="mt-3 flex gap-2">
               <Btn onClick={() => savePkg.mutate()} disabled={!np.name || savePkg.isPending}>{editingPkg ? 'Зачувај пакет' : 'Додај пакет'}</Btn>

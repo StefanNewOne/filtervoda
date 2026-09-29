@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { I18nPanel, type I18nData } from '../components/I18nPanel';
 import { MediaPicker } from '../components/MediaPicker';
 import { Btn, Card, Hint, PageHeader, Table } from '../components/ui';
 import { apiClient } from '../lib/api';
 
-interface Category { id: number; name: string; slug: string; description?: string; imageId?: string; sortOrder: number }
+interface Category { id: number; name: string; slug: string; description?: string; imageId?: string; sortOrder: number; i18n?: I18nData }
 
 const input = 'w-full rounded-md border border-[var(--color-neutral-200)] px-3 py-2 text-sm';
 const empty = { name: '', slug: '', description: '', imageId: '', sortOrder: 0 };
@@ -13,12 +14,13 @@ export default function Categories() {
   const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ['categories'], queryFn: () => apiClient.get<Category[]>('/admin/categories') });
   const [form, setForm] = useState<Omit<Category, 'id'>>(empty);
+  const [i18n, setI18n] = useState<I18nData>({});
   const [editing, setEditing] = useState<number | null>(null);
 
-  const reset = () => { setForm(empty); setEditing(null); };
+  const reset = () => { setForm(empty); setI18n({}); setEditing(null); };
   const save = useMutation({
     mutationFn: () => {
-      const body = { name: form.name, slug: form.slug, description: form.description || undefined, imageId: form.imageId || undefined, sortOrder: Number(form.sortOrder) || 0 };
+      const body = { name: form.name, slug: form.slug, description: form.description || undefined, imageId: form.imageId || undefined, sortOrder: Number(form.sortOrder) || 0, i18n: Object.keys(i18n).length ? i18n : undefined };
       return editing == null ? apiClient.post('/admin/categories', body) : apiClient.patch(`/admin/categories/${editing}`, body);
     },
     onSuccess: () => { reset(); qc.invalidateQueries({ queryKey: ['categories'] }); },
@@ -27,6 +29,7 @@ export default function Categories() {
 
   const startEdit = (c: Category) => {
     setForm({ name: c.name, slug: c.slug, description: c.description ?? '', imageId: c.imageId ?? '', sortOrder: c.sortOrder });
+    setI18n(c.i18n ?? {});
     setEditing(c.id);
     if (typeof window !== 'undefined') window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
@@ -58,6 +61,10 @@ export default function Categories() {
         <div className="text-sm">
           <span className="text-[var(--color-neutral-500)]">Слика</span>
           <MediaPicker value={form.imageId} onChange={(ids) => setForm({ ...form, imageId: ids[0] ?? '' })} />
+        </div>
+        <div className="border-t border-[var(--color-neutral-200)] pt-3">
+          <div className="mb-2 text-sm font-medium">Преводи (EN / SQ)</div>
+          <I18nPanel value={i18n} onChange={setI18n} fields={[{ key: 'name', label: 'Име' }, { key: 'description', label: 'Опис', type: 'textarea' }]} />
         </div>
         <div className="flex gap-2 pt-1">
           <Btn onClick={() => save.mutate()} disabled={!form.name || !form.slug || save.isPending}>{editing == null ? 'Додај' : 'Зачувај'}</Btn>
