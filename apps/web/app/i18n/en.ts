@@ -136,4 +136,58 @@ export const en: Partial<Dict> = {
   'common.warranty': 'Warranty',
   'common.freeInstall': 'Free installation',
   'common.loading': 'Loading…',
+  'nav.breadcrumb': 'Breadcrumb',
+  'cta.contactUs': 'Contact us',
+
+  // About page
+  'about.imageAlt': 'Water filtration system in a kitchen',
+  'about.defaultTitle': 'Clean drinking water = a healthy future.',
+  'about.defaultIntro':
+    'SPAR Company sells and installs water filtration systems across all of Macedonia. We work with households and businesses — from a single under-sink system to whole-building filtration.',
+  'about.whyTitle': 'Why SPAR',
+  'about.whyText1':
+    'Installation is free and done by our technicians. We replace the filters on-site, per the interval for each stage. Payment is in cash or in installments, with a ten-year warranty.',
+  'about.whyText2':
+    'Service is available across all of Macedonia — you are always covered, wherever you live or work.',
+  'about.stat1': 'years warranty on every system',
+  'about.stat2': 'products in the range',
+  'about.stat3': 'delivery and installation nationwide',
+
+  // Contact page
+  'contact.phone': 'PHONE',
+  'contact.viber': 'VIBER',
+  'contact.viberWrite': 'Message us',
+  'contact.hours': 'WORKING HOURS',
+  'contact.email': 'EMAIL',
+  'contact.writeToUs': 'Write to us',
+  'contact.defaultHours': 'Mon–Sat · 09:00–18:00',
+  'contact.defaultAddress': 'Skopje, Macedonia',
+
+  // Home sections
+  'home.b2b.eyebrow': 'FOR YOUR BUSINESS',
+  'home.b2b.title': 'Unlimited clean water for your team.',
+  'home.b2b.b1': 'Hot & cold water dispenser',
+  'home.b2b.b2': 'Free installation and service',
+  'home.b2b.b3': 'Regular filter replacement',
+  'home.b2b.b4': 'Fixed monthly fee — no investment',
+  'home.b2b.cta': 'Request a business quote',
+  'home.b2b.imageAlt': 'Hot & cold water dispenser for businesses',
+  'home.articles.title': 'Tips for clean water',
+  'home.articles.all': 'All tips',
+  'home.articles.tag': 'TIP',
+
+  // Trust bar
+  'trust.warranty10': '10-year warranty',
+  'trust.freeInstall': 'Free installation',
+  'trust.delivery': 'Delivery across Macedonia',
+  'trust.payment': 'Payment in cash or installments',
+  'trust.deliveryShort': 'Delivery in Macedonia',
+  'trust.paymentShort': 'Cash or installments',
+
+  // Product card
+  'card.sale': 'Sale',
+  'card.image': 'Image',
+  'card.askPrice': 'Ask for price',
+  'card.details': 'Details',
+  'card.offer': 'Quote',
 };

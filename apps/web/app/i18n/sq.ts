@@ -136,4 +136,58 @@ export const sq: Partial<Dict> = {
   'common.warranty': 'Garancia',
   'common.freeInstall': 'Instalim falas',
   'common.loading': 'Duke u ngarkuar…',
+  'nav.breadcrumb': 'Shtegu',
+  'cta.contactUs': 'Na kontaktoni',
+
+  // About page
+  'about.imageAlt': 'Sistem filtrimi uji në kuzhinë',
+  'about.defaultTitle': 'Ujë i pastër për pije = e ardhme e shëndetshme.',
+  'about.defaultIntro':
+    'SPAR Company shet dhe instalon sisteme filtrimi uji në të gjithë Maqedoninë. Punojmë me familje dhe biznese — nga një sistem nën lavaman deri te filtrimi për të gjithë objektin.',
+  'about.whyTitle': 'Pse SPAR',
+  'about.whyText1':
+    'Instalimi është falas dhe kryhet nga teknikët tanë. Filtrat i ndërrojmë ne, në terren, sipas intervalit për çdo fazë. Pagesa është me para në dorë ose me këste, me garanci dhjetëvjeçare.',
+  'about.whyText2':
+    'Shërbimi është i disponueshëm në të gjithë Maqedoninë — jeni gjithmonë të mbuluar, kudo që jetoni ose punoni.',
+  'about.stat1': 'vjet garanci për çdo sistem',
+  'about.stat2': 'produkte në ofertë',
+  'about.stat3': 'dërgesë dhe instalim në të gjithë vendin',
+
+  // Contact page
+  'contact.phone': 'TELEFONI',
+  'contact.viber': 'VIBER',
+  'contact.viberWrite': 'Na shkruani',
+  'contact.hours': 'ORARI I PUNËS',
+  'contact.email': 'EMAIL',
+  'contact.writeToUs': 'Na shkruani',
+  'contact.defaultHours': 'Hën–Sht · 09:00–18:00',
+  'contact.defaultAddress': 'Shkup, Maqedoni',
+
+  // Home sections
+  'home.b2b.eyebrow': 'PËR BIZNESIN TUAJ',
+  'home.b2b.title': 'Ujë i pastër i pakufizuar për ekipin tuaj.',
+  'home.b2b.b1': 'Aparat për ujë të ngrohtë dhe të ftohtë',
+  'home.b2b.b2': 'Instalim dhe servis falas',
+  'home.b2b.b3': 'Ndërrim i rregullt i filtrave',
+  'home.b2b.b4': 'Tarifë mujore fikse — pa investim',
+  'home.b2b.cta': 'Kërko ofertë për biznes',
+  'home.b2b.imageAlt': 'Dispenser uji i ngrohtë dhe i ftohtë për biznese',
+  'home.articles.title': 'Këshilla për ujë të pastër',
+  'home.articles.all': 'Të gjitha këshillat',
+  'home.articles.tag': 'KËSHILLË',
+
+  // Trust bar
+  'trust.warranty10': 'Garanci 10-vjeçare',
+  'trust.freeInstall': 'Instalim falas',
+  'trust.delivery': 'Dërgesë në të gjithë Maqedoninë',
+  'trust.payment': 'Pagesë me para në dorë ose me këste',
+  'trust.deliveryShort': 'Dërgesë në Maqedoni',
+  'trust.paymentShort': 'Para në dorë ose këste',
+
+  // Product card
+  'card.sale': 'Ofertë',
+  'card.image': 'Foto',
+  'card.askPrice': 'Kërko çmimin',
+  'card.details': 'Detajet',
+  'card.offer': 'Ofertë',
 };

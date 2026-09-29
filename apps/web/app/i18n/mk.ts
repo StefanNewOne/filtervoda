@@ -138,4 +138,58 @@ export const mk = {
   'common.warranty': 'Гаранција',
   'common.freeInstall': 'Бесплатна монтажа',
   'common.loading': 'Се вчитува…',
+  'nav.breadcrumb': 'Патека',
+  'cta.contactUs': 'Контактирајте нè',
+
+  // ── About page (defaults; admin content overrides — M2) ──
+  'about.imageAlt': 'Систем за филтрација во кујна',
+  'about.defaultTitle': 'Чиста вода за пиење = здрава иднина.',
+  'about.defaultIntro':
+    'SPAR Company продава и монтира системи за филтрација на вода низ цела Македонија. Работиме со домаќинства и со фирми — од еден систем под мијалник до филтрација за цел објект.',
+  'about.whyTitle': 'Зошто SPAR',
+  'about.whyText1':
+    'Монтажата е бесплатна и ја вршат наши техничари. Филтрите ги менуваме ние, на терен, според интервалот за секој степен. Плаќањето е во готово или на рати, а гаранцијата е десет години.',
+  'about.whyText2':
+    'Сервисот е достапен низ цела Македонија — секогаш сте покриени, без разлика каде живеете или работите.',
+  'about.stat1': 'години гаранција на секој систем',
+  'about.stat2': 'производи во понудата',
+  'about.stat3': 'достава и монтажа низ цела држава',
+
+  // ── Contact page ──
+  'contact.phone': 'ТЕЛЕФОН',
+  'contact.viber': 'ВИБЕР',
+  'contact.viberWrite': 'Пишете ни',
+  'contact.hours': 'РАБОТНО ВРЕМЕ',
+  'contact.email': 'EMAIL',
+  'contact.writeToUs': 'Напишете ни',
+  'contact.defaultHours': 'Пон–Саб · 09:00–18:00',
+  'contact.defaultAddress': 'Скопје, Македонија',
+
+  // ── Home sections (defaults; admin copy overrides — M2) ──
+  'home.b2b.eyebrow': 'ЗА ВАШАТА ФИРМА',
+  'home.b2b.title': 'Неограничена чиста вода за вашиот тим.',
+  'home.b2b.b1': 'Апарат за топла и ладна вода',
+  'home.b2b.b2': 'Бесплатна монтажа и сервис',
+  'home.b2b.b3': 'Редовна замена на филтри',
+  'home.b2b.b4': 'Фиксен месечен износ — без инвестиција',
+  'home.b2b.cta': 'Побарај понуда за фирма',
+  'home.b2b.imageAlt': 'Диспензер за топла и ладна вода за фирми',
+  'home.articles.title': 'Совети за чиста вода',
+  'home.articles.all': 'Сите совети',
+  'home.articles.tag': 'СОВЕТ',
+
+  // ── Trust bar ──
+  'trust.warranty10': '10 години гаранција',
+  'trust.freeInstall': 'Бесплатна монтажа',
+  'trust.delivery': 'Достава низ цела Македонија',
+  'trust.payment': 'Плаќање во готово или на рати',
+  'trust.deliveryShort': 'Достава низ Македонија',
+  'trust.paymentShort': 'Готово или на рати',
+
+  // ── Product card ──
+  'card.sale': 'Акција',
+  'card.image': 'Слика',
+  'card.askPrice': 'Побарај цена',
+  'card.details': 'Детали',
+  'card.offer': 'Понуда',
 } as const;

@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
 import { PageHeader, PageWrap, useSkin } from '../components/PageShell';
+import { LocaleLink, useT } from '../i18n/context';
 import { api } from '../lib/api.server';
 import type { Route } from './+types/about';
 
@@ -7,23 +7,7 @@ export function meta() {
   return [{ title: 'За нас — SPAR Company | filtervoda.mk' }];
 }
 
-// Defaults keep the page intact when the admin hasn't filled the „За нас" settings yet.
-const DEFAULT_STATS = [
-  { value: '10', label: 'години гаранција на секој систем' },
-  { value: '17', label: 'производи во понудата' },
-  { value: 'МК', label: 'достава и монтажа низ цела држава' },
-];
-const DEFAULTS = {
-  title: 'Чиста вода за пиење = здрава иднина.',
-  intro:
-    'SPAR Company продава и монтира системи за филтрација на вода низ цела Македонија. Работиме со домаќинства и со фирми — од еден систем под мијалник до филтрација за цел објект.',
-  image: '/img/products/cel-dom.png',
-  whyTitle: 'Зошто SPAR',
-  whyText1:
-    'Монтажата е бесплатна и ја вршат наши техничари. Филтрите ги менуваме ние, на терен, според интервалот за секој степен. Плаќањето е во готово или на рати, а гаранцијата е десет години.',
-  whyText2:
-    'Сервисот е достапен низ цела Македонија — секогаш сте покриени, без разлика каде живеете или работите.',
-};
+const DEFAULT_IMAGE = '/img/products/cel-dom.png';
 
 export async function loader() {
   const settings = await api.settings();
@@ -32,14 +16,23 @@ export async function loader() {
 
 export default function About({ loaderData }: Route.ComponentProps) {
   const s = useSkin();
+  const t = useT();
   const about = loaderData.settings.about ?? {};
-  const stats = about.stats && about.stats.length ? about.stats : DEFAULT_STATS;
+  // Defaults (translated) keep the page intact when the admin hasn't filled „За нас" (content = M2).
+  const stats =
+    about.stats && about.stats.length
+      ? about.stats
+      : [
+          { value: '10', label: t('about.stat1') },
+          { value: '17', label: t('about.stat2') },
+          { value: 'МК', label: t('about.stat3') },
+        ];
   return (
     <PageWrap>
       <PageHeader
-        crumbs={[{ label: 'Почетна', to: '/' }, { label: 'За нас' }]}
-        title={about.title || DEFAULTS.title}
-        intro={about.intro || DEFAULTS.intro}
+        crumbs={[{ label: t('nav.home'), to: '/' }, { label: t('nav.about') }]}
+        title={about.title || t('about.defaultTitle')}
+        intro={about.intro || t('about.defaultIntro')}
         s={s}
       />
 
@@ -54,20 +47,20 @@ export default function About({ loaderData }: Route.ComponentProps) {
 
       <div className="mt-[70px] grid items-center gap-[44px] md:grid-cols-2">
         <img
-          src={about.image || DEFAULTS.image}
-          alt="Систем за филтрација во кујна"
+          src={about.image || DEFAULT_IMAGE}
+          alt={t('about.imageAlt')}
           className={`w-full ${s.cardR} object-cover [aspect-ratio:4/3]`}
           loading="lazy"
         />
         <div>
           <h2 className={`${s.display} ${s.ink} text-[clamp(26px,2.8vw,36px)] font-medium ${s.headingUpper ? 'uppercase' : ''}`}>
-            {about.whyTitle || DEFAULTS.whyTitle}
+            {about.whyTitle || t('about.whyTitle')}
           </h2>
-          <p className={`mt-[18px] text-[17px] leading-[1.7] ${s.muted}`}>{about.whyText1 || DEFAULTS.whyText1}</p>
-          <p className={`mt-4 text-[17px] leading-[1.7] ${s.muted}`}>{about.whyText2 || DEFAULTS.whyText2}</p>
-          <Link to="/kontakt" className={`mt-[26px] inline-block min-h-[44px] ${s.cta}`}>
-            Контактирајте нè
-          </Link>
+          <p className={`mt-[18px] text-[17px] leading-[1.7] ${s.muted}`}>{about.whyText1 || t('about.whyText1')}</p>
+          <p className={`mt-4 text-[17px] leading-[1.7] ${s.muted}`}>{about.whyText2 || t('about.whyText2')}</p>
+          <LocaleLink to="/kontakt" className={`mt-[26px] inline-block min-h-[44px] ${s.cta}`}>
+            {t('cta.contactUs')}
+          </LocaleLink>
         </div>
       </div>
     </PageWrap>
