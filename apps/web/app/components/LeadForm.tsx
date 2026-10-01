@@ -114,9 +114,20 @@ export function LeadForm({
           {errors.company && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.company.message}</p>}
         </div>
       )}
+      {/* Email is optional but always shown — if given, the visitor gets an autoreply confirming
+          their request was received (handled server-side via email.autoreply). */}
+      <div>
+        <label htmlFor="lf-email" className="sr-only">{t('lead.ph.email')}</label>
+        <input id="lf-email" type="email" inputMode="email" autoComplete="email" className={inputCls}
+          placeholder={t('lead.ph.email')} aria-invalid={!!errors.email}
+          {...register('email', {
+            validate: (v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || t('lead.err.email'),
+          })} />
+        {errors.email && <p className="mt-1 text-sm text-[var(--color-danger-600)]">{errors.email.message}</p>}
+        <p className="mt-1 text-xs text-[var(--color-muted)]">{t('lead.emailHint')}</p>
+      </div>
       {!compact && (
         <>
-          <input className={inputCls} type="email" placeholder={t('lead.ph.email')} {...register('email')} />
           <input className={inputCls} placeholder={t('lead.ph.city')} {...register('city')} />
           <textarea className={inputCls} rows={3} placeholder={t('lead.ph.message')} {...register('message')} />
         </>
