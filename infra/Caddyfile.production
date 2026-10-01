@@ -20,7 +20,7 @@
 		Referrer-Policy "strict-origin-when-cross-origin"
 		# self + consent-gated GTM/GA4/Meta Pixel; framing/objects locked. 'unsafe-inline' scripts
 		# needed for RR7 hydration with the page cache (per-request nonces can't be cached).
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://connect.facebook.net https://graph.facebook.com; frame-src https://www.googletagmanager.com https://td.doubleclick.net; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://connect.facebook.net https://www.facebook.com https://graph.facebook.com; frame-src https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
 		-Server
 	}
 
