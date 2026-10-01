@@ -86,6 +86,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
               "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});",
           }}
         />
+        {/* Set the Turnstile site key BEFORE hydration so inline forms' widgets render on first
+            paint (an effect-set global runs after child effects → inline widgets would never mount). */}
+        {settings?.turnstileSiteKey ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.__turnstileSiteKey=${JSON.stringify(settings.turnstileSiteKey)};`,
+            }}
+          />
+        ) : null}
         {overrides ? <style dangerouslySetInnerHTML={{ __html: overrides }} /> : null}
       </head>
       <body className="min-h-screen">
